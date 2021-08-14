@@ -9,7 +9,7 @@
 std::string regs_32[8] = {"EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI"};
 std::string regs_8[8] = {"AL", "CL", "DL", "BL", "AH", "CH", "DH", "BH"};
 
-short enc[] = {0x01, 0x0c, 0x5a, 0x80, 0x00, 0x00, 0x00};
+short enc[] = {0x00, 0x05, 0x80, 0x00, 0x00, 0x00};
 
 void convert_binary(short *encodings)
 {
@@ -22,11 +22,19 @@ int get_bits(int pos, int noOfBits, int number)
     return (((1 << noOfBits) - 1) & (number >> (pos - 1)));
 }
 
-int assemble_bits(int bytes)
+int assemble_bits(int bytes, bool SIB)
 {
     int x, offset;
 
-    offset = 2 + bytes;
+    if (SIB)
+    {
+        offset = 2 + bytes;
+    }
+    else
+    {
+        offset = 1 + bytes;
+    }
+
     std::stringstream stream, comb_no;
     for (int i = 0; i < bytes; i++)
     {
@@ -43,30 +51,85 @@ int assemble_bits(int bytes)
     return x;
 }
 
-void decode_displacement(int w, int d, int mod, int reg, int index, int scale)
+void decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int scale)
 {
     int disp_bytes[] = {4, 1, 4};
     int bytes = disp_bytes[mod];
 
-    int disp = assemble_bits(bytes);
+    int disp = assemble_bits(bytes, true);
 
     if (w == 0 and d == 0)
     {
-        std::cout << "add %"<< regs_8[reg]<<","<< disp << "(,%" << regs_32[index] << "," << scale << ")" << "\n";
+        if (index == 4)
+        {
+            std::cout << "add %" << regs_8[reg] << "," << disp << "\n";
+        }
+        else
+        {
+            std::cout << "add %" << regs_8[reg] << "," << disp << "(,%" << regs_32[index] << "," << scale << ")"
+                      << "\n";
+        }
     }
     else if (w == 0 and d == 1)
     {
-        std::cout << "add " << disp << "(,%" << regs_32[index] << "," << scale << "),%" << regs_8[reg] << "\n";
+        if (index == 4)
+        {
+            std::cout << "add " << disp << ",%" << regs_8[reg] << "\n";
+        }
+        else
+        {
+            std::cout << "add " << disp << "(,%" << regs_32[index] << "," << scale << "),%" << regs_8[reg] << "\n";
+        }
     }
     else if (w == 1 and d == 0)
     {
-        std::cout << "add %"<< regs_32[reg]<<","<< disp << "(,%" << regs_32[index] << "," << scale << ")" << "\n";
+        if (index == 4)
+        {
+            std::cout << "add %" << regs_32[reg] << "," << disp << "\n";
+        }
+        else
+        {
+            std::cout << "add %" << regs_32[reg] << "," << disp << "(,%" << regs_32[index] << "," << scale << ")"
+                      << "\n";
+        }
     }
     else
     {
-        std::cout << "add " << disp << "(,%" << regs_32[index] << "," << scale << "),%" << regs_32[reg] << "\n";
+        if (index == 4)
+        {
+            std::cout << "add " << disp << ",%" << regs_32[reg] << "\n";
+        }
+        else
+        {
+            std::cout << "add " << disp << "(,%" << regs_32[index] << "," << scale << "),%" << regs_32[reg] << "\n";
+        }
     }
 }
+
+void decode_displacement_without_SIB(int w, int d, int mod, int reg)
+{
+    int disp_bytes[] = {4, 1, 4};
+    int bytes = disp_bytes[mod];
+
+    int disp = assemble_bits(bytes, false);
+
+    if (w == 0 and d == 0)
+    {
+        std::cout << "add %" << regs_8[reg] << "," << disp << "\n";
+    }
+    else if (w == 0 and d == 1)
+    {
+        std::cout << "add " << disp << ",%" << regs_8[reg] << "\n";
+    }
+    else if (w == 1 and d == 0)
+    {
+        std::cout << "add %" << regs_32[reg] << "," << disp << "\n";
+    }
+    else
+    {
+        std::cout << "add " << disp << ",%" << regs_32[reg] << "\n";
+    }
+};
 
 void decode_SIB(int w, int d, int mod, int reg)
 {
@@ -82,7 +145,7 @@ void decode_SIB(int w, int d, int mod, int reg)
 
     if (base == 5)
     {
-        decode_displacement(w, d, mod, reg, index, scale);
+        decode_displacement_with_SIB(w, d, mod, reg, index, scale);
     }
     else
     {
@@ -94,7 +157,8 @@ void decode_SIB(int w, int d, int mod, int reg)
         {
             if (w == 0 and d == 0)
             {
-                std::cout << "add %"<< regs_8[reg] << ",(%" << regs_32[base] << ",%" << regs_32[index] << "," << scale << ")" << "\n";
+                std::cout << "add %" << regs_8[reg] << ",(%" << regs_32[base] << ",%" << regs_32[index] << "," << scale << ")"
+                          << "\n";
             }
             else if (w == 0 and d == 1)
             {
@@ -102,7 +166,8 @@ void decode_SIB(int w, int d, int mod, int reg)
             }
             else if (w == 1 and d == 0)
             {
-                std::cout << "add %"<< regs_32[reg] << ",(%" << regs_32[base] << ",%" << regs_32[index] << "," << scale << ")" << "\n";
+                std::cout << "add %" << regs_32[reg] << ",(%" << regs_32[base] << ",%" << regs_32[index] << "," << scale << ")"
+                          << "\n";
             }
             else
             {
@@ -120,6 +185,7 @@ void decode_mod_00(int w, int d, int reg, int rm)
     }
     else if (rm == 5)
     {
+        decode_displacement_without_SIB(w, d, 0, reg);
     }
     else
     {

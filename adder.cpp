@@ -9,7 +9,7 @@
 std::string regs_32[8] = {"EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI"};
 std::string regs_8[8] = {"AL", "CL", "DL", "BL", "AH", "CH", "DH", "BH"};
 
-short enc[] = {0x00, 0x05, 0x80, 0x00, 0x00, 0x00};
+short enc[] = {0x03, 0x44, 0xcd, 0x80, 0x00, 0x00, 0x00};
 
 void convert_binary(short *encodings)
 {
@@ -51,83 +51,225 @@ int assemble_bits(int bytes, bool SIB)
     return x;
 }
 
-void decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int scale)
+void decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int scale, int base)
 {
     int disp_bytes[] = {4, 1, 4};
     int bytes = disp_bytes[mod];
 
     int disp = assemble_bits(bytes, true);
 
-    if (w == 0 and d == 0)
+    if (mod == 0)
     {
-        if (index == 4)
+        if (base == 5)
         {
-            std::cout << "add %" << regs_8[reg] << "," << disp << "\n";
+            if (w == 0 and d == 0)
+            {
+                if (index == 4)
+                {
+                    std::cout << "add %" << regs_8[reg] << "," << disp << "\n";
+                }
+                else
+                {
+                    std::cout << "add %" << regs_8[reg] << "," << disp << "(,%" << regs_32[index] << "," << scale << ")"
+                              << "\n";
+                }
+            }
+            else if (w == 0 and d == 1)
+            {
+                if (index == 4)
+                {
+                    std::cout << "add " << disp << ",%" << regs_8[reg] << "\n";
+                }
+                else
+                {
+                    std::cout << "add " << disp << "(,%" << regs_32[index] << "," << scale << "),%" << regs_8[reg] << "\n";
+                }
+            }
+            else if (w == 1 and d == 0)
+            {
+                if (index == 4)
+                {
+                    std::cout << "add %" << regs_32[reg] << "," << disp << "\n";
+                }
+                else
+                {
+                    std::cout << "add %" << regs_32[reg] << "," << disp << "(,%" << regs_32[index] << "," << scale << ")"
+                              << "\n";
+                }
+            }
+            else
+            {
+                if (index == 4)
+                {
+                    std::cout << "add " << disp << ",%" << regs_32[reg] << "\n";
+                }
+                else
+                {
+                    std::cout << "add " << disp << "(,%" << regs_32[index] << "," << scale << "),%" << regs_32[reg] << "\n";
+                }
+            }
         }
         else
         {
-            std::cout << "add %" << regs_8[reg] << "," << disp << "(,%" << regs_32[index] << "," << scale << ")"
-                      << "\n";
+            if (w == 0 and d == 0)
+            {
+                if (index == 4)
+                {
+                    std::cout << "add %" << regs_8[reg] << ","
+                              << "(%" << regs_32[base] << ")"
+                              << "\n";
+                }
+                else
+                {
+                    std::cout << "add %" << regs_8[reg] << ","
+                              << "(%" << regs_32[base] << ",%" << regs_32[index] << "," << scale << ")"
+                              << "\n";
+                }
+            }
+            else if (w == 0 and d == 1)
+            {
+                if (index == 4)
+                {
+                    std::cout << "add "
+                              << "(%" << regs_32[base] << "),%" << regs_8[reg] << "\n";
+                }
+                else
+                {
+                    std::cout << "add "
+                              << "(%" << regs_32[base] << ",%" << regs_32[index] << "," << scale << "),%" << regs_8[reg] << "\n";
+                }
+            }
+            else if (w == 1 and d == 0)
+            {
+                if (index == 4)
+                {
+                    std::cout << "add %" << regs_32[reg] << ","
+                              << "(%" << regs_32[base] << ")"
+                              << "\n";
+                }
+                else
+                {
+                    std::cout << "add %" << regs_32[reg] << ","
+                              << "(%" << regs_32[base] << ",%" << regs_32[index] << "," << scale << ")"
+                              << "\n";
+                }
+            }
+            else
+            {
+                if (index == 4)
+                {
+                    std::cout << "add "
+                              << "(%" << regs_32[base] << ")"
+                              << ",%" << regs_32[reg] << "\n";
+                }
+                else
+                {
+                    std::cout << "add "
+                              << "(%" << regs_32[base] << ",%" << regs_32[index] << "," << scale << "),%" << regs_32[reg] << "\n";
+                }
+            }
         }
-    }
-    else if (w == 0 and d == 1)
-    {
-        if (index == 4)
-        {
-            std::cout << "add " << disp << ",%" << regs_8[reg] << "\n";
-        }
-        else
-        {
-            std::cout << "add " << disp << "(,%" << regs_32[index] << "," << scale << "),%" << regs_8[reg] << "\n";
-        }
-    }
-    else if (w == 1 and d == 0)
-    {
-        if (index == 4)
-        {
-            std::cout << "add %" << regs_32[reg] << "," << disp << "\n";
-        }
-        else
-        {
-            std::cout << "add %" << regs_32[reg] << "," << disp << "(,%" << regs_32[index] << "," << scale << ")"
-                      << "\n";
-        }
+        //printf("mod equals 0");
     }
     else
     {
-        if (index == 4)
+        //printf("mod not equals 0");
+        if (w == 0 and d == 0)
         {
-            std::cout << "add " << disp << ",%" << regs_32[reg] << "\n";
+            if (index == 4)
+            {
+                std::cout << "add %" << regs_8[reg] << "," << disp << "(%" << regs_32[base] << ")"
+                          << "\n";
+            }
+            else
+            {
+                std::cout << "add %" << regs_8[reg] << "," << disp << "(%" << regs_32[base] << ",%" << regs_32[index] << "," << scale << ")"
+                          << "\n";
+            }
+        }
+        else if (w == 0 and d == 1)
+        {
+            if (index == 4)
+            {
+                std::cout << "add " << disp << "(%" << regs_32[base] << "),%" << regs_8[reg] << "\n";
+            }
+            else
+            {
+                std::cout << "add " << disp << "(%" << regs_32[base] << ",%" << regs_32[index] << "," << scale << "),%" << regs_8[reg] << "\n";
+            }
+        }
+        else if (w == 1 and d == 0)
+        {
+            if (index == 4)
+            {
+                std::cout << "add %" << regs_32[reg] << "," << disp << "(%" << regs_32[base] << ")"
+                          << "\n";
+            }
+            else
+            {
+                std::cout << "add %" << regs_32[reg] << "," << disp << "(%" << regs_32[base] << ",%" << regs_32[index] << "," << scale << ")"
+                          << "\n";
+            }
         }
         else
         {
-            std::cout << "add " << disp << "(,%" << regs_32[index] << "," << scale << "),%" << regs_32[reg] << "\n";
+            if (index == 4)
+            {
+                std::cout << "add " << disp << "(%" << regs_32[base] << ")"
+                          << ",%" << regs_32[reg] << "\n";
+            }
+            else
+            {
+                std::cout << "add " << disp << "(%" << regs_32[base] << ",%" << regs_32[index] << "," << scale << "),%" << regs_32[reg] << "\n";
+            }
         }
     }
 }
 
-void decode_displacement_without_SIB(int w, int d, int mod, int reg)
+void decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm)
 {
     int disp_bytes[] = {4, 1, 4};
     int bytes = disp_bytes[mod];
 
     int disp = assemble_bits(bytes, false);
 
-    if (w == 0 and d == 0)
+    if (mod == 0)
     {
-        std::cout << "add %" << regs_8[reg] << "," << disp << "\n";
-    }
-    else if (w == 0 and d == 1)
-    {
-        std::cout << "add " << disp << ",%" << regs_8[reg] << "\n";
-    }
-    else if (w == 1 and d == 0)
-    {
-        std::cout << "add %" << regs_32[reg] << "," << disp << "\n";
+        if (w == 0 and d == 0)
+        {
+            std::cout << "add %" << regs_8[reg] << "," << disp << "\n";
+        }
+        else if (w == 0 and d == 1)
+        {
+            std::cout << "add " << disp << ",%" << regs_8[reg] << "\n";
+        }
+        else if (w == 1 and d == 0)
+        {
+            std::cout << "add %" << regs_32[reg] << "," << disp << "\n";
+        }
+        else
+        {
+            std::cout << "add " << disp << ",%" << regs_32[reg] << "\n";
+        }
     }
     else
     {
-        std::cout << "add " << disp << ",%" << regs_32[reg] << "\n";
+        if (w == 0 and d == 0)
+        {
+            std::cout << "add %" << regs_8[reg] << "," << disp << "(%" << regs_32[rm] << ") \n";
+        }
+        else if (w == 0 and d == 1)
+        {
+            std::cout << "add " << disp << "(%" << regs_32[rm] << "),%" << regs_8[reg] << "\n"; 
+        }
+        else if (w == 1 and d == 0)
+        {
+            std::cout << "add %" << regs_32[reg] << "," << disp << "(%" << regs_32[rm] << ") \n";
+        }
+        else
+        {
+            std::cout << "add " << disp << "(%" << regs_32[rm] << "),%" << regs_32[reg] << "\n";
+        }
     }
 };
 
@@ -143,9 +285,12 @@ void decode_SIB(int w, int d, int mod, int reg)
 
     scale = pow(2, scale);
 
+    decode_displacement_with_SIB(w, d, mod, reg, index, scale, base);
+
+    /*
     if (base == 5)
     {
-        decode_displacement_with_SIB(w, d, mod, reg, index, scale);
+        
     }
     else
     {
@@ -174,7 +319,7 @@ void decode_SIB(int w, int d, int mod, int reg)
                 std::cout << "add (%" << regs_32[base] << ",%" << regs_32[index] << "," << scale << "),%" << regs_32[reg] << "\n";
             }
         }
-    }
+    }*/
 }
 
 void decode_mod_00(int w, int d, int reg, int rm)
@@ -185,7 +330,7 @@ void decode_mod_00(int w, int d, int reg, int rm)
     }
     else if (rm == 5)
     {
-        decode_displacement_without_SIB(w, d, 0, reg);
+        decode_displacement_without_SIB(w, d, 0, reg, 5);
     }
     else
     {
@@ -210,33 +355,25 @@ void decode_mod_00(int w, int d, int reg, int rm)
 
 void decode_mod_01(int w, int d, int reg, int rm)
 {
-    if (w == 0 and d == 0)
+    if (rm == 4)
     {
-    }
-    else if (w == 0 and d == 1)
-    {
-    }
-    else if (w == 1 and d == 0)
-    {
+        decode_SIB(w, d, 1, reg);
     }
     else
     {
+        decode_displacement_without_SIB(w,d,1,reg,rm);
     }
 }
 
 void decode_mod_10(int w, int d, int reg, int rm)
 {
-    if (w == 0 and d == 0)
+    if (rm == 4)
     {
-    }
-    else if (w == 0 and d == 1)
-    {
-    }
-    else if (w == 1 and d == 0)
-    {
+        decode_SIB(w, d, 2, reg);
     }
     else
     {
+        decode_displacement_without_SIB(w,d,2,reg,rm);
     }
 }
 
@@ -283,11 +420,11 @@ int main()
     }
     else if (mod == 1)
     {
-        decode_mod_00(w, d, reg, rm);
+        decode_mod_01(w, d, reg, rm);
     }
     else if (mod == 2)
     {
-        decode_mod_00(w, d, reg, rm);
+        decode_mod_10(w, d, reg, rm);
     }
     else
     {

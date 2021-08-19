@@ -5,6 +5,9 @@
 #include <cmath>
 #include <sstream>
 #include <iomanip>
+#include <queue>
+
+#include "adder.h"
 
 std::string regs_32[8] = {"EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI"};
 std::string regs_8[8] = {"AL", "CL", "DL", "BL", "AH", "CH", "DH", "BH"};
@@ -22,23 +25,15 @@ int get_bits(int pos, int noOfBits, int number)
     return (((1 << noOfBits) - 1) & (number >> (pos - 1)));
 }
 
-int assemble_bits(int bytes, bool SIB)
+int assemble_bits(int bytes, bool SIB, queue<short>& instruction)
 {
     int x, offset;
-
-    if (SIB)
-    {
-        offset = 2 + bytes;
-    }
-    else
-    {
-        offset = 1 + bytes;
-    }
 
     std::stringstream stream, comb_no;
     for (int i = 0; i < bytes; i++)
     {
-        stream << std::setw(2) << std::setfill('0') << std::hex << enc[offset - i];
+        stream << std::setw(2) << std::setfill('0') << std::hex << instruction.front();
+        instruction.pop();
     }
 
     std::string result(stream.str());
@@ -51,12 +46,12 @@ int assemble_bits(int bytes, bool SIB)
     return x;
 }
 
-void decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int scale, int base)
+void decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int scale, int base, queue<short>& instruction)
 {
     int disp_bytes[] = {4, 1, 4};
     int bytes = disp_bytes[mod];
 
-    int disp = assemble_bits(bytes, true);
+    int disp = assemble_bits(bytes, true, instruction);
 
     if (mod == 0)
     {
@@ -226,12 +221,12 @@ void decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int
     }
 }
 
-void decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm)
+void decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm, queue<short>& instruction)
 {
     int disp_bytes[] = {4, 1, 4};
     int bytes = disp_bytes[mod];
 
-    int disp = assemble_bits(bytes, false);
+    int disp = assemble_bits(bytes, false, instruction);
 
     if (mod == 0)
     {
@@ -260,7 +255,7 @@ void decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm)
         }
         else if (w == 0 and d == 1)
         {
-            std::cout << "add " << disp << "(%" << regs_32[rm] << "),%" << regs_8[reg] << "\n"; 
+            std::cout << "add " << disp << "(%" << regs_32[rm] << "),%" << regs_8[reg] << "\n";
         }
         else if (w == 1 and d == 0)
         {
@@ -273,11 +268,13 @@ void decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm)
     }
 };
 
-void decode_SIB(int w, int d, int mod, int reg)
+void decode_SIB(int w, int d, int mod, int reg, queue<short>& instruction)
 {
-    int scale = get_bits(7, 2, enc[2]);
-    int index = get_bits(4, 3, enc[2]);
-    int base = get_bits(1, 3, enc[2]);
+    int scale = get_bits(7, 2, instruction.front());
+    int index = get_bits(4, 3, instruction.front());
+    int base = get_bits(1, 3, instruction.front());
+
+    instruction.pop();
 
     printf("scale:%d \n", scale);
     printf("index:%d \n", index);
@@ -285,7 +282,7 @@ void decode_SIB(int w, int d, int mod, int reg)
 
     scale = pow(2, scale);
 
-    decode_displacement_with_SIB(w, d, mod, reg, index, scale, base);
+    decode_displacement_with_SIB(w, d, mod, reg, index, scale, base, instruction);
 
     /*
     if (base == 5)
@@ -322,15 +319,15 @@ void decode_SIB(int w, int d, int mod, int reg)
     }*/
 }
 
-void decode_mod_00(int w, int d, int reg, int rm)
+void decode_mod_00(int w, int d, int reg, int rm, queue<short>& instruction)
 {
     if (rm == 4)
     {
-        decode_SIB(w, d, 0, reg);
+        decode_SIB(w, d, 0, reg, instruction);
     }
     else if (rm == 5)
     {
-        decode_displacement_without_SIB(w, d, 0, reg, 5);
+        decode_displacement_without_SIB(w, d, 0, reg, 5, instruction);
     }
     else
     {
@@ -353,31 +350,31 @@ void decode_mod_00(int w, int d, int reg, int rm)
     }
 }
 
-void decode_mod_01(int w, int d, int reg, int rm)
+void decode_mod_01(int w, int d, int reg, int rm, queue<short>& instruction)
 {
     if (rm == 4)
     {
-        decode_SIB(w, d, 1, reg);
+        decode_SIB(w, d, 1, reg, instruction);
     }
     else
     {
-        decode_displacement_without_SIB(w,d,1,reg,rm);
+        decode_displacement_without_SIB(w, d, 1, reg, rm, instruction);
     }
 }
 
-void decode_mod_10(int w, int d, int reg, int rm)
+void decode_mod_10(int w, int d, int reg, int rm, queue<short>& instruction)
 {
     if (rm == 4)
     {
-        decode_SIB(w, d, 2, reg);
+        decode_SIB(w, d, 2, reg, instruction);
     }
     else
     {
-        decode_displacement_without_SIB(w,d,2,reg,rm);
+        decode_displacement_without_SIB(w, d, 2, reg, rm, instruction);
     }
 }
 
-void decode_mod_11(int w, int d, int reg, int rm)
+void decode_mod_11(int w, int d, int reg, int rm, queue<short>& instruction)
 {
     if (w == 0 and d == 0)
     {
@@ -397,9 +394,11 @@ void decode_mod_11(int w, int d, int reg, int rm)
     }
 }
 
+/*
 int main()
 {
     //printf ("Typical Hello World!");
+    std::cout << enc[1] << " " << enc[0] << "\n";
 
     bool d = get_bits(2, 1, enc[0]);
     bool w = get_bits(1, 1, enc[0]);
@@ -435,4 +434,45 @@ int main()
 
     //printf("%d \n", get_bits(8,enc[1]));
     return 0;
+}
+*/
+
+std::string Adder::decode_add(queue<short>& instruction)
+{
+    
+    bool d = get_bits(2, 1, instruction.front());
+    bool w = get_bits(1, 1, instruction.front());
+
+    instruction.pop();
+
+    int mod = instruction.front() >> 6;
+    int reg = get_bits(4, 3, instruction.front());
+    int rm = get_bits(1, 3, instruction.front());
+
+    instruction.pop();
+
+    printf("d:%d \n", d);
+    printf("w:%d \n", w);
+    printf("mod:%d \n", mod);
+    printf("reg:%d \n", reg);
+    printf("rm:%d \n", rm);
+
+    if (mod == 0)
+    {
+        decode_mod_00(w, d, reg, rm, instruction);
+    }
+    else if (mod == 1)
+    {
+        decode_mod_01(w, d, reg, rm, instruction);
+    }
+    else if (mod == 2)
+    {
+        decode_mod_10(w, d, reg, rm, instruction);
+    }
+    else
+    {
+        decode_mod_11(w, d, reg, rm, instruction);
+    }
+
+    return "Adder instantiated and done";
 }

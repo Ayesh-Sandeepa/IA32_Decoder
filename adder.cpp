@@ -41,8 +41,8 @@ int assemble_bits(int bytes, bool SIB, queue<short>& instruction)
     comb_no << std::hex << result;
     comb_no >> x;
 
-    std::cout << result << "\n";
-    std::cout << x << "\n";
+    //std::cout << result << "\n";
+    //std::cout << x << "\n";
     return x;
 }
 
@@ -276,9 +276,9 @@ void decode_SIB(int w, int d, int mod, int reg, queue<short>& instruction)
 
     instruction.pop();
 
-    printf("scale:%d \n", scale);
-    printf("index:%d \n", index);
-    printf("base:%d \n", base);
+    //printf("scale:%d \n", scale);
+    //printf("index:%d \n", index);
+    //printf("base:%d \n", base);
 
     scale = pow(2, scale);
 
@@ -451,11 +451,11 @@ std::string Adder::decode_add(queue<short>& instruction)
 
     instruction.pop();
 
-    printf("d:%d \n", d);
-    printf("w:%d \n", w);
-    printf("mod:%d \n", mod);
-    printf("reg:%d \n", reg);
-    printf("rm:%d \n", rm);
+    //printf("d:%d \n", d);
+    //printf("w:%d \n", w);
+    //printf("mod:%d \n", mod);
+    //printf("reg:%d \n", reg);
+    //printf("rm:%d \n", rm);
 
     if (mod == 0)
     {

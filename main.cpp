@@ -35,11 +35,15 @@ int main()
     }
     */
 
-    nextOpcode = encoded_instructions.front();
-
-    if (nextOpcode == 0 or nextOpcode == 1 or nextOpcode == 2 or nextOpcode == 3)
+    while (!encoded_instructions.empty())
     {
-        adder.decode_add(encoded_instructions);
+
+        nextOpcode = encoded_instructions.front();
+
+        if (nextOpcode == 0 or nextOpcode == 1 or nextOpcode == 2 or nextOpcode == 3)
+        {
+            adder.decode_add(encoded_instructions);
+        }
     }
 
     myfile.close();

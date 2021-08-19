@@ -25,15 +25,20 @@ int get_bits(int pos, int noOfBits, int number)
     return (((1 << noOfBits) - 1) & (number >> (pos - 1)));
 }
 
-int assemble_bits(int bytes, bool SIB, queue<short>& instruction)
+int assemble_bits(int bytes, bool SIB, queue<short> &instruction)
 {
     int x, offset;
+    short displacement[4];
 
     std::stringstream stream, comb_no;
+
+    for (int count=0;count<bytes;count++){
+        displacement[count]=instruction.front();
+        instruction.pop();
+    }
     for (int i = 0; i < bytes; i++)
     {
-        stream << std::setw(2) << std::setfill('0') << std::hex << instruction.front();
-        instruction.pop();
+        stream << std::setw(2) << std::setfill('0') << std::hex << displacement[3-i];
     }
 
     std::string result(stream.str());
@@ -46,17 +51,25 @@ int assemble_bits(int bytes, bool SIB, queue<short>& instruction)
     return x;
 }
 
-void decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int scale, int base, queue<short>& instruction)
+void decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int scale, int base, queue<short> &instruction)
 {
     int disp_bytes[] = {4, 1, 4};
     int bytes = disp_bytes[mod];
 
-    int disp = assemble_bits(bytes, true, instruction);
+    int disp;
+
+    if (mod == 0 and base != 5)
+    {
+    }
+    else
+    {
+        disp = assemble_bits(bytes, true, instruction);
+    }
 
     if (mod == 0)
     {
         if (base == 5)
-        {
+        { 
             if (w == 0 and d == 0)
             {
                 if (index == 4)
@@ -221,7 +234,7 @@ void decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int
     }
 }
 
-void decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm, queue<short>& instruction)
+void decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm, queue<short> &instruction)
 {
     int disp_bytes[] = {4, 1, 4};
     int bytes = disp_bytes[mod];
@@ -268,7 +281,7 @@ void decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm, que
     }
 };
 
-void decode_SIB(int w, int d, int mod, int reg, queue<short>& instruction)
+void decode_SIB(int w, int d, int mod, int reg, queue<short> &instruction)
 {
     int scale = get_bits(7, 2, instruction.front());
     int index = get_bits(4, 3, instruction.front());
@@ -283,43 +296,9 @@ void decode_SIB(int w, int d, int mod, int reg, queue<short>& instruction)
     scale = pow(2, scale);
 
     decode_displacement_with_SIB(w, d, mod, reg, index, scale, base, instruction);
-
-    /*
-    if (base == 5)
-    {
-        
-    }
-    else
-    {
-        if (index == 4)
-        {
-            //not needed according to IA32
-        }
-        else
-        {
-            if (w == 0 and d == 0)
-            {
-                std::cout << "add %" << regs_8[reg] << ",(%" << regs_32[base] << ",%" << regs_32[index] << "," << scale << ")"
-                          << "\n";
-            }
-            else if (w == 0 and d == 1)
-            {
-                std::cout << "add (%" << regs_32[base] << ",%" << regs_32[index] << "," << scale << "),%" << regs_8[reg] << "\n";
-            }
-            else if (w == 1 and d == 0)
-            {
-                std::cout << "add %" << regs_32[reg] << ",(%" << regs_32[base] << ",%" << regs_32[index] << "," << scale << ")"
-                          << "\n";
-            }
-            else
-            {
-                std::cout << "add (%" << regs_32[base] << ",%" << regs_32[index] << "," << scale << "),%" << regs_32[reg] << "\n";
-            }
-        }
-    }*/
 }
 
-void decode_mod_00(int w, int d, int reg, int rm, queue<short>& instruction)
+void decode_mod_00(int w, int d, int reg, int rm, queue<short> &instruction)
 {
     if (rm == 4)
     {
@@ -350,7 +329,7 @@ void decode_mod_00(int w, int d, int reg, int rm, queue<short>& instruction)
     }
 }
 
-void decode_mod_01(int w, int d, int reg, int rm, queue<short>& instruction)
+void decode_mod_01(int w, int d, int reg, int rm, queue<short> &instruction)
 {
     if (rm == 4)
     {
@@ -362,7 +341,7 @@ void decode_mod_01(int w, int d, int reg, int rm, queue<short>& instruction)
     }
 }
 
-void decode_mod_10(int w, int d, int reg, int rm, queue<short>& instruction)
+void decode_mod_10(int w, int d, int reg, int rm, queue<short> &instruction)
 {
     if (rm == 4)
     {
@@ -374,7 +353,7 @@ void decode_mod_10(int w, int d, int reg, int rm, queue<short>& instruction)
     }
 }
 
-void decode_mod_11(int w, int d, int reg, int rm, queue<short>& instruction)
+void decode_mod_11(int w, int d, int reg, int rm, queue<short> &instruction)
 {
     if (w == 0 and d == 0)
     {
@@ -437,9 +416,9 @@ int main()
 }
 */
 
-std::string Adder::decode_add(queue<short>& instruction)
+std::string Adder::decode_add(queue<short> &instruction)
 {
-    
+
     bool d = get_bits(2, 1, instruction.front());
     bool w = get_bits(1, 1, instruction.front());
 

@@ -8,6 +8,8 @@
 
 using namespace std;
 
+void listQueue(queue<short> myQueue);
+
 int main()
 {
     ifstream myfile;
@@ -28,17 +30,15 @@ int main()
         encoded_instructions.push(num);
     }
 
-    /*function to print the whole queue
-    while (!encoded_instructions.empty()){
-        cout << ' ' << encoded_instructions.front();
-        encoded_instructions.pop();
-    }
-    */
+    
 
     while (!encoded_instructions.empty())
     {
 
         nextOpcode = encoded_instructions.front();
+        //cout << "Next opcode : " << nextOpcode << "\n";
+
+        //listQueue(encoded_instructions);
 
         if (nextOpcode == 0 or nextOpcode == 1 or nextOpcode == 2 or nextOpcode == 3)
         {
@@ -48,4 +48,13 @@ int main()
 
     myfile.close();
     return 0;
+}
+
+void listQueue(queue<short> myQueue){
+    //function to print the whole queue
+    while (!myQueue.empty()){
+        cout << ' ' << std::setw(2) << std::setfill('0') << hex << myQueue.front();
+        myQueue.pop();
+    }
+    cout << "\n";
 }

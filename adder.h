@@ -13,5 +13,5 @@ class Adder{
     private:
 
     public:
-        string decode_add(queue<short>& instruction);
+        string decode_add(queue<short>& instruction, map<string, int> &registers);
 };

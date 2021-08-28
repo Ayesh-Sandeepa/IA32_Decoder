@@ -6,18 +6,21 @@
 #include <sstream>
 #include <iomanip>
 #include <queue>
+#include <map>
 
 #include "adder.h"
 
-std::string regs_32[8] = {"EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI"};
-std::string regs_8[8] = {"AL", "CL", "DL", "BL", "AH", "CH", "DH", "BH"};
+using namespace std;
+
+string regs_32[8] = {"EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI"};
+string regs_8[8] = {"AL", "CL", "DL", "BL", "AH", "CH", "DH", "BH"};
 
 short enc[] = {0x03, 0x44, 0xcd, 0x80, 0x00, 0x00, 0x00};
 
 void convert_binary(short *encodings)
 {
-    std::string num1 = std::bitset<8>(encodings[1]).to_string();
-    std::cout << num1 << "\n";
+    string num1 = bitset<8>(encodings[1]).to_string();
+    cout << num1 << "\n";
 }
 
 int get_bits(int pos, int noOfBits, int number)
@@ -30,28 +33,29 @@ int assemble_bits(int bytes, bool SIB, queue<short> &instruction)
     int x, offset;
     short displacement[4];
 
-    std::stringstream stream, comb_no;
+    stringstream stream, comb_no;
 
-    for (int count=0;count<bytes;count++){
-        displacement[count]=instruction.front();
+    for (int count = 0; count < bytes; count++)
+    {
+        displacement[count] = instruction.front();
         instruction.pop();
     }
     for (int i = 0; i < bytes; i++)
     {
-        stream << std::setw(2) << std::setfill('0') << std::hex << displacement[3-i];
+        stream << setw(2) << setfill('0') << hex << displacement[3 - i];
     }
 
-    std::string result(stream.str());
+    string result(stream.str());
 
-    comb_no << std::hex << result;
+    comb_no << hex << result;
     comb_no >> x;
 
-    //std::cout << result << "\n";
-    //std::cout << x << "\n";
+    //cout << result << "\n";
+    //cout << x << "\n";
     return x;
 }
 
-void decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int scale, int base, queue<short> &instruction)
+string decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int scale, int base, queue<short> &instruction, map<string, int> &registers)
 {
     int disp_bytes[] = {4, 1, 4};
     int bytes = disp_bytes[mod];
@@ -69,51 +73,49 @@ void decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int
     if (mod == 0)
     {
         if (base == 5)
-        { 
+        {
             if (w == 0 and d == 0)
             {
                 if (index == 4)
                 {
-                    std::cout << "add %" << regs_8[reg] << "," << disp << "\n";
+                    return "%" + regs_8[reg] + "," + to_string(disp) + "\n";
                 }
                 else
                 {
-                    std::cout << "add %" << regs_8[reg] << "," << disp << "(,%" << regs_32[index] << "," << scale << ")"
-                              << "\n";
+                    return "%" + regs_8[reg] + "," + to_string(disp) + "(,%" + regs_32[index] + "," + to_string(scale) + ")" + "\n";
                 }
             }
             else if (w == 0 and d == 1)
             {
                 if (index == 4)
                 {
-                    std::cout << "add " << disp << ",%" << regs_8[reg] << "\n";
+                    return to_string(disp) + ",%" + regs_8[reg] + "\n";
                 }
                 else
                 {
-                    std::cout << "add " << disp << "(,%" << regs_32[index] << "," << scale << "),%" << regs_8[reg] << "\n";
+                    return to_string(disp) + "(,%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_8[reg] + "\n";
                 }
             }
             else if (w == 1 and d == 0)
             {
                 if (index == 4)
                 {
-                    std::cout << "add %" << regs_32[reg] << "," << disp << "\n";
+                    return "%" + regs_32[reg] + "," + to_string(disp) + "\n";
                 }
                 else
                 {
-                    std::cout << "add %" << regs_32[reg] << "," << disp << "(,%" << regs_32[index] << "," << scale << ")"
-                              << "\n";
+                    return "%" + regs_32[reg] + "," + to_string(disp) + "(,%" + regs_32[index] + "," + to_string(scale) + ")" + "\n";
                 }
             }
             else
             {
                 if (index == 4)
                 {
-                    std::cout << "add " << disp << ",%" << regs_32[reg] << "\n";
+                    return to_string(disp) + ",%" + regs_32[reg] + "\n";
                 }
                 else
                 {
-                    std::cout << "add " << disp << "(,%" << regs_32[index] << "," << scale << "),%" << regs_32[reg] << "\n";
+                    return to_string(disp) + "(,%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg] + "\n";
                 }
             }
         }
@@ -123,57 +125,44 @@ void decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int
             {
                 if (index == 4)
                 {
-                    std::cout << "add %" << regs_8[reg] << ","
-                              << "(%" << regs_32[base] << ")"
-                              << "\n";
+                    return "%" + regs_8[reg] + "," + "(%" + regs_32[base] + ")" + "\n";
                 }
                 else
                 {
-                    std::cout << "add %" << regs_8[reg] << ","
-                              << "(%" << regs_32[base] << ",%" << regs_32[index] << "," << scale << ")"
-                              << "\n";
+                    return "%" + regs_8[reg] + "," + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")" + "\n";
                 }
             }
             else if (w == 0 and d == 1)
             {
                 if (index == 4)
                 {
-                    std::cout << "add "
-                              << "(%" << regs_32[base] << "),%" << regs_8[reg] << "\n";
+                    return "(%" + regs_32[base] + "),%" + regs_8[reg] + "\n";
                 }
                 else
                 {
-                    std::cout << "add "
-                              << "(%" << regs_32[base] << ",%" << regs_32[index] << "," << scale << "),%" << regs_8[reg] << "\n";
+                    return "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_8[reg] + "\n";
                 }
             }
             else if (w == 1 and d == 0)
             {
                 if (index == 4)
                 {
-                    std::cout << "add %" << regs_32[reg] << ","
-                              << "(%" << regs_32[base] << ")"
-                              << "\n";
+                    return "%" + regs_32[reg] + "," + "(%" + regs_32[base] + ")" + "\n";
                 }
                 else
                 {
-                    std::cout << "add %" << regs_32[reg] << ","
-                              << "(%" << regs_32[base] << ",%" << regs_32[index] << "," << scale << ")"
-                              << "\n";
+                    return "%" + regs_32[reg] + "," + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")" + "\n";
                 }
             }
             else
             {
                 if (index == 4)
                 {
-                    std::cout << "add "
-                              << "(%" << regs_32[base] << ")"
-                              << ",%" << regs_32[reg] << "\n";
+                    return "(%" + regs_32[base] + ")" + ",%" + regs_32[reg] + "\n";
                 }
                 else
                 {
-                    std::cout << "add "
-                              << "(%" << regs_32[base] << ",%" << regs_32[index] << "," << scale << "),%" << regs_32[reg] << "\n";
+                    return "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg] + "\n";
                 }
             }
         }
@@ -186,55 +175,50 @@ void decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int
         {
             if (index == 4)
             {
-                std::cout << "add %" << regs_8[reg] << "," << disp << "(%" << regs_32[base] << ")"
-                          << "\n";
+                return "%" + regs_8[reg] + "," + to_string(disp) + "(%" + regs_32[base] + ")" + "\n";
             }
             else
             {
-                std::cout << "add %" << regs_8[reg] << "," << disp << "(%" << regs_32[base] << ",%" << regs_32[index] << "," << scale << ")"
-                          << "\n";
+                return "%" + regs_8[reg] + "," + to_string(disp) + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")" + "\n";
             }
         }
         else if (w == 0 and d == 1)
         {
             if (index == 4)
             {
-                std::cout << "add " << disp << "(%" << regs_32[base] << "),%" << regs_8[reg] << "\n";
+                return to_string(disp) + "(%" + regs_32[base] + "),%" + regs_8[reg] + "\n";
             }
             else
             {
-                std::cout << "add " << disp << "(%" << regs_32[base] << ",%" << regs_32[index] << "," << scale << "),%" << regs_8[reg] << "\n";
+                return to_string(disp) + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_8[reg] + "\n";
             }
         }
         else if (w == 1 and d == 0)
         {
             if (index == 4)
             {
-                std::cout << "add %" << regs_32[reg] << "," << disp << "(%" << regs_32[base] << ")"
-                          << "\n";
+                return "%" + regs_32[reg] + "," + to_string(disp) + "(%" + regs_32[base] + ")" + "\n";
             }
             else
             {
-                std::cout << "add %" << regs_32[reg] << "," << disp << "(%" << regs_32[base] << ",%" << regs_32[index] << "," << scale << ")"
-                          << "\n";
+                return "%" + regs_32[reg] + "," + to_string(disp) + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")" + "\n";
             }
         }
         else
         {
             if (index == 4)
             {
-                std::cout << "add " << disp << "(%" << regs_32[base] << ")"
-                          << ",%" << regs_32[reg] << "\n";
+                return to_string(disp) + "(%" + regs_32[base] + ")" + ",%" + regs_32[reg] + "\n";
             }
             else
             {
-                std::cout << "add " << disp << "(%" << regs_32[base] << ",%" << regs_32[index] << "," << scale << "),%" << regs_32[reg] << "\n";
+                return to_string(disp) + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg] + "\n";
             }
         }
     }
 }
 
-void decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm, queue<short> &instruction)
+string decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm, queue<short> &instruction, map<string, int> &registers)
 {
     int disp_bytes[] = {4, 1, 4};
     int bytes = disp_bytes[mod];
@@ -245,44 +229,46 @@ void decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm, que
     {
         if (w == 0 and d == 0)
         {
-            std::cout << "add %" << regs_8[reg] << "," << disp << "\n";
+            return "%" + regs_8[reg] + "," + to_string(disp) + "\n";
         }
         else if (w == 0 and d == 1)
         {
-            std::cout << "add " << disp << ",%" << regs_8[reg] << "\n";
+            return to_string(disp) + ",%" + regs_8[reg] + "\n";
         }
         else if (w == 1 and d == 0)
         {
-            std::cout << "add %" << regs_32[reg] << "," << disp << "\n";
+            return "%" + regs_32[reg] + "," + to_string(disp) + "\n";
         }
         else
         {
-            std::cout << "add " << disp << ",%" << regs_32[reg] << "\n";
+            return to_string(disp) + ",%" + regs_32[reg] + "\n";
         }
     }
     else
     {
         if (w == 0 and d == 0)
         {
-            std::cout << "add %" << regs_8[reg] << "," << disp << "(%" << regs_32[rm] << ") \n";
+            return "%" + regs_8[reg] + "," + to_string(disp) + "(%" + regs_32[rm] + ") \n";
         }
         else if (w == 0 and d == 1)
         {
-            std::cout << "add " << disp << "(%" << regs_32[rm] << "),%" << regs_8[reg] << "\n";
+            return to_string(disp) + "(%" + regs_32[rm] + "),%" + regs_8[reg] + "\n";
         }
         else if (w == 1 and d == 0)
         {
-            std::cout << "add %" << regs_32[reg] << "," << disp << "(%" << regs_32[rm] << ") \n";
+            return "%" + regs_32[reg] + "," + to_string(disp) + "(%" + regs_32[rm] + ") \n";
         }
         else
         {
-            std::cout << "add " << disp << "(%" << regs_32[rm] << "),%" << regs_32[reg] << "\n";
+            return to_string(disp) + "(%" + regs_32[rm] + "),%" + regs_32[reg] + "\n";
         }
     }
 };
 
-void decode_SIB(int w, int d, int mod, int reg, queue<short> &instruction)
+string decode_SIB(int w, int d, int mod, int reg, queue<short> &instruction, map<string, int> &registers)
 {
+    string stringSib;
+
     int scale = get_bits(7, 2, instruction.front());
     int index = get_bits(4, 3, instruction.front());
     int base = get_bits(1, 3, instruction.front());
@@ -295,81 +281,171 @@ void decode_SIB(int w, int d, int mod, int reg, queue<short> &instruction)
 
     scale = pow(2, scale);
 
-    decode_displacement_with_SIB(w, d, mod, reg, index, scale, base, instruction);
+    stringSib = decode_displacement_with_SIB(w, d, mod, reg, index, scale, base, instruction, registers);
+    return stringSib;
 }
 
-void decode_mod_00(int w, int d, int reg, int rm, queue<short> &instruction)
+string decode_mod_00(int w, int d, int reg, int rm, queue<short> &instruction, map<string, int> &registers)
 {
+    string string00;
     if (rm == 4)
     {
-        decode_SIB(w, d, 0, reg, instruction);
+        string00 = decode_SIB(w, d, 0, reg, instruction, registers);
     }
     else if (rm == 5)
     {
-        decode_displacement_without_SIB(w, d, 0, reg, 5, instruction);
+        string00 = decode_displacement_without_SIB(w, d, 0, reg, 5, instruction, registers);
     }
     else
     {
         if (w == 0 and d == 0)
         {
-            std::cout << "add %" << regs_8[reg] << ",(%" << regs_32[rm] << ")\n";
+            string00 = "%" + regs_8[reg] + ",(%" + regs_32[rm] + ")\n";
         }
         else if (w == 0 and d == 1)
         {
-            std::cout << "add (%" << regs_32[rm] << "),%" << regs_8[reg] << "\n";
+            string00 = "(%" + regs_32[rm] + "),%" + regs_8[reg] + "\n";
         }
         else if (w == 1 and d == 0)
         {
-            std::cout << "add %" << regs_32[reg] << ",(%" << regs_32[rm] << ")\n";
+            string00 = "%" + regs_32[reg] + ",(%" + regs_32[rm] + ")\n";
         }
         else
         {
-            std::cout << "add (%" << regs_32[rm] << "),%" << regs_32[reg] << "\n";
+            string00 = "(%" + regs_32[rm] + "),%" + regs_32[reg] + "\n";
         }
     }
+
+    return string00;
 }
 
-void decode_mod_01(int w, int d, int reg, int rm, queue<short> &instruction)
+string decode_mod_01(int w, int d, int reg, int rm, queue<short> &instruction, map<string, int> &registers)
 {
+    string string11;
     if (rm == 4)
     {
-        decode_SIB(w, d, 1, reg, instruction);
+        string11 = decode_SIB(w, d, 1, reg, instruction, registers);
     }
     else
     {
-        decode_displacement_without_SIB(w, d, 1, reg, rm, instruction);
+        string11 = decode_displacement_without_SIB(w, d, 1, reg, rm, instruction, registers);
     }
+    return string11;
 }
 
-void decode_mod_10(int w, int d, int reg, int rm, queue<short> &instruction)
+string decode_mod_10(int w, int d, int reg, int rm, queue<short> &instruction, map<string, int> &registers)
 {
+    string string10;
     if (rm == 4)
     {
-        decode_SIB(w, d, 2, reg, instruction);
+        string10 = decode_SIB(w, d, 2, reg, instruction, registers);
     }
     else
     {
-        decode_displacement_without_SIB(w, d, 2, reg, rm, instruction);
+        string10 = decode_displacement_without_SIB(w, d, 2, reg, rm, instruction, registers);
     }
+    return string10;
 }
 
-void decode_mod_11(int w, int d, int reg, int rm, queue<short> &instruction)
+string decode_mod_11(int w, int d, int reg, int rm, queue<short> &instruction, map<string, int> &registers)
 {
     if (w == 0 and d == 0)
     {
-        std::cout << "add %" << regs_8[reg] << ",%" << regs_8[rm] << "\n";
+        printf("w:0 and d:0 \n");
+
+        int8_t num1 = get_bits(1, 8, registers[regs_32[reg]]);
+        int8_t num2 = get_bits(1, 8, registers[regs_32[rm]]);
+        int8_t num3 = num1 + num2;
+        registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffffff00) | (num3 & 0x000000ff);
+
+        cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
+
+        if (num1 > 0 and num2 > 0 and num3 < 0)
+        {
+            registers["EFLAGS"] = registers["EFLAGS"] | 0x801;
+        }
+        else if (num1 < 0 and num2 < 0 and num3 > 0)
+        {
+            registers["EFLAGS"] = registers["EFLAGS"] | 0x801;
+        }
+        else
+        {
+            registers["EFLAGS"] = registers["EFLAGS"] & 0x7fe;
+        }
+        return "%" + regs_8[reg] + ",%" + regs_8[rm] + "\n";
     }
     else if (w == 0 and d == 1)
     {
-        std::cout << "add %" << regs_8[rm] << ",%" << regs_8[reg] << "\n";
+        printf("w:0 and d:1 \n");
+        int8_t num1 = get_bits(1, 8, registers[regs_32[reg]]);
+        int8_t num2 = get_bits(1, 8, registers[regs_32[rm]]);
+
+        int8_t num3 = num1 + num2;
+        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
+
+        cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
+
+        if (num1 > 0 and num2 > 0 and num3 < 0)
+        {
+            registers["EFLAGS"] = registers["EFLAGS"] | 0x801;
+        }
+        else if (num1 < 0 and num2 < 0 and num3 > 0)
+        {
+            registers["EFLAGS"] = registers["EFLAGS"] | 0x801;
+        }
+        else
+        {
+            registers["EFLAGS"] = registers["EFLAGS"] & 0x7fe;
+        }
+        return "%" + regs_8[rm] + ",%" + regs_8[reg] + "\n";
     }
     else if (w == 1 and d == 0)
     {
-        std::cout << "add %" << regs_32[reg] << ",%" << regs_32[rm] << "\n";
+        printf("w:1 and d:0 \n");
+        int num1 = registers[regs_32[reg]];
+        int num2 = registers[regs_32[rm]];
+        int num3 = num1 + num2;
+        registers[regs_32[rm]] = num3;
+
+        cout << "num1: " << num1 << ", num2: " << num2 << ", num3: " << num3 << "\n";
+
+        if (num1 > 0 and num2 > 0 and num3 < 0)
+        {
+            registers["EFLAGS"] = registers["EFLAGS"] | 0x801;
+        }
+        else if (num1 < 0 and num2 < 0 and num3 > 0)
+        {
+            registers["EFLAGS"] = registers["EFLAGS"] | 0x801;
+        }
+        else
+        {
+            registers["EFLAGS"] = registers["EFLAGS"] & 0x7fe;
+        }
+        return "%" + regs_32[reg] + ",%" + regs_32[rm] + "\n";
     }
     else
     {
-        std::cout << "add %" << regs_32[rm] << ",%" << regs_32[reg] << "\n";
+        printf("w:1 and d:1 \n");
+        int num1 = registers[regs_32[reg]];
+        int num2 = registers[regs_32[rm]];
+        int num3 = num1 + num2;
+        registers[regs_32[reg]] = num3;
+
+        cout << "num1: " << dec << num1 << ", num2: " << dec << num2 << ", num3: " << dec << num3 << "\n";
+
+        if (num1 > 0 and num2 > 0 and num3 < 0)
+        {
+            registers["EFLAGS"] = registers["EFLAGS"] | 0x801;
+        }
+        else if (num1 < 0 and num2 < 0 and num3 > 0)
+        {
+            registers["EFLAGS"] = registers["EFLAGS"] | 0x801;
+        }
+        else
+        {
+            registers["EFLAGS"] = registers["EFLAGS"] & 0x7fe;
+        }
+        return "%" + regs_32[rm] + ",%" + regs_32[reg] + "\n";
     }
 }
 
@@ -377,7 +453,7 @@ void decode_mod_11(int w, int d, int reg, int rm, queue<short> &instruction)
 int main()
 {
     //printf ("Typical Hello World!");
-    std::cout << enc[1] << " " << enc[0] << "\n";
+    cout << enc[1] << " " << enc[0] << "\n";
 
     bool d = get_bits(2, 1, enc[0]);
     bool w = get_bits(1, 1, enc[0]);
@@ -416,7 +492,7 @@ int main()
 }
 */
 
-std::string Adder::decode_add(queue<short> &instruction)
+string Adder::decode_add(queue<short> &instruction, map<string, int> &registers)
 {
 
     bool d = get_bits(2, 1, instruction.front());
@@ -436,22 +512,30 @@ std::string Adder::decode_add(queue<short> &instruction)
     //printf("reg:%d \n", reg);
     //printf("rm:%d \n", rm);
 
+    string decoded_bytes;
+
     if (mod == 0)
     {
-        decode_mod_00(w, d, reg, rm, instruction);
+        decoded_bytes = decode_mod_00(w, d, reg, rm, instruction, registers);
     }
     else if (mod == 1)
     {
-        decode_mod_01(w, d, reg, rm, instruction);
+        decoded_bytes = decode_mod_01(w, d, reg, rm, instruction, registers);
     }
     else if (mod == 2)
     {
-        decode_mod_10(w, d, reg, rm, instruction);
+        decoded_bytes = decode_mod_10(w, d, reg, rm, instruction, registers);
     }
     else
     {
-        decode_mod_11(w, d, reg, rm, instruction);
+        decoded_bytes = decode_mod_11(w, d, reg, rm, instruction, registers);
     }
+
+    cout << "add " << decoded_bytes;
+
+    cout << "EAX: " << hex << registers["EAX"] << "\n";
+    cout << "ECX: " << hex << registers["ECX"] << "\n";
+    cout << "EFLAGS: " << hex << registers["EFLAGS"] << "\n";
 
     return "Adder instantiated and done";
 }

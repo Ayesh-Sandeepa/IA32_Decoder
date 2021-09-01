@@ -13,7 +13,7 @@ using namespace std;
 void listQueue(queue<short> myQueue);
 
 // parity flag should be used .......................................................//
-//mod11 d=0, int to int8_t
+// does carry and overflow are same
 
 int main()
 {

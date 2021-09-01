@@ -356,22 +356,33 @@ string decode_mod_11(int w, int d, int reg, int rm, queue<short> &instruction, m
         int8_t num1 = get_bits(1, 8, registers[regs_32[reg]]);
         int8_t num2 = get_bits(1, 8, registers[regs_32[rm]]);
         int8_t num3 = num1 + num2;
+        uint8_t num4 = unsigned(num1)+unsigned(num2);
         registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffffff00) | (num3 & 0x000000ff);
 
         cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
 
+
+        //set or unset overflow flag
         if (num1 > 0 and num2 > 0 and num3 < 0)
         {
-            registers["EFLAGS"] = registers["EFLAGS"] | 0x801;
+            registers["EFLAGS"] = registers["EFLAGS"] | 0x800;
         }
         else if (num1 < 0 and num2 < 0 and num3 > 0)
         {
-            registers["EFLAGS"] = registers["EFLAGS"] | 0x801;
+            registers["EFLAGS"] = registers["EFLAGS"] | 0x800;
         }
         else
         {
-            registers["EFLAGS"] = registers["EFLAGS"] & 0x7fe;
+            registers["EFLAGS"] = registers["EFLAGS"] & 0xfffff7ff;
         }
+
+        //set or unset carry flag
+        if(num4<unsigned(num1)){
+            registers["EFLAGS"] = registers["EFLAGS"] | 0x1;
+        }else{
+            registers["EFLAGS"] = registers["EFLAGS"] & 0xfffffffe;
+        }
+
         return "%" + regs_8[reg] + ",%" + regs_8[rm] + "\n";
     }
     else if (w == 0 and d == 1)
@@ -379,23 +390,31 @@ string decode_mod_11(int w, int d, int reg, int rm, queue<short> &instruction, m
         printf("w:0 and d:1 \n");
         int8_t num1 = get_bits(1, 8, registers[regs_32[reg]]);
         int8_t num2 = get_bits(1, 8, registers[regs_32[rm]]);
-
         int8_t num3 = num1 + num2;
+        uint8_t num4 = unsigned(num1)+unsigned(num2);
         registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
 
         cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
 
+        //set or unset overflow flag
         if (num1 > 0 and num2 > 0 and num3 < 0)
         {
-            registers["EFLAGS"] = registers["EFLAGS"] | 0x801;
+            registers["EFLAGS"] = registers["EFLAGS"] | 0x800;
         }
         else if (num1 < 0 and num2 < 0 and num3 > 0)
         {
-            registers["EFLAGS"] = registers["EFLAGS"] | 0x801;
+            registers["EFLAGS"] = registers["EFLAGS"] | 0x800;
         }
         else
         {
-            registers["EFLAGS"] = registers["EFLAGS"] & 0x7fe;
+            registers["EFLAGS"] = registers["EFLAGS"] & 0xfffff7ff;
+        }
+
+        //set or unset carry flag
+        if(num4<unsigned(num1)){
+            registers["EFLAGS"] = registers["EFLAGS"] | 0x1;
+        }else{
+            registers["EFLAGS"] = registers["EFLAGS"] & 0xfffffffe;
         }
         return "%" + regs_8[rm] + ",%" + regs_8[reg] + "\n";
     }
@@ -405,21 +424,30 @@ string decode_mod_11(int w, int d, int reg, int rm, queue<short> &instruction, m
         int num1 = registers[regs_32[reg]];
         int num2 = registers[regs_32[rm]];
         int num3 = num1 + num2;
+        unsigned int num4 = unsigned(num1)+unsigned(num2);
         registers[regs_32[rm]] = num3;
 
-        cout << "num1: " << num1 << ", num2: " << num2 << ", num3: " << num3 << "\n";
+        cout << "num1: " << num1 << ", num2: " << num2 << ", num3: " << num3 << ", num4: " << num4 <<"\n";
 
+        //set or unset overflow flag
         if (num1 > 0 and num2 > 0 and num3 < 0)
         {
-            registers["EFLAGS"] = registers["EFLAGS"] | 0x801;
+            registers["EFLAGS"] = registers["EFLAGS"] | 0x800;
         }
         else if (num1 < 0 and num2 < 0 and num3 > 0)
         {
-            registers["EFLAGS"] = registers["EFLAGS"] | 0x801;
+            registers["EFLAGS"] = registers["EFLAGS"] | 0x800;
         }
         else
         {
-            registers["EFLAGS"] = registers["EFLAGS"] & 0x7fe;
+            registers["EFLAGS"] = registers["EFLAGS"] & 0xfffff7ff;
+        }
+
+        //set or unset carry flag
+        if(num4<unsigned(num1)){
+            registers["EFLAGS"] = registers["EFLAGS"] | 0x1;
+        }else{
+            registers["EFLAGS"] = registers["EFLAGS"] & 0xfffffffe;
         }
         return "%" + regs_32[reg] + ",%" + regs_32[rm] + "\n";
     }
@@ -429,21 +457,30 @@ string decode_mod_11(int w, int d, int reg, int rm, queue<short> &instruction, m
         int num1 = registers[regs_32[reg]];
         int num2 = registers[regs_32[rm]];
         int num3 = num1 + num2;
+        unsigned int num4 = unsigned(num1)+unsigned(num2);
         registers[regs_32[reg]] = num3;
 
         cout << "num1: " << dec << num1 << ", num2: " << dec << num2 << ", num3: " << dec << num3 << "\n";
 
+        //set or unset overflow flag
         if (num1 > 0 and num2 > 0 and num3 < 0)
         {
-            registers["EFLAGS"] = registers["EFLAGS"] | 0x801;
+            registers["EFLAGS"] = registers["EFLAGS"] | 0x800;
         }
         else if (num1 < 0 and num2 < 0 and num3 > 0)
         {
-            registers["EFLAGS"] = registers["EFLAGS"] | 0x801;
+            registers["EFLAGS"] = registers["EFLAGS"] | 0x800;
         }
         else
         {
-            registers["EFLAGS"] = registers["EFLAGS"] & 0x7fe;
+            registers["EFLAGS"] = registers["EFLAGS"] & 0xfffff7ff;
+        }
+
+        //set or unset carry flag
+        if(num4<unsigned(num1)){
+            registers["EFLAGS"] = registers["EFLAGS"] | 0x1;
+        }else{
+            registers["EFLAGS"] = registers["EFLAGS"] & 0xfffffffe;
         }
         return "%" + regs_32[rm] + ",%" + regs_32[reg] + "\n";
     }

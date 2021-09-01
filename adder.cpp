@@ -383,6 +383,9 @@ string decode_mod_11(int w, int d, int reg, int rm, queue<short> &instruction, m
             registers["EFLAGS"] = registers["EFLAGS"] & 0xfffffffe;
         }
 
+        setUnsetSign(num3, registers);
+        setUnsetZero(num3, registers);        
+
         return "%" + regs_8[reg] + ",%" + regs_8[rm] + "\n";
     }
     else if (w == 0 and d == 1)
@@ -416,6 +419,10 @@ string decode_mod_11(int w, int d, int reg, int rm, queue<short> &instruction, m
         }else{
             registers["EFLAGS"] = registers["EFLAGS"] & 0xfffffffe;
         }
+
+        setUnsetSign(num3, registers);
+        setUnsetZero(num3, registers);
+
         return "%" + regs_8[rm] + ",%" + regs_8[reg] + "\n";
     }
     else if (w == 1 and d == 0)
@@ -449,6 +456,10 @@ string decode_mod_11(int w, int d, int reg, int rm, queue<short> &instruction, m
         }else{
             registers["EFLAGS"] = registers["EFLAGS"] & 0xfffffffe;
         }
+
+        setUnsetSign(num3, registers);
+        setUnsetZero(num3, registers);
+
         return "%" + regs_32[reg] + ",%" + regs_32[rm] + "\n";
     }
     else
@@ -482,8 +493,32 @@ string decode_mod_11(int w, int d, int reg, int rm, queue<short> &instruction, m
         }else{
             registers["EFLAGS"] = registers["EFLAGS"] & 0xfffffffe;
         }
+
+        setUnsetSign(num3, registers);
+        setUnsetZero(num3, registers);
+
+
+
         return "%" + regs_32[rm] + ",%" + regs_32[reg] + "\n";
     }
+}
+
+void setUnsetZero(int number, map<string, int> &registers){
+    //set or unset the sign flag
+        if(number=0){
+            registers["EFLAGS"]=registers["EFLAGS"] | 0x40;
+        }else{
+            registers["EFLAGS"] = registers["EFLAGS"] & 0xffffffbf;
+        }
+}
+
+void setUnsetSign(int number, map<string, int> &registers){
+    //set or unset the sign flag
+        if(number<0){
+            registers["EFLAGS"] = registers["EFLAGS"] | 0x80;
+        }else{
+            registers["EFLAGS"] = registers["EFLAGS"] & 0xffffff7f;
+        }
 }
 
 /*
@@ -526,6 +561,12 @@ int main()
 
     //printf("%d \n", get_bits(8,enc[1]));
     return 0;
+}
+*/
+
+
+/*Adder::Adder(map<string, int> &registers):registerssss(registers){
+    cout<<"done";
 }
 */
 
@@ -576,3 +617,5 @@ string Adder::decode_add(queue<short> &instruction, map<string, int> &registers)
 
     return "Adder instantiated and done";
 }
+
+

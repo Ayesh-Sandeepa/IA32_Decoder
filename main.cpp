@@ -5,6 +5,7 @@
 #include <sstream>
 #include <iomanip>
 #include <map>
+#include <list>
 
 #include "adder.h"
 
@@ -12,11 +13,12 @@ using namespace std;
 
 void listQueue(queue<short> myQueue);
 
-// parity flag should be used .......................................................//
-// does carry and overflow are same
-
 int main()
 {
+    list<string> memoryAccesses;
+    map<string, int> memories32bit;
+    map<string, int8_t> memories8bit;
+
     map<string, int> registers;
     registers["EAX"] = 0xbf8db144;
     registers["ECX"] = 0x88c5cffb;
@@ -34,6 +36,23 @@ int main()
     registers["ES"] = 0x7b;
     registers["FS"] = 0x0;
     registers["GS"] = 0x33;
+
+    memories32bit[to_string(registers["EAX"])]=0;
+    memories32bit[to_string(registers["ECX"])]=0;
+    memories32bit[to_string(registers["EDX"])]=0;
+    memories32bit[to_string(registers["EBX"])]=0;
+    memories32bit[to_string(registers["EBP"])]=0;
+    memories32bit[to_string(registers["ESI"])]=0;
+    memories32bit[to_string(registers["EDI"])]=0;
+
+    memories8bit[to_string(registers["EAX"])]=0;
+    memories8bit[to_string(registers["ECX"])]=0;
+    memories8bit[to_string(registers["EDX"])]=0;
+    memories8bit[to_string(registers["EBX"])]=0;
+    memories8bit[to_string(registers["EBP"])]=0;
+    memories8bit[to_string(registers["ESI"])]=0;
+    memories8bit[to_string(registers["EDI"])]=0;
+
 
     ifstream myfile;
     myfile.open("test.txt");
@@ -63,7 +82,7 @@ int main()
 
         if (nextOpcode == 0x0 or nextOpcode == 0x1 or nextOpcode == 0x2 or nextOpcode == 0x3 or nextOpcode == 0x4 or nextOpcode == 0x5 or nextOpcode == 0x80 or nextOpcode == 0x81 or nextOpcode == 0x82 or nextOpcode == 0x83)
         {
-            adder.decode_add(encoded_instructions, registers);
+            adder.decode_add(encoded_instructions, registers, memories32bit, memories8bit, memoryAccesses);
         }
     }
 

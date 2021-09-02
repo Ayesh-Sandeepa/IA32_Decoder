@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <queue>
 #include <map>
+#include <list>
 
 #include "adder.h"
 
@@ -55,7 +56,93 @@ int assemble_bits(int bytes, bool SIB, queue<short> &instruction)
     return x;
 }
 
-string decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int scale, int base, queue<short> &instruction, map<string, int> &registers)
+void setZero(int number, map<string, int> &registers)
+{
+    //set or unset the sign flag
+    if (number = 0)
+    {
+        registers["EFLAGS"] = registers["EFLAGS"] | 0x40;
+    }
+    else
+    {
+        registers["EFLAGS"] = registers["EFLAGS"] & 0xffffffbf;
+    }
+}
+
+void setSign(int number, map<string, int> &registers)
+{
+    //set or unset the sign flag
+    if (number < 0)
+    {
+        registers["EFLAGS"] = registers["EFLAGS"] | 0x80;
+    }
+    else
+    {
+        registers["EFLAGS"] = registers["EFLAGS"] & 0xffffff7f;
+    }
+}
+
+void setCarry8bit(int8_t num1, uint8_t num4, map<string, int> &registers)
+{
+    //set or unset carry flag
+    if (num4 < unsigned(num1))
+    {
+        registers["EFLAGS"] = registers["EFLAGS"] | 0x1;
+    }
+    else
+    {
+        registers["EFLAGS"] = registers["EFLAGS"] & 0xfffffffe;
+    }
+}
+
+void setCarry32bit(int num1, unsigned int num4, map<string, int> &registers)
+{
+    //set or unset carry flag
+    if (num4 < unsigned(num1))
+    {
+        registers["EFLAGS"] = registers["EFLAGS"] | 0x1;
+    }
+    else
+    {
+        registers["EFLAGS"] = registers["EFLAGS"] & 0xfffffffe;
+    }
+}
+
+void setOverflow8bit(int8_t num1, int8_t num2, int8_t num3, map<string, int> &registers)
+{
+    //set or unset overflow flag
+    if (num1 > 0 and num2 > 0 and num3 < 0)
+    {
+        registers["EFLAGS"] = registers["EFLAGS"] | 0x800;
+    }
+    else if (num1 < 0 and num2 < 0 and num3 > 0)
+    {
+        registers["EFLAGS"] = registers["EFLAGS"] | 0x800;
+    }
+    else
+    {
+        registers["EFLAGS"] = registers["EFLAGS"] & 0xfffff7ff;
+    }
+}
+
+void setOverflow32bit(int num1, int num2, int num3, map<string, int> &registers)
+{
+    //set or unset overflow flag
+    if (num1 > 0 and num2 > 0 and num3 < 0)
+    {
+        registers["EFLAGS"] = registers["EFLAGS"] | 0x800;
+    }
+    else if (num1 < 0 and num2 < 0 and num3 > 0)
+    {
+        registers["EFLAGS"] = registers["EFLAGS"] | 0x800;
+    }
+    else
+    {
+        registers["EFLAGS"] = registers["EFLAGS"] & 0xfffff7ff;
+    }
+}
+
+string decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int scale, int base, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int8_t> memories8bit,list<string> &memoryAccesses)
 {
     int disp_bytes[] = {4, 1, 4};
     int bytes = disp_bytes[mod];
@@ -218,7 +305,7 @@ string decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, i
     }
 }
 
-string decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm, queue<short> &instruction, map<string, int> &registers)
+string decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int8_t> memories8bit,list<string> &memoryAccesses)
 {
     int disp_bytes[] = {4, 1, 4};
     int bytes = disp_bytes[mod];
@@ -265,7 +352,7 @@ string decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm, q
     }
 };
 
-string decode_SIB(int w, int d, int mod, int reg, queue<short> &instruction, map<string, int> &registers)
+string decode_SIB(int w, int d, int mod, int reg, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int8_t> memories8bit,list<string> &memoryAccesses)
 {
     string stringSib;
 
@@ -281,45 +368,112 @@ string decode_SIB(int w, int d, int mod, int reg, queue<short> &instruction, map
 
     scale = pow(2, scale);
 
-    stringSib = decode_displacement_with_SIB(w, d, mod, reg, index, scale, base, instruction, registers);
+    stringSib = decode_displacement_with_SIB(w, d, mod, reg, index, scale, base, instruction, registers, memories32bit, memories8bit, memoryAccesses);
     return stringSib;
 }
 
-string decode_mod_00(int w, int d, int reg, int rm, queue<short> &instruction, map<string, int> &registers)
+string decode_mod_00(int w, int d, int reg, int rm, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int8_t> memories8bit,list<string> &memoryAccesses)
 {
     string string00;
     if (rm == 4)
     {
-        string00 = decode_SIB(w, d, 0, reg, instruction, registers);
+        string00 = decode_SIB(w, d, 0, reg, instruction, registers,memories32bit, memories8bit, memoryAccesses);
     }
     else if (rm == 5)
     {
-        string00 = decode_displacement_without_SIB(w, d, 0, reg, 5, instruction, registers);
+        string00 = decode_displacement_without_SIB(w, d, 0, reg, 5, instruction, registers, memories32bit, memories8bit, memoryAccesses);
     }
     else
     {
         if (w == 0 and d == 0)
         {
             string00 = "%" + regs_8[reg] + ",(%" + regs_32[rm] + ")\n";
+
+            int8_t num1, num2, num3;
+            uint8_t num4;
+
+            if (reg < 4)
+            {
+                num1 = get_bits(1, 8, registers[regs_32[reg]]);
+                num2 = memories8bit[to_string(registers[regs_32[rm]])];
+            }else{
+                num1 = get_bits(9, 8, registers[regs_32[reg%4]]);
+                num2 = memories8bit[to_string(registers[regs_32[rm]])];
+            }
+
+            memories8bit[to_string(registers[regs_32[rm]])]=num3;
+            memories8bit[to_string(registers[regs_32[rm]])]=num3;
+
+            setOverflow8bit(num1, num2, num3, registers);
+            setCarry8bit(num1, num4, registers);
+            setSign(num3, registers);
+            setZero(num3, registers);
         }
         else if (w == 0 and d == 1)
         {
             string00 = "(%" + regs_32[rm] + "),%" + regs_8[reg] + "\n";
+
+            int8_t num1, num2, num3;
+            uint8_t num4;
+
+            if (reg < 4)
+            {
+                num1 = get_bits(1, 8, registers[regs_32[reg]]);
+                num2 = memories8bit[to_string(registers[regs_32[rm]])];
+                num3 = num1+num2;
+                num4 = unsigned(num1)+unsigned(num2);
+
+                registers[regs_32[reg]]=((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
+            }else{
+                num1 = get_bits(9, 8, registers[regs_32[reg%4]]);
+                num2 = memories8bit[to_string(registers[regs_32[rm]])];
+                num3 = num1+num2;
+                num4 = unsigned(num1)+unsigned(num2);
+
+                registers[regs_32[reg]]=((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
+            }
+
+            setOverflow8bit(num1, num2, num3, registers);
+            setCarry8bit(num1, num4, registers);
+            setSign(num3, registers);
+            setZero(num3, registers);
         }
         else if (w == 1 and d == 0)
         {
+            int num1 = memories32bit[to_string(registers[regs_32[rm]])];
+            int num2 = registers[regs_32[reg]];
+            int num3 = num1 + num2;
+            unsigned int num4 = unsigned(num1) + unsigned(num2);
+
+            setOverflow32bit(num1, num2, num3, registers);
+            setCarry32bit(num1, num4, registers);
+            setSign(num3, registers);
+            setZero(num3, registers);
+
             string00 = "%" + regs_32[reg] + ",(%" + regs_32[rm] + ")\n";
+            memories32bit[to_string(registers[regs_32[rm]])] = num3;
         }
         else
         {
+            int num1 = memories32bit[to_string(registers[regs_32[rm]])];
+            int num2 = registers[regs_32[reg]];
+            int num3 = num1 + num2;
+            unsigned int num4 = unsigned(num1) + unsigned(num2);
+
+            setOverflow32bit(num1, num2, num3, registers);
+            setCarry32bit(num1, num4, registers);
+            setSign(num3, registers);
+            setZero(num3, registers);
+
             string00 = "(%" + regs_32[rm] + "),%" + regs_32[reg] + "\n";
+            registers[regs_32[reg]] = num3;
         }
     }
 
     return string00;
 }
 
-string decode_mod_01(int w, int d, int reg, int rm, queue<short> &instruction, map<string, int> &registers)
+string decode_mod_01(int w, int d, int reg, int rm, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int8_t> memories8bit,list<string> &memoryAccesses)
 {
     string string11;
     if (rm == 4)
@@ -333,7 +487,7 @@ string decode_mod_01(int w, int d, int reg, int rm, queue<short> &instruction, m
     return string11;
 }
 
-string decode_mod_10(int w, int d, int reg, int rm, queue<short> &instruction, map<string, int> &registers)
+string decode_mod_10(int w, int d, int reg, int rm, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int8_t> memories8bit, list<string> &memoryAccesses)
 {
     string string10;
     if (rm == 4)
@@ -353,75 +507,63 @@ string decode_mod_11(int w, int d, int reg, int rm, queue<short> &instruction, m
     {
         printf("w:0 and d:0 \n");
 
-        int8_t num1 = get_bits(1, 8, registers[regs_32[reg]]);
-        int8_t num2 = get_bits(1, 8, registers[regs_32[rm]]);
-        int8_t num3 = num1 + num2;
-        uint8_t num4 = unsigned(num1)+unsigned(num2);
-        registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffffff00) | (num3 & 0x000000ff);
+        int8_t num1, num2, num3;
+        uint8_t num4;
 
-        cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
-
-
-        //set or unset overflow flag
-        if (num1 > 0 and num2 > 0 and num3 < 0)
+        if (reg < 4)
         {
-            registers["EFLAGS"] = registers["EFLAGS"] | 0x800;
-        }
-        else if (num1 < 0 and num2 < 0 and num3 > 0)
-        {
-            registers["EFLAGS"] = registers["EFLAGS"] | 0x800;
+            num1 = get_bits(1, 8, registers[regs_32[reg]]);
+            num2 = get_bits(1, 8, registers[regs_32[rm]]);
+            num3 = num1 + num2;
+            num4 = unsigned(num1) + unsigned(num2);
+            registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffffff00) | (num3 & 0x000000ff);
         }
         else
         {
-            registers["EFLAGS"] = registers["EFLAGS"] & 0xfffff7ff;
+            num1 = get_bits(9, 8, registers[regs_32[reg%4]]);
+            num2 = get_bits(9, 8, registers[regs_32[rm%4]]);
+            num3 = num1 + num2;
+            num4 = unsigned(num1) + unsigned(num2);
+            registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffff00ff) | ((num3 << 8) & 0x0000ff00);
         }
 
-        //set or unset carry flag
-        if(num4<unsigned(num1)){
-            registers["EFLAGS"] = registers["EFLAGS"] | 0x1;
-        }else{
-            registers["EFLAGS"] = registers["EFLAGS"] & 0xfffffffe;
-        }
+        cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
 
-        setUnsetSign(num3, registers);
-        setUnsetZero(num3, registers);        
+        setOverflow8bit(num1, num2, num3, registers);
+        setCarry8bit(num1, num4, registers);
+        setSign(num3, registers);
+        setZero(num3, registers);
 
         return "%" + regs_8[reg] + ",%" + regs_8[rm] + "\n";
     }
     else if (w == 0 and d == 1)
     {
         printf("w:0 and d:1 \n");
-        int8_t num1 = get_bits(1, 8, registers[regs_32[reg]]);
-        int8_t num2 = get_bits(1, 8, registers[regs_32[rm]]);
-        int8_t num3 = num1 + num2;
-        uint8_t num4 = unsigned(num1)+unsigned(num2);
-        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
 
-        cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
-
-        //set or unset overflow flag
-        if (num1 > 0 and num2 > 0 and num3 < 0)
+        int8_t num1, num2, num3;
+        uint8_t num4;
+        if (reg < 4)
         {
-            registers["EFLAGS"] = registers["EFLAGS"] | 0x800;
-        }
-        else if (num1 < 0 and num2 < 0 and num3 > 0)
-        {
-            registers["EFLAGS"] = registers["EFLAGS"] | 0x800;
+            num1 = get_bits(1, 8, registers[regs_32[reg]]);
+            num2 = get_bits(1, 8, registers[regs_32[rm]]);
+            num3 = num1 + num2;
+            num4 = unsigned(num1) + unsigned(num2);
+            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
         }
         else
         {
-            registers["EFLAGS"] = registers["EFLAGS"] & 0xfffff7ff;
+            num1 = get_bits(9, 8, registers[regs_32[reg%4]]);
+            num2 = get_bits(9, 8, registers[regs_32[rm%4]]);
+            num3 = num1 + num2;
+            num4 = unsigned(num1) + unsigned(num2);
+            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((num3 << 8) & 0x0000ff00);
         }
+        cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
 
-        //set or unset carry flag
-        if(num4<unsigned(num1)){
-            registers["EFLAGS"] = registers["EFLAGS"] | 0x1;
-        }else{
-            registers["EFLAGS"] = registers["EFLAGS"] & 0xfffffffe;
-        }
-
-        setUnsetSign(num3, registers);
-        setUnsetZero(num3, registers);
+        setOverflow8bit(num1, num2, num3, registers);
+        setCarry8bit(num1, num4, registers);
+        setSign(num3, registers);
+        setZero(num3, registers);
 
         return "%" + regs_8[rm] + ",%" + regs_8[reg] + "\n";
     }
@@ -431,34 +573,15 @@ string decode_mod_11(int w, int d, int reg, int rm, queue<short> &instruction, m
         int num1 = registers[regs_32[reg]];
         int num2 = registers[regs_32[rm]];
         int num3 = num1 + num2;
-        unsigned int num4 = unsigned(num1)+unsigned(num2);
+        unsigned int num4 = unsigned(num1) + unsigned(num2);
         registers[regs_32[rm]] = num3;
 
-        cout << "num1: " << num1 << ", num2: " << num2 << ", num3: " << num3 << ", num4: " << num4 <<"\n";
+        cout << "num1: " << num1 << ", num2: " << num2 << ", num3: " << num3 << ", num4: " << num4 << "\n";
 
-        //set or unset overflow flag
-        if (num1 > 0 and num2 > 0 and num3 < 0)
-        {
-            registers["EFLAGS"] = registers["EFLAGS"] | 0x800;
-        }
-        else if (num1 < 0 and num2 < 0 and num3 > 0)
-        {
-            registers["EFLAGS"] = registers["EFLAGS"] | 0x800;
-        }
-        else
-        {
-            registers["EFLAGS"] = registers["EFLAGS"] & 0xfffff7ff;
-        }
-
-        //set or unset carry flag
-        if(num4<unsigned(num1)){
-            registers["EFLAGS"] = registers["EFLAGS"] | 0x1;
-        }else{
-            registers["EFLAGS"] = registers["EFLAGS"] & 0xfffffffe;
-        }
-
-        setUnsetSign(num3, registers);
-        setUnsetZero(num3, registers);
+        setOverflow32bit(num1, num2, num3, registers);
+        setCarry32bit(num1, num4, registers);
+        setSign(num3, registers);
+        setZero(num3, registers);
 
         return "%" + regs_32[reg] + ",%" + regs_32[rm] + "\n";
     }
@@ -468,57 +591,18 @@ string decode_mod_11(int w, int d, int reg, int rm, queue<short> &instruction, m
         int num1 = registers[regs_32[reg]];
         int num2 = registers[regs_32[rm]];
         int num3 = num1 + num2;
-        unsigned int num4 = unsigned(num1)+unsigned(num2);
+        unsigned int num4 = unsigned(num1) + unsigned(num2);
         registers[regs_32[reg]] = num3;
 
         cout << "num1: " << dec << num1 << ", num2: " << dec << num2 << ", num3: " << dec << num3 << "\n";
 
-        //set or unset overflow flag
-        if (num1 > 0 and num2 > 0 and num3 < 0)
-        {
-            registers["EFLAGS"] = registers["EFLAGS"] | 0x800;
-        }
-        else if (num1 < 0 and num2 < 0 and num3 > 0)
-        {
-            registers["EFLAGS"] = registers["EFLAGS"] | 0x800;
-        }
-        else
-        {
-            registers["EFLAGS"] = registers["EFLAGS"] & 0xfffff7ff;
-        }
-
-        //set or unset carry flag
-        if(num4<unsigned(num1)){
-            registers["EFLAGS"] = registers["EFLAGS"] | 0x1;
-        }else{
-            registers["EFLAGS"] = registers["EFLAGS"] & 0xfffffffe;
-        }
-
-        setUnsetSign(num3, registers);
-        setUnsetZero(num3, registers);
-
-
+        setOverflow32bit(num1, num2, num3, registers);
+        setCarry32bit(num1, num4, registers);
+        setSign(num3, registers);
+        setZero(num3, registers);
 
         return "%" + regs_32[rm] + ",%" + regs_32[reg] + "\n";
     }
-}
-
-void setUnsetZero(int number, map<string, int> &registers){
-    //set or unset the sign flag
-        if(number=0){
-            registers["EFLAGS"]=registers["EFLAGS"] | 0x40;
-        }else{
-            registers["EFLAGS"] = registers["EFLAGS"] & 0xffffffbf;
-        }
-}
-
-void setUnsetSign(int number, map<string, int> &registers){
-    //set or unset the sign flag
-        if(number<0){
-            registers["EFLAGS"] = registers["EFLAGS"] | 0x80;
-        }else{
-            registers["EFLAGS"] = registers["EFLAGS"] & 0xffffff7f;
-        }
 }
 
 /*
@@ -564,13 +648,14 @@ int main()
 }
 */
 
-
 /*Adder::Adder(map<string, int> &registers):registerssss(registers){
     cout<<"done";
 }
 */
 
-string Adder::decode_add(queue<short> &instruction, map<string, int> &registers)
+// parity and auxiliary flag should be used .......................................................//
+
+string Adder::decode_add(queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int8_t> memories8bit, list<string> &memoryAccesses)
 {
 
     bool d = get_bits(2, 1, instruction.front());
@@ -594,15 +679,15 @@ string Adder::decode_add(queue<short> &instruction, map<string, int> &registers)
 
     if (mod == 0)
     {
-        decoded_bytes = decode_mod_00(w, d, reg, rm, instruction, registers);
+        decoded_bytes = decode_mod_00(w, d, reg, rm, instruction, registers, memories32bit, memories8bit, memoryAccesses);
     }
     else if (mod == 1)
     {
-        decoded_bytes = decode_mod_01(w, d, reg, rm, instruction, registers);
+        decoded_bytes = decode_mod_01(w, d, reg, rm, instruction, registers, memories32bit, memories8bit, memoryAccesses);
     }
     else if (mod == 2)
     {
-        decoded_bytes = decode_mod_10(w, d, reg, rm, instruction, registers);
+        decoded_bytes = decode_mod_10(w, d, reg, rm, instruction, registers, memories32bit, memories8bit, memoryAccesses);
     }
     else
     {
@@ -617,5 +702,3 @@ string Adder::decode_add(queue<short> &instruction, map<string, int> &registers)
 
     return "Adder instantiated and done";
 }
-
-

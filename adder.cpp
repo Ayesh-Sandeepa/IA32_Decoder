@@ -29,7 +29,7 @@ int get_bits(int pos, int noOfBits, int number)
     return (((1 << noOfBits) - 1) & (number >> (pos - 1)));
 }
 
-int assemble_bits(int bytes, bool SIB, queue<short> &instruction)
+int assemble_bits(int bytes, bool SIB, queue<short> &instruction, map<string, int> &registers)
 {
     int x, offset;
     short displacement[4];
@@ -40,6 +40,7 @@ int assemble_bits(int bytes, bool SIB, queue<short> &instruction)
     {
         displacement[count] = instruction.front();
         instruction.pop();
+        registers["EIP"]=registers["EIP"]+1;
     }
     for (int i = 0; i < bytes; i++)
     {
@@ -154,7 +155,7 @@ string decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, i
     }
     else
     {
-        disp = assemble_bits(bytes, true, instruction);
+        disp = assemble_bits(bytes, true, instruction, registers);
     }
 
     if (mod == 0)
@@ -310,7 +311,7 @@ string decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm, q
     int disp_bytes[] = {4, 1, 4};
     int bytes = disp_bytes[mod];
 
-    int disp = assemble_bits(bytes, false, instruction);
+    int disp = assemble_bits(bytes, false, instruction, registers);
 
     if (mod == 0)
     {
@@ -361,6 +362,7 @@ string decode_SIB(int w, int d, int mod, int reg, queue<short> &instruction, map
     int base = get_bits(1, 3, instruction.front());
 
     instruction.pop();
+    registers["EIP"]=registers["EIP"]+1;
 
     //printf("scale:%d \n", scale);
     //printf("index:%d \n", index);
@@ -478,11 +480,11 @@ string decode_mod_01(int w, int d, int reg, int rm, queue<short> &instruction, m
     string string11;
     if (rm == 4)
     {
-        string11 = decode_SIB(w, d, 1, reg, instruction, registers);
+        string11 = decode_SIB(w, d, 1, reg, instruction, registers,memories32bit, memories8bit, memoryAccesses);
     }
     else
     {
-        string11 = decode_displacement_without_SIB(w, d, 1, reg, rm, instruction, registers);
+        string11 = decode_displacement_without_SIB(w, d, 1, reg, rm, instruction, registers, memories32bit, memories8bit, memoryAccesses);
     }
     return string11;
 }
@@ -492,11 +494,11 @@ string decode_mod_10(int w, int d, int reg, int rm, queue<short> &instruction, m
     string string10;
     if (rm == 4)
     {
-        string10 = decode_SIB(w, d, 2, reg, instruction, registers);
+        string10 = decode_SIB(w, d, 2, reg, instruction, registers, memories32bit, memories8bit, memoryAccesses);
     }
     else
     {
-        string10 = decode_displacement_without_SIB(w, d, 2, reg, rm, instruction, registers);
+        string10 = decode_displacement_without_SIB(w, d, 2, reg, rm, instruction, registers, memories32bit, memories8bit, memoryAccesses);
     }
     return string10;
 }
@@ -662,12 +664,14 @@ string Adder::decode_add(queue<short> &instruction, map<string, int> &registers,
     bool w = get_bits(1, 1, instruction.front());
 
     instruction.pop();
+    registers["EIP"]=registers["EIP"]+1;
 
     int mod = instruction.front() >> 6;
     int reg = get_bits(4, 3, instruction.front());
     int rm = get_bits(1, 3, instruction.front());
 
     instruction.pop();
+    registers["EIP"]=registers["EIP"]+1;
 
     //printf("d:%d \n", d);
     //printf("w:%d \n", w);

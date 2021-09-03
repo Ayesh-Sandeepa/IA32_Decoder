@@ -40,7 +40,7 @@ int assemble_bits(int bytes, bool SIB, queue<short> &instruction, map<string, in
     {
         displacement[count] = instruction.front();
         instruction.pop();
-        registers["EIP"]=registers["EIP"]+1;
+        registers["EIP"] = registers["EIP"] + 1;
     }
     for (int i = 0; i < bytes; i++)
     {
@@ -143,7 +143,7 @@ void setOverflow32bit(int num1, int num2, int num3, map<string, int> &registers)
     }
 }
 
-string decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int scale, int base, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int8_t> memories8bit,list<string> &memoryAccesses)
+string decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int scale, int base, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int8_t> memories8bit, list<string> &memoryAccesses)
 {
     int disp_bytes[] = {4, 1, 4};
     int bytes = disp_bytes[mod];
@@ -166,10 +166,54 @@ string decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, i
             {
                 if (index == 4)
                 {
+                    int8_t num1, num2, num3;
+                    uint8_t num4;
+
+                    if (reg < 4)
+                    {
+                        num1 = get_bits(1, 8, registers[regs_32[reg]]);
+                    }
+                    else
+                    {
+                        num1 = get_bits(9, 8, registers[regs_32[reg % 4]]);
+                    }
+                    num2 = memories8bit[to_string(disp)];
+                    num3 = num1 + num2;
+                    num4 = unsigned(num1) + unsigned(num2);
+
+                    memories8bit[to_string(disp)] = num3;
+
+                    setOverflow8bit(num1, num2, num3, registers);
+                    setCarry8bit(num1, num4, registers);
+                    setSign(num3, registers);
+                    setZero(num3, registers);
+
                     return "%" + regs_8[reg] + "," + to_string(disp) + "\n";
                 }
                 else
                 {
+                    int8_t num1, num2, num3;
+                    uint8_t num4;
+
+                    if (reg < 4)
+                    {
+                        num1 = get_bits(1, 8, registers[regs_32[reg]]);
+                    }
+                    else
+                    {
+                        num1 = get_bits(9, 8, registers[regs_32[reg % 4]]);
+                    }
+                    num2 = memories8bit[to_string(registers[regs_32[index]] * 2 + disp)];
+                    num3 = num1 + num2;
+                    num4 = unsigned(num1) + unsigned(num2);
+
+                    memories8bit[to_string(registers[regs_32[index]] * scale + disp)] = num3;
+
+                    setOverflow8bit(num1, num2, num3, registers);
+                    setCarry8bit(num1, num4, registers);
+                    setSign(num3, registers);
+                    setZero(num3, registers);
+
                     return "%" + regs_8[reg] + "," + to_string(disp) + "(,%" + regs_32[index] + "," + to_string(scale) + ")" + "\n";
                 }
             }
@@ -177,10 +221,64 @@ string decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, i
             {
                 if (index == 4)
                 {
+                    int8_t num1, num2, num3;
+                    uint8_t num4;
+
+                    if (reg < 4)
+                    {
+                        num1 = get_bits(1, 8, registers[regs_32[reg]]);
+                        num2 = memories8bit[to_string(disp)];
+                        num3 = num1 + num2;
+                        num4 = unsigned(num1) + unsigned(num2);
+
+                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
+                    }
+                    else
+                    {
+                        num1 = get_bits(9, 8, registers[regs_32[reg % 4]]);
+                        num2 = memories8bit[to_string(disp)];
+                        num3 = num1 + num2;
+                        num4 = unsigned(num1) + unsigned(num2);
+
+                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
+                    }
+
+                    setOverflow8bit(num1, num2, num3, registers);
+                    setCarry8bit(num1, num4, registers);
+                    setSign(num3, registers);
+                    setZero(num3, registers);
+
                     return to_string(disp) + ",%" + regs_8[reg] + "\n";
                 }
                 else
                 {
+                    int8_t num1, num2, num3;
+                    uint8_t num4;
+
+                    if (reg < 4)
+                    {
+                        num1 = get_bits(1, 8, registers[regs_32[reg]]);
+                        num2 = memories8bit[to_string(registers[regs_32[index]] * scale + disp)];
+                        num3 = num1 + num2;
+                        num4 = unsigned(num1) + unsigned(num2);
+
+                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
+                    }
+                    else
+                    {
+                        num1 = get_bits(9, 8, registers[regs_32[reg % 4]]);
+                        num2 = memories8bit[to_string(registers[regs_32[index]] * scale + disp)];
+                        num3 = num1 + num2;
+                        num4 = unsigned(num1) + unsigned(num2);
+
+                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
+                    }
+
+                    setOverflow8bit(num1, num2, num3, registers);
+                    setCarry8bit(num1, num4, registers);
+                    setSign(num3, registers);
+                    setZero(num3, registers);
+
                     return to_string(disp) + "(,%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_8[reg] + "\n";
                 }
             }
@@ -188,10 +286,34 @@ string decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, i
             {
                 if (index == 4)
                 {
+                    int num1 = memories32bit[to_string(disp)];
+                    int num2 = registers[regs_32[reg]];
+                    int num3 = num1 + num2;
+                    unsigned int num4 = unsigned(num1) + unsigned(num2);
+
+                    setOverflow32bit(num1, num2, num3, registers);
+                    setCarry32bit(num1, num4, registers);
+                    setSign(num3, registers);
+                    setZero(num3, registers);
+
+                    memories32bit[to_string(disp)] = num3;
+
                     return "%" + regs_32[reg] + "," + to_string(disp) + "\n";
                 }
                 else
                 {
+                    int num1 = memories32bit[to_string(registers[regs_32[index]] * scale + disp)];
+                    int num2 = registers[regs_32[reg]];
+                    int num3 = num1 + num2;
+                    unsigned int num4 = unsigned(num1) + unsigned(num2);
+
+                    setOverflow32bit(num1, num2, num3, registers);
+                    setCarry32bit(num1, num4, registers);
+                    setSign(num3, registers);
+                    setZero(num3, registers);
+
+                    memories32bit[to_string(registers[regs_32[index]] * scale + disp)] = num3;
+
                     return "%" + regs_32[reg] + "," + to_string(disp) + "(,%" + regs_32[index] + "," + to_string(scale) + ")" + "\n";
                 }
             }
@@ -199,10 +321,35 @@ string decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, i
             {
                 if (index == 4)
                 {
+                    int num1 = memories32bit[to_string(disp)];
+                    int num2 = registers[regs_32[reg]];
+                    int num3 = num1 + num2;
+                    unsigned int num4 = unsigned(num1) + unsigned(num2);
+
+                    setOverflow32bit(num1, num2, num3, registers);
+                    setCarry32bit(num1, num4, registers);
+                    setSign(num3, registers);
+                    setZero(num3, registers);
+
+                    registers[regs_32[reg]] = num3;
+
                     return to_string(disp) + ",%" + regs_32[reg] + "\n";
                 }
                 else
                 {
+
+                    int num1 = memories32bit[to_string(registers[regs_32[index]] * scale + disp)];
+                    int num2 = registers[regs_32[reg]];
+                    int num3 = num1 + num2;
+                    unsigned int num4 = unsigned(num1) + unsigned(num2);
+
+                    setOverflow32bit(num1, num2, num3, registers);
+                    setCarry32bit(num1, num4, registers);
+                    setSign(num3, registers);
+                    setZero(num3, registers);
+
+                    registers[regs_32[reg]] = num3;
+
                     return to_string(disp) + "(,%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg] + "\n";
                 }
             }
@@ -213,10 +360,56 @@ string decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, i
             {
                 if (index == 4)
                 {
+
+                    int8_t num1, num2, num3;
+                    uint8_t num4;
+
+                    if (reg < 4)
+                    {
+                        num1 = get_bits(1, 8, registers[regs_32[reg]]);
+                    }
+                    else
+                    {
+                        num1 = get_bits(9, 8, registers[regs_32[reg % 4]]);
+                    }
+                    num2 = memories8bit[to_string(registers[regs_32[base]])];
+                    num3 = num1 + num2;
+                    num4 = unsigned(num1) + unsigned(num2);
+
+                    memories8bit[to_string(registers[regs_32[base]])] = num3;
+
+                    setOverflow8bit(num1, num2, num3, registers);
+                    setCarry8bit(num1, num4, registers);
+                    setSign(num3, registers);
+                    setZero(num3, registers);
+
                     return "%" + regs_8[reg] + "," + "(%" + regs_32[base] + ")" + "\n";
                 }
                 else
                 {
+
+                    int8_t num1, num2, num3;
+                    uint8_t num4;
+
+                    if (reg < 4)
+                    {
+                        num1 = get_bits(1, 8, registers[regs_32[reg]]);
+                    }
+                    else
+                    {
+                        num1 = get_bits(9, 8, registers[regs_32[reg % 4]]);
+                    }
+                    num2 = memories8bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp)];
+                    num3 = num1 + num2;
+                    num4 = unsigned(num1) + unsigned(num2);
+
+                    memories8bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp)] = num3;
+
+                    setOverflow8bit(num1, num2, num3, registers);
+                    setCarry8bit(num1, num4, registers);
+                    setSign(num3, registers);
+                    setZero(num3, registers);
+
                     return "%" + regs_8[reg] + "," + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")" + "\n";
                 }
             }
@@ -224,10 +417,66 @@ string decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, i
             {
                 if (index == 4)
                 {
+
+                    int8_t num1, num2, num3;
+                    uint8_t num4;
+
+                    if (reg < 4)
+                    {
+                        num1 = get_bits(1, 8, registers[regs_32[reg]]);
+                        num2 = memories8bit[to_string(registers[regs_32[base]])];
+                        num3 = num1 + num2;
+                        num4 = unsigned(num1) + unsigned(num2);
+
+                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
+                    }
+                    else
+                    {
+                        num1 = get_bits(9, 8, registers[regs_32[reg % 4]]);
+                        num2 = memories8bit[to_string(registers[regs_32[base]])];
+                        num3 = num1 + num2;
+                        num4 = unsigned(num1) + unsigned(num2);
+
+                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
+                    }
+
+                    setOverflow8bit(num1, num2, num3, registers);
+                    setCarry8bit(num1, num4, registers);
+                    setSign(num3, registers);
+                    setZero(num3, registers);
+
                     return "(%" + regs_32[base] + "),%" + regs_8[reg] + "\n";
                 }
                 else
                 {
+
+                    int8_t num1, num2, num3;
+                    uint8_t num4;
+
+                    if (reg < 4)
+                    {
+                        num1 = get_bits(1, 8, registers[regs_32[reg]]);
+                        num2 = memories8bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)];
+                        num3 = num1 + num2;
+                        num4 = unsigned(num1) + unsigned(num2);
+
+                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
+                    }
+                    else
+                    {
+                        num1 = get_bits(9, 8, registers[regs_32[reg % 4]]);
+                        num2 = memories8bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)];
+                        num3 = num1 + num2;
+                        num4 = unsigned(num1) + unsigned(num2);
+
+                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
+                    }
+
+                    setOverflow8bit(num1, num2, num3, registers);
+                    setCarry8bit(num1, num4, registers);
+                    setSign(num3, registers);
+                    setZero(num3, registers);
+
                     return "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_8[reg] + "\n";
                 }
             }
@@ -235,10 +484,34 @@ string decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, i
             {
                 if (index == 4)
                 {
+                    int num1 = memories32bit[to_string(registers[regs_32[base]])];
+                    int num2 = registers[regs_32[reg]];
+                    int num3 = num1 + num2;
+                    unsigned int num4 = unsigned(num1) + unsigned(num2);
+
+                    setOverflow32bit(num1, num2, num3, registers);
+                    setCarry32bit(num1, num4, registers);
+                    setSign(num3, registers);
+                    setZero(num3, registers);
+
+                    memories32bit[to_string(registers[regs_32[base]])] = num3;
+
                     return "%" + regs_32[reg] + "," + "(%" + regs_32[base] + ")" + "\n";
                 }
                 else
                 {
+                    int num1 = memories32bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)];
+                    int num2 = registers[regs_32[reg]];
+                    int num3 = num1 + num2;
+                    unsigned int num4 = unsigned(num1) + unsigned(num2);
+
+                    setOverflow32bit(num1, num2, num3, registers);
+                    setCarry32bit(num1, num4, registers);
+                    setSign(num3, registers);
+                    setZero(num3, registers);
+
+                    memories32bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)] = num3;
+
                     return "%" + regs_32[reg] + "," + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")" + "\n";
                 }
             }
@@ -246,10 +519,34 @@ string decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, i
             {
                 if (index == 4)
                 {
+                    int num1 = memories32bit[to_string(registers[regs_32[base]])];
+                    int num2 = registers[regs_32[reg]];
+                    int num3 = num1 + num2;
+                    unsigned int num4 = unsigned(num1) + unsigned(num2);
+
+                    setOverflow32bit(num1, num2, num3, registers);
+                    setCarry32bit(num1, num4, registers);
+                    setSign(num3, registers);
+                    setZero(num3, registers);
+
+                    registers[regs_32[reg]] = num3;
+
                     return "(%" + regs_32[base] + ")" + ",%" + regs_32[reg] + "\n";
                 }
                 else
                 {
+                    int num1 = memories32bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)];
+                    int num2 = registers[regs_32[reg]];
+                    int num3 = num1 + num2;
+                    unsigned int num4 = unsigned(num1) + unsigned(num2);
+
+                    setOverflow32bit(num1, num2, num3, registers);
+                    setCarry32bit(num1, num4, registers);
+                    setSign(num3, registers);
+                    setZero(num3, registers);
+
+                    registers[regs_32[reg]] = num3;
+
                     return "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg] + "\n";
                 }
             }
@@ -263,10 +560,54 @@ string decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, i
         {
             if (index == 4)
             {
+                int8_t num1, num2, num3;
+                uint8_t num4;
+
+                if (reg < 4)
+                {
+                    num1 = get_bits(1, 8, registers[regs_32[reg]]);
+                }
+                else
+                {
+                    num1 = get_bits(9, 8, registers[regs_32[reg % 4]]);
+                }
+                num2 = memories8bit[to_string(registers[regs_32[base]] + disp)];
+                num3 = num1 + num2;
+                num4 = unsigned(num1) + unsigned(num2);
+
+                memories8bit[to_string(registers[regs_32[base]] + disp)] = num3;
+
+                setOverflow8bit(num1, num2, num3, registers);
+                setCarry8bit(num1, num4, registers);
+                setSign(num3, registers);
+                setZero(num3, registers);
+
                 return "%" + regs_8[reg] + "," + to_string(disp) + "(%" + regs_32[base] + ")" + "\n";
             }
             else
             {
+                int8_t num1, num2, num3;
+                uint8_t num4;
+
+                if (reg < 4)
+                {
+                    num1 = get_bits(1, 8, registers[regs_32[reg]]);
+                }
+                else
+                {
+                    num1 = get_bits(9, 8, registers[regs_32[reg % 4]]);
+                }
+                num2 = memories8bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp)];
+                num3 = num1 + num2;
+                num4 = unsigned(num1) + unsigned(num2);
+
+                memories8bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp)] = num3;
+
+                setOverflow8bit(num1, num2, num3, registers);
+                setCarry8bit(num1, num4, registers);
+                setSign(num3, registers);
+                setZero(num3, registers);
+
                 return "%" + regs_8[reg] + "," + to_string(disp) + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")" + "\n";
             }
         }
@@ -274,10 +615,64 @@ string decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, i
         {
             if (index == 4)
             {
+                int8_t num1, num2, num3;
+                uint8_t num4;
+
+                if (reg < 4)
+                {
+                    num1 = get_bits(1, 8, registers[regs_32[reg]]);
+                    num2 = memories8bit[to_string(registers[regs_32[base]] + disp)];
+                    num3 = num1 + num2;
+                    num4 = unsigned(num1) + unsigned(num2);
+
+                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
+                }
+                else
+                {
+                    num1 = get_bits(9, 8, registers[regs_32[reg % 4]]);
+                    num2 = memories8bit[to_string(registers[regs_32[base]] + disp)];
+                    num3 = num1 + num2;
+                    num4 = unsigned(num1) + unsigned(num2);
+
+                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
+                }
+
+                setOverflow8bit(num1, num2, num3, registers);
+                setCarry8bit(num1, num4, registers);
+                setSign(num3, registers);
+                setZero(num3, registers);
+
                 return to_string(disp) + "(%" + regs_32[base] + "),%" + regs_8[reg] + "\n";
             }
             else
             {
+                int8_t num1, num2, num3;
+                uint8_t num4;
+
+                if (reg < 4)
+                {
+                    num1 = get_bits(1, 8, registers[regs_32[reg]]);
+                    num2 = memories8bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)];
+                    num3 = num1 + num2;
+                    num4 = unsigned(num1) + unsigned(num2);
+
+                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
+                }
+                else
+                {
+                    num1 = get_bits(9, 8, registers[regs_32[reg % 4]]);
+                    num2 = memories8bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)];
+                    num3 = num1 + num2;
+                    num4 = unsigned(num1) + unsigned(num2);
+
+                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
+                }
+
+                setOverflow8bit(num1, num2, num3, registers);
+                setCarry8bit(num1, num4, registers);
+                setSign(num3, registers);
+                setZero(num3, registers);
+
                 return to_string(disp) + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_8[reg] + "\n";
             }
         }
@@ -285,10 +680,34 @@ string decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, i
         {
             if (index == 4)
             {
+                int num1 = memories32bit[to_string(registers[regs_32[base]] + disp)];
+                int num2 = registers[regs_32[reg]];
+                int num3 = num1 + num2;
+                unsigned int num4 = unsigned(num1) + unsigned(num2);
+
+                setOverflow32bit(num1, num2, num3, registers);
+                setCarry32bit(num1, num4, registers);
+                setSign(num3, registers);
+                setZero(num3, registers);
+
+                memories32bit[to_string(registers[regs_32[base]] + disp)] = num3;
+
                 return "%" + regs_32[reg] + "," + to_string(disp) + "(%" + regs_32[base] + ")" + "\n";
             }
             else
             {
+                int num1 = memories32bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)];
+                int num2 = registers[regs_32[reg]];
+                int num3 = num1 + num2;
+                unsigned int num4 = unsigned(num1) + unsigned(num2);
+
+                setOverflow32bit(num1, num2, num3, registers);
+                setCarry32bit(num1, num4, registers);
+                setSign(num3, registers);
+                setZero(num3, registers);
+
+                memories32bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)] = num3;
+
                 return "%" + regs_32[reg] + "," + to_string(disp) + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")" + "\n";
             }
         }
@@ -296,17 +715,41 @@ string decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, i
         {
             if (index == 4)
             {
+                int num1 = memories32bit[to_string(registers[regs_32[base]] + disp)];
+                int num2 = registers[regs_32[reg]];
+                int num3 = num1 + num2;
+                unsigned int num4 = unsigned(num1) + unsigned(num2);
+
+                setOverflow32bit(num1, num2, num3, registers);
+                setCarry32bit(num1, num4, registers);
+                setSign(num3, registers);
+                setZero(num3, registers);
+
+                registers[regs_32[reg]] = num3;
+
                 return to_string(disp) + "(%" + regs_32[base] + ")" + ",%" + regs_32[reg] + "\n";
             }
             else
             {
+                int num1 = memories32bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)];
+                int num2 = registers[regs_32[reg]];
+                int num3 = num1 + num2;
+                unsigned int num4 = unsigned(num1) + unsigned(num2);
+
+                setOverflow32bit(num1, num2, num3, registers);
+                setCarry32bit(num1, num4, registers);
+                setSign(num3, registers);
+                setZero(num3, registers);
+
+                registers[regs_32[reg]] = num3;
+
                 return to_string(disp) + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg] + "\n";
             }
         }
     }
 }
 
-string decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int8_t> memories8bit,list<string> &memoryAccesses)
+string decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int8_t> memories8bit, list<string> &memoryAccesses)
 {
     int disp_bytes[] = {4, 1, 4};
     int bytes = disp_bytes[mod];
@@ -317,18 +760,91 @@ string decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm, q
     {
         if (w == 0 and d == 0)
         {
+            int8_t num1, num2, num3;
+            uint8_t num4;
+
+            if (reg < 4)
+            {
+                num1 = get_bits(1, 8, registers[regs_32[reg]]);
+            }
+            else
+            {
+                num1 = get_bits(9, 8, registers[regs_32[reg % 4]]);
+            }
+            num2 = memories8bit[to_string(disp)];
+            num3 = num1 + num2;
+            num4 = unsigned(num1) + unsigned(num2);
+
+            memories8bit[to_string(disp)] = num3;
+
+            setOverflow8bit(num1, num2, num3, registers);
+            setCarry8bit(num1, num4, registers);
+            setSign(num3, registers);
+            setZero(num3, registers);
+
             return "%" + regs_8[reg] + "," + to_string(disp) + "\n";
         }
         else if (w == 0 and d == 1)
         {
+            int8_t num1, num2, num3;
+            uint8_t num4;
+
+            if (reg < 4)
+            {
+                num1 = get_bits(1, 8, registers[regs_32[reg]]);
+                num2 = memories8bit[to_string(disp)];
+                num3 = num1 + num2;
+                num4 = unsigned(num1) + unsigned(num2);
+
+                registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
+            }
+            else
+            {
+                num1 = get_bits(9, 8, registers[regs_32[reg % 4]]);
+                num2 = memories8bit[to_string(disp)];
+                num3 = num1 + num2;
+                num4 = unsigned(num1) + unsigned(num2);
+
+                registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
+            }
+
+            setOverflow8bit(num1, num2, num3, registers);
+            setCarry8bit(num1, num4, registers);
+            setSign(num3, registers);
+            setZero(num3, registers);
+
             return to_string(disp) + ",%" + regs_8[reg] + "\n";
         }
         else if (w == 1 and d == 0)
         {
+            int num1 = memories32bit[to_string(disp)];
+            int num2 = registers[regs_32[reg]];
+            int num3 = num1 + num2;
+            unsigned int num4 = unsigned(num1) + unsigned(num2);
+
+            setOverflow32bit(num1, num2, num3, registers);
+            setCarry32bit(num1, num4, registers);
+            setSign(num3, registers);
+            setZero(num3, registers);
+
+            memories32bit[to_string(disp)] = num3;
+
             return "%" + regs_32[reg] + "," + to_string(disp) + "\n";
         }
         else
         {
+            int num1 = memories32bit[to_string(disp)];
+            int num2 = registers[regs_32[reg]];
+            int num3 = num1 + num2;
+            unsigned int num4 = unsigned(num1) + unsigned(num2);
+
+            setOverflow32bit(num1, num2, num3, registers);
+            setCarry32bit(num1, num4, registers);
+            setSign(num3, registers);
+            setZero(num3, registers);
+
+            registers[regs_32[reg]] = num3;
+
             return to_string(disp) + ",%" + regs_32[reg] + "\n";
         }
     }
@@ -336,24 +852,97 @@ string decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm, q
     {
         if (w == 0 and d == 0)
         {
+            int8_t num1, num2, num3;
+            uint8_t num4;
+
+            if (reg < 4)
+            {
+                num1 = get_bits(1, 8, registers[regs_32[reg]]);
+            }
+            else
+            {
+                num1 = get_bits(9, 8, registers[regs_32[reg % 4]]);
+            }
+            num2 = memories8bit[to_string(registers[regs_32[rm]] + disp)];
+            num3 = num1 + num2;
+            num4 = unsigned(num1) + unsigned(num2);
+
+            memories8bit[to_string(registers[regs_32[rm]] + disp)] = num3;
+
+            setOverflow8bit(num1, num2, num3, registers);
+            setCarry8bit(num1, num4, registers);
+            setSign(num3, registers);
+            setZero(num3, registers);
+
             return "%" + regs_8[reg] + "," + to_string(disp) + "(%" + regs_32[rm] + ") \n";
         }
         else if (w == 0 and d == 1)
         {
+            int8_t num1, num2, num3;
+            uint8_t num4;
+
+            if (reg < 4)
+            {
+                num1 = get_bits(1, 8, registers[regs_32[reg]]);
+                num2 = memories8bit[to_string(registers[regs_32[rm]] + disp)];
+                num3 = num1 + num2;
+                num4 = unsigned(num1) + unsigned(num2);
+
+                registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
+            }
+            else
+            {
+                num1 = get_bits(9, 8, registers[regs_32[reg % 4]]);
+                num2 = memories8bit[to_string(registers[regs_32[rm]] + disp)];
+                num3 = num1 + num2;
+                num4 = unsigned(num1) + unsigned(num2);
+
+                registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
+            }
+
+            setOverflow8bit(num1, num2, num3, registers);
+            setCarry8bit(num1, num4, registers);
+            setSign(num3, registers);
+            setZero(num3, registers);
+
             return to_string(disp) + "(%" + regs_32[rm] + "),%" + regs_8[reg] + "\n";
         }
         else if (w == 1 and d == 0)
         {
+            int num1 = memories32bit[to_string(registers[regs_32[rm]] + disp)];
+            int num2 = registers[regs_32[reg]];
+            int num3 = num1 + num2;
+            unsigned int num4 = unsigned(num1) + unsigned(num2);
+
+            setOverflow32bit(num1, num2, num3, registers);
+            setCarry32bit(num1, num4, registers);
+            setSign(num3, registers);
+            setZero(num3, registers);
+
+            memories32bit[to_string(registers[regs_32[rm]] + disp)] = num3;
+
             return "%" + regs_32[reg] + "," + to_string(disp) + "(%" + regs_32[rm] + ") \n";
         }
         else
         {
+            int num1 = memories32bit[to_string(registers[regs_32[rm]] + disp)];
+            int num2 = registers[regs_32[reg]];
+            int num3 = num1 + num2;
+            unsigned int num4 = unsigned(num1) + unsigned(num2);
+
+            setOverflow32bit(num1, num2, num3, registers);
+            setCarry32bit(num1, num4, registers);
+            setSign(num3, registers);
+            setZero(num3, registers);
+
+            registers[regs_32[reg]] = num3;
+
             return to_string(disp) + "(%" + regs_32[rm] + "),%" + regs_32[reg] + "\n";
         }
     }
 };
 
-string decode_SIB(int w, int d, int mod, int reg, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int8_t> memories8bit,list<string> &memoryAccesses)
+string decode_SIB(int w, int d, int mod, int reg, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int8_t> memories8bit, list<string> &memoryAccesses)
 {
     string stringSib;
 
@@ -362,7 +951,7 @@ string decode_SIB(int w, int d, int mod, int reg, queue<short> &instruction, map
     int base = get_bits(1, 3, instruction.front());
 
     instruction.pop();
-    registers["EIP"]=registers["EIP"]+1;
+    registers["EIP"] = registers["EIP"] + 1;
 
     //printf("scale:%d \n", scale);
     //printf("index:%d \n", index);
@@ -374,12 +963,12 @@ string decode_SIB(int w, int d, int mod, int reg, queue<short> &instruction, map
     return stringSib;
 }
 
-string decode_mod_00(int w, int d, int reg, int rm, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int8_t> memories8bit,list<string> &memoryAccesses)
+string decode_mod_00(int w, int d, int reg, int rm, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int8_t> memories8bit, list<string> &memoryAccesses)
 {
     string string00;
     if (rm == 4)
     {
-        string00 = decode_SIB(w, d, 0, reg, instruction, registers,memories32bit, memories8bit, memoryAccesses);
+        string00 = decode_SIB(w, d, 0, reg, instruction, registers, memories32bit, memories8bit, memoryAccesses);
     }
     else if (rm == 5)
     {
@@ -397,14 +986,16 @@ string decode_mod_00(int w, int d, int reg, int rm, queue<short> &instruction, m
             if (reg < 4)
             {
                 num1 = get_bits(1, 8, registers[regs_32[reg]]);
-                num2 = memories8bit[to_string(registers[regs_32[rm]])];
-            }else{
-                num1 = get_bits(9, 8, registers[regs_32[reg%4]]);
-                num2 = memories8bit[to_string(registers[regs_32[rm]])];
             }
+            else
+            {
+                num1 = get_bits(9, 8, registers[regs_32[reg % 4]]);
+            }
+            num2 = memories8bit[to_string(registers[regs_32[rm]])];
+            num3 = num1 + num2;
+            num4 = unsigned(num1) + unsigned(num2);
 
-            memories8bit[to_string(registers[regs_32[rm]])]=num3;
-            memories8bit[to_string(registers[regs_32[rm]])]=num3;
+            memories8bit[to_string(registers[regs_32[rm]])] = num3;
 
             setOverflow8bit(num1, num2, num3, registers);
             setCarry8bit(num1, num4, registers);
@@ -422,17 +1013,19 @@ string decode_mod_00(int w, int d, int reg, int rm, queue<short> &instruction, m
             {
                 num1 = get_bits(1, 8, registers[regs_32[reg]]);
                 num2 = memories8bit[to_string(registers[regs_32[rm]])];
-                num3 = num1+num2;
-                num4 = unsigned(num1)+unsigned(num2);
+                num3 = num1 + num2;
+                num4 = unsigned(num1) + unsigned(num2);
 
-                registers[regs_32[reg]]=((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
-            }else{
-                num1 = get_bits(9, 8, registers[regs_32[reg%4]]);
+                registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
+            }
+            else
+            {
+                num1 = get_bits(9, 8, registers[regs_32[reg % 4]]);
                 num2 = memories8bit[to_string(registers[regs_32[rm]])];
-                num3 = num1+num2;
-                num4 = unsigned(num1)+unsigned(num2);
+                num3 = num1 + num2;
+                num4 = unsigned(num1) + unsigned(num2);
 
-                registers[regs_32[reg]]=((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
+                registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
             }
 
             setOverflow8bit(num1, num2, num3, registers);
@@ -442,8 +1035,8 @@ string decode_mod_00(int w, int d, int reg, int rm, queue<short> &instruction, m
         }
         else if (w == 1 and d == 0)
         {
-            int num1 = memories32bit[to_string(registers[regs_32[rm]])];
-            int num2 = registers[regs_32[reg]];
+            int num1 = memories32bit[to_string(registers[regs_32[reg]])];
+            int num2 = registers[regs_32[reg]]; //registers["ECX"]
             int num3 = num1 + num2;
             unsigned int num4 = unsigned(num1) + unsigned(num2);
 
@@ -475,12 +1068,12 @@ string decode_mod_00(int w, int d, int reg, int rm, queue<short> &instruction, m
     return string00;
 }
 
-string decode_mod_01(int w, int d, int reg, int rm, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int8_t> memories8bit,list<string> &memoryAccesses)
+string decode_mod_01(int w, int d, int reg, int rm, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int8_t> memories8bit, list<string> &memoryAccesses)
 {
     string string11;
     if (rm == 4)
     {
-        string11 = decode_SIB(w, d, 1, reg, instruction, registers,memories32bit, memories8bit, memoryAccesses);
+        string11 = decode_SIB(w, d, 1, reg, instruction, registers, memories32bit, memories8bit, memoryAccesses);
     }
     else
     {
@@ -522,8 +1115,8 @@ string decode_mod_11(int w, int d, int reg, int rm, queue<short> &instruction, m
         }
         else
         {
-            num1 = get_bits(9, 8, registers[regs_32[reg%4]]);
-            num2 = get_bits(9, 8, registers[regs_32[rm%4]]);
+            num1 = get_bits(9, 8, registers[regs_32[reg % 4]]);
+            num2 = get_bits(9, 8, registers[regs_32[rm % 4]]);
             num3 = num1 + num2;
             num4 = unsigned(num1) + unsigned(num2);
             registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffff00ff) | ((num3 << 8) & 0x0000ff00);
@@ -554,8 +1147,8 @@ string decode_mod_11(int w, int d, int reg, int rm, queue<short> &instruction, m
         }
         else
         {
-            num1 = get_bits(9, 8, registers[regs_32[reg%4]]);
-            num2 = get_bits(9, 8, registers[regs_32[rm%4]]);
+            num1 = get_bits(9, 8, registers[regs_32[reg % 4]]);
+            num2 = get_bits(9, 8, registers[regs_32[rm % 4]]);
             num3 = num1 + num2;
             num4 = unsigned(num1) + unsigned(num2);
             registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((num3 << 8) & 0x0000ff00);
@@ -656,6 +1249,9 @@ int main()
 */
 
 // parity and auxiliary flag should be used .......................................................//
+// Exception handling when memory address is not there
+// Display the memory accesses at final
+// Decode instructions with prefixes
 
 string Adder::decode_add(queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int8_t> memories8bit, list<string> &memoryAccesses)
 {
@@ -664,14 +1260,14 @@ string Adder::decode_add(queue<short> &instruction, map<string, int> &registers,
     bool w = get_bits(1, 1, instruction.front());
 
     instruction.pop();
-    registers["EIP"]=registers["EIP"]+1;
+    registers["EIP"] = registers["EIP"] + 1;
 
     int mod = instruction.front() >> 6;
     int reg = get_bits(4, 3, instruction.front());
     int rm = get_bits(1, 3, instruction.front());
 
     instruction.pop();
-    registers["EIP"]=registers["EIP"]+1;
+    registers["EIP"] = registers["EIP"] + 1;
 
     //printf("d:%d \n", d);
     //printf("w:%d \n", w);

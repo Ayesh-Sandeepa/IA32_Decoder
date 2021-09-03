@@ -37,22 +37,21 @@ int main()
     registers["FS"] = 0x0;
     registers["GS"] = 0x33;
 
-    memories32bit[to_string(registers["EAX"])]=0;
-    memories32bit[to_string(registers["ECX"])]=0;
-    memories32bit[to_string(registers["EDX"])]=0;
-    memories32bit[to_string(registers["EBX"])]=0;
-    memories32bit[to_string(registers["EBP"])]=0;
-    memories32bit[to_string(registers["ESI"])]=0;
-    memories32bit[to_string(registers["EDI"])]=0;
+    memories32bit[to_string(0xbf8db144)]=0;
+    memories32bit[to_string(0x88c5cffb)]=0;
+    memories32bit[to_string(0x1)]=0;
+    memories32bit[to_string(0xae5ff4)]=0;
+    memories32bit[to_string(0xbf8db118)]=0;
+    memories32bit[to_string(0x9a0ca0)]=0;
+    memories32bit[to_string(0x0)]=0;
 
-    memories8bit[to_string(registers["EAX"])]=0;
-    memories8bit[to_string(registers["ECX"])]=0;
-    memories8bit[to_string(registers["EDX"])]=0;
-    memories8bit[to_string(registers["EBX"])]=0;
-    memories8bit[to_string(registers["EBP"])]=0;
-    memories8bit[to_string(registers["ESI"])]=0;
-    memories8bit[to_string(registers["EDI"])]=0;
-
+    memories8bit[to_string(0xbf8db144)]=0;
+    memories8bit[to_string(0x88c5cffb)]=0;
+    memories8bit[to_string(0x1)]=0;
+    memories8bit[to_string(0xae5ff4)]=0;
+    memories8bit[to_string(0xbf8db118)]=0;
+    memories8bit[to_string(0x9a0ca0)]=0;
+    memories8bit[to_string(0x0)]=0;
 
     ifstream myfile;
     myfile.open("test.txt");

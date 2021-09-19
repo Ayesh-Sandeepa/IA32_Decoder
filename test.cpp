@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <iostream>
-
+#include <map>
 
 using namespace std;
 int main(){
+   map<string, int> memories32bit;
 
    /* int a=0xbf8db144;
     int b=0x88c5cffb;
@@ -37,7 +38,15 @@ int main(){
    if num1 and num2 are in same sign and the tot in other sign, there is overflow
    it tot2<0, there is a carry
 */
-   cout << dec << "num1: " <<num1 << "    num2: "<<num2<< "     tot1: "<<tot1<<"     tot2: "<<tot2<<"     tot3: "<<tot3<<"\n";
-   cout << dec << "nums1: " <<nums1 << "    nums2: "<<nums2<<"\n";
+   //cout << dec << "num1: " <<num1 << "    num2: "<<num2<< "     tot1: "<<tot1<<"     tot2: "<<tot2<<"     tot3: "<<tot3<<"\n";
+   //cout << dec << "nums1: " <<nums1 << "    nums2: "<<nums2<<"\n";
+    memories32bit[to_string(0xbf8db144)]=126;
+
+
+    printf("%d \n", memories32bit[to_string(0xbf8db144)]);
+    printf("%d \n", memories32bit["nope"]);
+    memories32bit["nope"]=34;
+    printf("%d \n", memories32bit["nope"]);
+
     return 0;
 }

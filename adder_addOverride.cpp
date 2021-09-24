@@ -22,24 +22,17 @@ short enc[] = {0x03, 0x44, 0xcd, 0x80, 0x00, 0x00, 0x00};
 
 bool opSize;
 
-/*
-void convert_binary(short *encodings)
-{
-    string num1 = bitset<8>(encodings[1]).to_string();
-    cout << num1 << "\n";
-}
-*/
 
-Adder::Adder(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
+Adder_addOverride::Adder_addOverride(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
     : common(com), instruction(instruction), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses)
 {
 }
 
-string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int scale, int base)
+string Adder_addOverride::decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int scale, int base)
 {
     string dispWithSIB = "";
 
-    int disp_bytes[] = {4, 1, 4};
+    int disp_bytes[] = {2, 1, 2};
     int bytes = disp_bytes[mod];
 
     int disp;
@@ -937,10 +930,10 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
     return dispWithSIB;
 }
 
-string Adder::decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm)
+string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm)
 {
     string dispWithoutSIB = "";
-    int disp_bytes[] = {4, 1, 4};
+    int disp_bytes[] = {2, 1, 2};
     int bytes = disp_bytes[mod];
 
     int disp = common.assemble_bits(bytes, false, instruction, registers);
@@ -1234,7 +1227,7 @@ string Adder::decode_displacement_without_SIB(int w, int d, int mod, int reg, in
     return dispWithoutSIB;
 };
 
-string Adder::decode_SIB(int w, int d, int mod, int reg)
+string Adder_addOverride::decode_SIB(int w, int d, int mod, int reg)
 {
     string stringSib = "";
 
@@ -1255,7 +1248,7 @@ string Adder::decode_SIB(int w, int d, int mod, int reg)
     return stringSib;
 }
 
-string Adder::decode_mod_00(int w, int d, int reg, int rm)
+string Adder_addOverride::decode_mod_00(int w, int d, int reg, int rm)
 {
     string string00 = "";
     if (rm == 4)
@@ -1411,7 +1404,7 @@ string Adder::decode_mod_00(int w, int d, int reg, int rm)
     return string00;
 }
 
-string Adder::decode_mod_01(int w, int d, int reg, int rm)
+string Adder_addOverride::decode_mod_01(int w, int d, int reg, int rm)
 {
     string string01 = "";
     if (rm == 4)
@@ -1425,7 +1418,7 @@ string Adder::decode_mod_01(int w, int d, int reg, int rm)
     return string01;
 }
 
-string Adder::decode_mod_10(int w, int d, int reg, int rm)
+string Adder_addOverride::decode_mod_10(int w, int d, int reg, int rm)
 {
     string string10 = "";
     if (rm == 4)
@@ -1439,7 +1432,7 @@ string Adder::decode_mod_10(int w, int d, int reg, int rm)
     return string10;
 }
 
-string Adder::decode_mod_11(int w, int d, int reg, int rm)
+string Adder_addOverride::decode_mod_11(int w, int d, int reg, int rm)
 {
     string string11 = "";
     if (w == 0)
@@ -1602,55 +1595,7 @@ string Adder::decode_mod_11(int w, int d, int reg, int rm)
     return string11;
 }
 
-/*
-int main()
-{
-    //printf ("Typical Hello World!");
-    cout << enc[1] << " " << enc[0] << "\n";
-
-    bool d = common.get_bits(2, 1, enc[0]);
-    bool w = common.get_bits(1, 1, enc[0]);
-
-    int mod = enc[1] >> 6;
-    int reg = common.get_bits(4, 3, enc[1]);
-    int rm = common.get_bits(1, 3, enc[1]);
-
-    printf("d:%d \n", d);
-    printf("w:%d \n", w);
-    printf("mod:%d \n", mod);
-    printf("reg:%d \n", reg);
-    printf("rm:%d \n", rm);
-
-    if (mod == 0)
-    {
-        decode_mod_00(w, d, reg, rm);
-    }
-    else if (mod == 1)
-    {
-        decode_mod_01(w, d, reg, rm);
-    }
-    else if (mod == 2)
-    {
-        decode_mod_10(w, d, reg, rm);
-    }
-    else
-    {
-        decode_mod_11(w, d, reg, rm);
-    }
-
-    //convert_binary(enc);
-
-    //printf("%d \n", common.get_bits(8,enc[1]));
-    return 0;
-}
-*/
-
-// parity and auxiliary flag should be used .......................................................//
-// Exception handling when memory address is not there, normally the addressest that are not initiailized are set to zero
-// Display the memory accesses at final
-// Decode instructions with prefixes
-// Add other opcodes 0x81 etc
-string Adder::decode_add(short prefixes[4])
+string Adder_addOverride::decode_add(short prefixes[4])
 {
     bool d = common.get_bits(2, 1, instruction.front());
     bool w = common.get_bits(1, 1, instruction.front());
@@ -1681,13 +1626,6 @@ string Adder::decode_add(short prefixes[4])
         opSize = false;
     }
 
-    if (prefixes[3] == 0x67)
-    {
-        Adder_addOverride adder_addOverride(common,instruction, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-        decoded_bytes=adder_addOverride.decode_add(prefixes);
-    }
-    else
-    {
         if (mod == 0)
         {
             decoded_bytes = decode_mod_00(w, d, reg, rm);
@@ -1704,13 +1642,5 @@ string Adder::decode_add(short prefixes[4])
         {
             decoded_bytes = decode_mod_11(w, d, reg, rm);
         }
-    }
 
-    cout << "add " << decoded_bytes;
-
-    cout << "EAX: " << hex << registers["EAX"] << "\n";
-    cout << "ECX: " << hex << registers["ECX"] << "\n";
-    cout << "EFLAGS: " << hex << registers["EFLAGS"] << "\n \n";
-
-    return "Adder instantiated and done";
 }

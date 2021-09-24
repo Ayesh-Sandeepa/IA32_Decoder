@@ -1,0 +1,38 @@
+8b 82 14 00 00 00    	mov    0x14(%edx),%eax
+ff b3 2c 00 00 00    	pushl  0x2c(%ebx)
+
+83 c6 01             	add    $0x1,%esi
+83 c4 10             	add    $0x10,%esp
+01 1b                	add    %ebx,(%ebx)
+03 3b                	add    (%ebx),%edi
+00 00                	add    %al,(%eax)
+00 30                	add    %dh,(%eax)
+00 05 f1 ff ff 04    	add    %al,0x4fffff1
+
+
+
+
+
+-------------------------------------------------------------
+
+
+
+01 c1                	add    %eax,%ecx
+00 c1                	add    %al,%cl
+
+03 08             	add    (%eax),%ecx
+03 0c 5a          	add    (%edx,%ebx,2),%ecx
+02 04 5a          	add    (%edx,%ebx,2),%al
+02 0c 5a          	add    (%edx,%ebx,2),%cl
+03 04 4d 80 00 00 00 	add    0x80(,%ecx,2),%eax
+01 04 4d 80 00 00 00	add    %eax,0x80(,%ecx,2)
+02 04 4d 80 00 00 00	add    0x80(,%ecx,2),%al
+00 04 4d 80 00 00 00	add    %al,0x80(,%ecx,2)
+
+03 8c 55 80 00 00 00	add    0x80(%ebp,%edx,2),%ecx
+03 44 4b 80  		add    0x80(%ebx,%ecx,2),%eax
+03 44 4d 80 	 	add    0x80(%ebp,%ecx,2),%eax
+
+
+
+

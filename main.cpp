@@ -19,6 +19,8 @@ int main()
     map<string, int> memories32bit;
     map<string, int16_t> memories16bit;
     map<string, int8_t> memories8bit;
+    queue<short> encoded_instructions;
+    short prefixes[4]={0,0,0,0};
 
     map<string, int> registers;
     registers["EAX"] = 0xbf8db144;
@@ -65,10 +67,8 @@ int main()
     ifstream myfile;
     myfile.open("test.txt");
 
-    Adder adder;
-
-    queue<short> encoded_instructions;
-    short prefixes[4]={NULL,NULL,NULL,NULL};
+    Common common;
+    Adder adder(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
 
     stringstream sss;
     string test_data, word;
@@ -106,11 +106,11 @@ int main()
         }
         else if (nextOpcode == 0x0 or nextOpcode == 0x1 or nextOpcode == 0x2 or nextOpcode == 0x3 or nextOpcode == 0x4 or nextOpcode == 0x5 or nextOpcode == 0x80 or nextOpcode == 0x81 or nextOpcode == 0x82 or nextOpcode == 0x83)
         {
-            adder.decode_add(prefixes,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-            prefixes[0]=NULL;
-            prefixes[1]=NULL;
-            prefixes[2]=NULL;
-            prefixes[3]=NULL;
+            adder.decode_add(prefixes);
+            prefixes[0]=0;
+            prefixes[1]=0;
+            prefixes[2]=0;
+            prefixes[3]=0;
         }
     }
 

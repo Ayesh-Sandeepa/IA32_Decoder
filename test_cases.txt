@@ -18,6 +18,7 @@ ff b3 2c 00 00 00    	pushl  0x2c(%ebx)
 
 
 01 c1                	add    %eax,%ecx
+66 01 c1             	add    %ax,%cx
 00 c1                	add    %al,%cl
 
 03 08             	add    (%eax),%ecx

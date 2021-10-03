@@ -15,6 +15,10 @@ using namespace std;
 class Adder
 {
 private:
+    bool opSize;
+    string regs_8[8];
+    string regs_16[8];
+    string regs_32[8];
 public:
     //map<string, int> &registers;
     //Adder(map<string, int> &registers);
@@ -41,6 +45,12 @@ public:
 class Adder_addOverride
 {
 private:
+    bool opSize;
+    uint16_t *list1[2], *list2[2], *list3[4];
+    string regs_16bitmode[8];
+    string regs_8[8];
+    string regs_16[8];
+    string regs_32[8];
 public:
     Common common;
     queue<short> &instruction;

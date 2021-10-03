@@ -40,6 +40,7 @@ int main()
     registers["FS"] = 0x0;
     registers["GS"] = 0x33;
 
+/*
     memories32bit[to_string(0xbf8db144)]=0;
     memories32bit[to_string(0x88c5cffb)]=0;
     memories32bit[to_string(0x1)]=0;
@@ -63,9 +64,12 @@ int main()
     memories8bit[to_string(0xbf8db118)]=0;
     memories8bit[to_string(0x9a0ca0)]=0;
     memories8bit[to_string(0x0)]=0;
+*/
 
     ifstream myfile;
     myfile.open("test.txt");
+
+    
 
     Common common;
     Adder adder(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
@@ -87,7 +91,7 @@ int main()
         nextOpcode = encoded_instructions.front();
         //cout << "Next opcode : " << nextOpcode << "\n";
 
-        //listQueue(encoded_instructions);
+        listQueue(encoded_instructions);
         if(nextOpcode==0xf0 or nextOpcode==0xf2 or nextOpcode==0xf3){
             prefixes[0]=nextOpcode;
             encoded_instructions.pop();
@@ -114,6 +118,10 @@ int main()
         }
     }
 
+    for(auto it=memoryAccesses.begin();it!=memoryAccesses.end();++it){
+        cout << *it <<"\n";
+    }
+
     myfile.close();
 
     return 0;
@@ -129,3 +137,4 @@ void listQueue(queue<short> myQueue)
     }
     cout << "\n";
 }
+

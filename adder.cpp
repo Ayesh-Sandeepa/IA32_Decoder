@@ -100,6 +100,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                             num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
                         }
                         num2 = memories8bit[to_string(disp)];
+                        memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(disp));
+
                         num3 = num1 + num2;
                         num4 = unsigned(num1) + unsigned(num2);
 
@@ -128,6 +130,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                             num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
                         }
                         num2 = memories8bit[to_string((unsigned)(registers[regs_32[index]] * 2 + disp))];
+                        memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)(registers[regs_32[index]] * 2 + disp)));
+
                         num3 = num1 + num2;
                         num4 = unsigned(num1) + unsigned(num2);
 
@@ -153,6 +157,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         {
                             num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
                             num2 = memories8bit[to_string(disp)];
+                            memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(disp));
+
                             num3 = num1 + num2;
                             num4 = unsigned(num1) + unsigned(num2);
 
@@ -162,6 +168,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         {
                             num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
                             num2 = memories8bit[to_string(disp)];
+                            memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(disp));
+
                             num3 = num1 + num2;
                             num4 = unsigned(num1) + unsigned(num2);
 
@@ -183,7 +191,9 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         if (reg < 4)
                         {
                             num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
-                            num2 = memories8bit[to_string((registers[regs_32[index]] * scale + disp))];
+                            num2 = memories8bit[to_string((unsigned)(registers[regs_32[index]] * scale + disp))];
+                            memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)(registers[regs_32[index]] * scale + disp)));
+
                             num3 = num1 + num2;
                             num4 = unsigned(num1) + unsigned(num2);
 
@@ -193,6 +203,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         {
                             num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
                             num2 = memories8bit[to_string((unsigned)(registers[regs_32[index]] * scale + disp))];
+                            memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)(registers[regs_32[index]] * scale + disp)));
+
                             num3 = num1 + num2;
                             num4 = unsigned(num1) + unsigned(num2);
 
@@ -222,6 +234,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                             num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
 
                             num2 = memories16bit[to_string(disp)];
+                            memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(disp));
+
                             num3 = num1 + num2;
                             num4 = unsigned(num1) + unsigned(num2);
 
@@ -243,6 +257,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                             num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
 
                             num2 = memories16bit[to_string((unsigned)(registers[regs_32[index]] * 2 + disp))];
+                            memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)(registers[regs_32[index]] * 2 + disp)));
+
                             num3 = num1 + num2;
                             num4 = unsigned(num1) + unsigned(num2);
 
@@ -266,6 +282,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
 
                             num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
                             num2 = memories16bit[to_string(disp)];
+                            memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(disp));
+
                             num3 = num1 + num2;
                             num4 = unsigned(num1) + unsigned(num2);
 
@@ -285,6 +303,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
 
                             num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
                             num2 = memories16bit[to_string((unsigned)(registers[regs_32[index]] * scale + disp))];
+                            memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)(registers[regs_32[index]] * scale + disp)));
+
                             num3 = num1 + num2;
                             num4 = unsigned(num1) + unsigned(num2);
 
@@ -306,6 +326,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         if (index == 4)
                         {
                             int num1 = memories32bit[to_string(disp)];
+                            memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string(disp));
+
                             int num2 = registers[regs_32[reg]];
                             int num3 = num1 + num2;
                             unsigned int num4 = unsigned(num1) + unsigned(num2);
@@ -323,6 +345,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         else
                         {
                             int num1 = memories32bit[to_string((unsigned)(registers[regs_32[index]] * scale + disp))];
+                            memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string((unsigned)(registers[regs_32[index]] * scale + disp)));
+
                             int num2 = registers[regs_32[reg]];
                             int num3 = num1 + num2;
                             unsigned int num4 = unsigned(num1) + unsigned(num2);
@@ -343,6 +367,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         if (index == 4)
                         {
                             int num1 = memories32bit[to_string(disp)];
+                            memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string(disp));
+
                             int num2 = registers[regs_32[reg]];
                             int num3 = num1 + num2;
                             unsigned int num4 = unsigned(num1) + unsigned(num2);
@@ -360,6 +386,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         {
 
                             int num1 = memories32bit[to_string((unsigned)(registers[regs_32[index]] * scale + disp))];
+                            memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string((unsigned)(registers[regs_32[index]] * scale + disp)));
+
                             int num2 = registers[regs_32[reg]];
                             int num3 = num1 + num2;
                             unsigned int num4 = unsigned(num1) + unsigned(num2);
@@ -398,6 +426,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                             num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
                         }
                         num2 = memories8bit[to_string((unsigned)registers[regs_32[base]])];
+                        memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)registers[regs_32[base]]));
+
                         num3 = num1 + num2;
                         num4 = unsigned(num1) + unsigned(num2);
 
@@ -426,6 +456,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                             num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
                         }
                         num2 = memories8bit[to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp))];
+                        memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp)));
+
                         num3 = num1 + num2;
                         num4 = unsigned(num1) + unsigned(num2);
 
@@ -452,6 +484,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         {
                             num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
                             num2 = memories8bit[to_string((unsigned)registers[regs_32[base]])];
+                            memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)registers[regs_32[base]]));
+
                             num3 = num1 + num2;
                             num4 = unsigned(num1) + unsigned(num2);
 
@@ -461,6 +495,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         {
                             num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
                             num2 = memories8bit[to_string((unsigned)registers[regs_32[base]])];
+                            memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)registers[regs_32[base]]));
+
                             num3 = num1 + num2;
                             num4 = unsigned(num1) + unsigned(num2);
 
@@ -484,6 +520,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         {
                             num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
                             num2 = memories8bit[to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp))];
+                            memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)));
+
                             num3 = num1 + num2;
                             num4 = unsigned(num1) + unsigned(num2);
 
@@ -493,6 +531,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         {
                             num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
                             num2 = memories8bit[to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp))];
+                            memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)));
+
                             num3 = num1 + num2;
                             num4 = unsigned(num1) + unsigned(num2);
 
@@ -523,6 +563,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                             num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
 
                             num2 = memories16bit[to_string((unsigned)registers[regs_32[base]])];
+                            memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)registers[regs_32[base]]));
+
                             num3 = num1 + num2;
                             num4 = unsigned(num1) + unsigned(num2);
 
@@ -545,6 +587,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                             num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
 
                             num2 = memories16bit[to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp))];
+                            memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp)));
+
                             num3 = num1 + num2;
                             num4 = unsigned(num1) + unsigned(num2);
 
@@ -569,6 +613,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
 
                             num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
                             num2 = memories16bit[to_string((unsigned)registers[regs_32[base]])];
+                            memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)registers[regs_32[base]]));
+
                             num3 = num1 + num2;
                             num4 = unsigned(num1) + unsigned(num2);
 
@@ -589,6 +635,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
 
                             num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
                             num2 = memories16bit[to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp))];
+                            memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)));
+
                             num3 = num1 + num2;
                             num4 = unsigned(num1) + unsigned(num2);
 
@@ -610,6 +658,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         if (index == 4)
                         {
                             int num1 = memories32bit[to_string((unsigned)registers[regs_32[base]])];
+                            memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string((unsigned)registers[regs_32[base]]));
+
                             int num2 = registers[regs_32[reg]];
                             int num3 = num1 + num2;
                             unsigned int num4 = unsigned(num1) + unsigned(num2);
@@ -627,6 +677,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         else
                         {
                             int num1 = memories32bit[to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp))];
+                            memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)));
+
                             int num2 = registers[regs_32[reg]];
                             int num3 = num1 + num2;
                             unsigned int num4 = unsigned(num1) + unsigned(num2);
@@ -647,6 +699,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         if (index == 4)
                         {
                             int num1 = memories32bit[to_string((unsigned)registers[regs_32[base]])];
+                            memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string((unsigned)registers[regs_32[base]]));
+                             
                             int num2 = registers[regs_32[reg]];
                             int num3 = num1 + num2;
                             unsigned int num4 = unsigned(num1) + unsigned(num2);
@@ -663,6 +717,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         else
                         {
                             int num1 = memories32bit[to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp))];
+                            memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)));
+                             
                             int num2 = registers[regs_32[reg]];
                             int num3 = num1 + num2;
                             unsigned int num4 = unsigned(num1) + unsigned(num2);
@@ -704,6 +760,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
                     }
                     num2 = memories8bit[to_string((unsigned)(registers[regs_32[base]] + disp))];
+                    memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)(registers[regs_32[base]] + disp)));
+
                     num3 = num1 + num2;
                     num4 = unsigned(num1) + unsigned(num2);
 
@@ -731,6 +789,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
                     }
                     num2 = memories8bit[to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp))];
+                    memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp)));
+
                     num3 = num1 + num2;
                     num4 = unsigned(num1) + unsigned(num2);
 
@@ -756,6 +816,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                     {
                         num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
                         num2 = memories8bit[to_string((unsigned)(registers[regs_32[base]] + disp))];
+                        memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)(registers[regs_32[base]] + disp)));
+
                         num3 = num1 + num2;
                         num4 = unsigned(num1) + unsigned(num2);
 
@@ -765,6 +827,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                     {
                         num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
                         num2 = memories8bit[to_string((unsigned)(registers[regs_32[base]] + disp))];
+                        memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)(registers[regs_32[base]] + disp)));
+
                         num3 = num1 + num2;
                         num4 = unsigned(num1) + unsigned(num2);
 
@@ -787,6 +851,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                     {
                         num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
                         num2 = memories8bit[to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp))];
+                        memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)));
+
                         num3 = num1 + num2;
                         num4 = unsigned(num1) + unsigned(num2);
 
@@ -796,6 +862,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                     {
                         num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
                         num2 = memories8bit[to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp))];
+                        memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)));
+
                         num3 = num1 + num2;
                         num4 = unsigned(num1) + unsigned(num2);
 
@@ -825,6 +893,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
 
                         num2 = memories16bit[to_string((unsigned)(registers[regs_32[base]] + disp))];
+                        memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)(registers[regs_32[base]] + disp)));
+
                         num3 = num1 + num2;
                         num4 = unsigned(num1) + unsigned(num2);
 
@@ -846,6 +916,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
 
                         num2 = memories16bit[to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp))];
+                        memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp)));
+
                         num3 = num1 + num2;
                         num4 = unsigned(num1) + unsigned(num2);
 
@@ -869,6 +941,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
 
                         num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
                         num2 = memories16bit[to_string((unsigned)(registers[regs_32[base]] + disp))];
+                        memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)(registers[regs_32[base]] + disp)));
+
                         num3 = num1 + num2;
                         num4 = unsigned(num1) + unsigned(num2);
 
@@ -888,6 +962,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
 
                         num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
                         num2 = memories16bit[to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp))];
+                        memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)));
+
                         num3 = num1 + num2;
                         num4 = unsigned(num1) + unsigned(num2);
 
@@ -909,6 +985,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                     if (index == 4)
                     {
                         int num1 = memories32bit[to_string((unsigned)(registers[regs_32[base]] + disp))];
+                        memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string((unsigned)(registers[regs_32[base]] + disp)));
+
                         int num2 = registers[regs_32[reg]];
                         int num3 = num1 + num2;
                         unsigned int num4 = unsigned(num1) + unsigned(num2);
@@ -926,6 +1004,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                     else
                     {
                         int num1 = memories32bit[to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp))];
+                        memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)));
+
                         int num2 = registers[regs_32[reg]];
                         int num3 = num1 + num2;
                         unsigned int num4 = unsigned(num1) + unsigned(num2);
@@ -946,6 +1026,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                     if (index == 4)
                     {
                         int num1 = memories32bit[to_string((unsigned)(registers[regs_32[base]] + disp))];
+                        memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string((unsigned)(registers[regs_32[base]] + disp)));
+
                         int num2 = registers[regs_32[reg]];
                         int num3 = num1 + num2;
                         unsigned int num4 = unsigned(num1) + unsigned(num2);
@@ -962,6 +1044,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                     else
                     {
                         int num1 = memories32bit[to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp))];
+                        memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)));
+
                         int num2 = registers[regs_32[reg]];
                         int num3 = num1 + num2;
                         unsigned int num4 = unsigned(num1) + unsigned(num2);
@@ -1008,6 +1092,8 @@ string Adder::decode_displacement_without_SIB(int w, int d, int mod, int reg, in
                     num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
                 }
                 num2 = memories8bit[to_string(disp)];
+                memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(disp));
+
                 num3 = num1 + num2;
                 num4 = unsigned(num1) + unsigned(num2);
 
@@ -1030,6 +1116,8 @@ string Adder::decode_displacement_without_SIB(int w, int d, int mod, int reg, in
                 {
                     num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
                     num2 = memories8bit[to_string(disp)];
+                    memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(disp));
+
                     num3 = num1 + num2;
                     num4 = unsigned(num1) + unsigned(num2);
 
@@ -1039,6 +1127,8 @@ string Adder::decode_displacement_without_SIB(int w, int d, int mod, int reg, in
                 {
                     num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
                     num2 = memories8bit[to_string(disp)];
+                    memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(disp));
+
                     num3 = num1 + num2;
                     num4 = unsigned(num1) + unsigned(num2);
 
@@ -1065,6 +1155,8 @@ string Adder::decode_displacement_without_SIB(int w, int d, int mod, int reg, in
                     num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
 
                     num2 = memories16bit[to_string(disp)];
+                    memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(disp));
+
                     num3 = num1 + num2;
                     num4 = unsigned(num1) + unsigned(num2);
 
@@ -1085,6 +1177,8 @@ string Adder::decode_displacement_without_SIB(int w, int d, int mod, int reg, in
 
                     num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
                     num2 = memories16bit[to_string(disp)];
+                    memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(disp));
+
                     num3 = num1 + num2;
                     num4 = unsigned(num1) + unsigned(num2);
 
@@ -1103,6 +1197,8 @@ string Adder::decode_displacement_without_SIB(int w, int d, int mod, int reg, in
                 if (d == 0)
                 {
                     int num1 = memories32bit[to_string(disp)];
+                    memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string(disp));
+
                     int num2 = registers[regs_32[reg]];
                     int num3 = num1 + num2;
                     unsigned int num4 = unsigned(num1) + unsigned(num2);
@@ -1120,6 +1216,8 @@ string Adder::decode_displacement_without_SIB(int w, int d, int mod, int reg, in
                 else
                 {
                     int num1 = memories32bit[to_string(disp)];
+                    memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string(disp));
+
                     int num2 = registers[regs_32[reg]];
                     int num3 = num1 + num2;
                     unsigned int num4 = unsigned(num1) + unsigned(num2);
@@ -1154,6 +1252,8 @@ string Adder::decode_displacement_without_SIB(int w, int d, int mod, int reg, in
                     num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
                 }
                 num2 = memories8bit[to_string((unsigned)(registers[regs_32[rm]] + disp))];
+                memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)(registers[regs_32[rm]] + disp)));
+
                 num3 = num1 + num2;
                 num4 = unsigned(num1) + unsigned(num2);
 
@@ -1176,6 +1276,8 @@ string Adder::decode_displacement_without_SIB(int w, int d, int mod, int reg, in
                 {
                     num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
                     num2 = memories8bit[to_string((unsigned)(registers[regs_32[rm]] + disp))];
+                    memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)(registers[regs_32[rm]] + disp)));
+
                     num3 = num1 + num2;
                     num4 = unsigned(num1) + unsigned(num2);
 
@@ -1185,6 +1287,8 @@ string Adder::decode_displacement_without_SIB(int w, int d, int mod, int reg, in
                 {
                     num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
                     num2 = memories8bit[to_string((unsigned)(registers[regs_32[rm]] + disp))];
+                    memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)(registers[regs_32[rm]] + disp)));
+
                     num3 = num1 + num2;
                     num4 = unsigned(num1) + unsigned(num2);
 
@@ -1210,6 +1314,8 @@ string Adder::decode_displacement_without_SIB(int w, int d, int mod, int reg, in
 
                     num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
                     num2 = memories16bit[to_string((unsigned)(registers[regs_32[rm]] + disp))];
+                    memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)(registers[regs_32[rm]] + disp)));
+
                     num3 = num1 + num2;
                     num4 = unsigned(num1) + unsigned(num2);
 
@@ -1230,6 +1336,8 @@ string Adder::decode_displacement_without_SIB(int w, int d, int mod, int reg, in
 
                     num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
                     num2 = memories16bit[to_string((unsigned)(registers[regs_32[rm]] + disp))];
+                    memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)(registers[regs_32[rm]] + disp)));
+
                     num3 = num1 + num2;
                     num4 = unsigned(num1) + unsigned(num2);
 
@@ -1248,6 +1356,8 @@ string Adder::decode_displacement_without_SIB(int w, int d, int mod, int reg, in
                 if (d == 0)
                 {
                     int num1 = memories32bit[to_string((unsigned)(registers[regs_32[rm]] + disp))];
+                    memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string((unsigned)(registers[regs_32[rm]] + disp)));
+
                     int num2 = registers[regs_32[reg]];
                     int num3 = num1 + num2;
                     unsigned int num4 = unsigned(num1) + unsigned(num2);
@@ -1264,6 +1374,8 @@ string Adder::decode_displacement_without_SIB(int w, int d, int mod, int reg, in
                 else
                 {
                     int num1 = memories32bit[to_string((unsigned)(registers[regs_32[rm]] + disp))];
+                    memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string((unsigned)(registers[regs_32[rm]] + disp)));
+
                     int num2 = registers[regs_32[reg]];
                     int num3 = num1 + num2;
                     unsigned int num4 = unsigned(num1) + unsigned(num2);
@@ -1336,6 +1448,8 @@ string Adder::decode_mod_00(int w, int d, int reg, int rm)
                     num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
                 }
                 num2 = memories8bit[to_string((unsigned)registers[regs_32[rm]])];
+                memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)registers[regs_32[rm]]));
+
                 num3 = num1 + num2;
                 num4 = unsigned(num1) + unsigned(num2);
 
@@ -1358,6 +1472,8 @@ string Adder::decode_mod_00(int w, int d, int reg, int rm)
                 {
                     num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
                     num2 = memories8bit[to_string((unsigned)registers[regs_32[rm]])];
+                    memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)registers[regs_32[rm]]));
+
                     num3 = num1 + num2;
                     num4 = unsigned(num1) + unsigned(num2);
 
@@ -1367,6 +1483,8 @@ string Adder::decode_mod_00(int w, int d, int reg, int rm)
                 {
                     num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
                     num2 = memories8bit[to_string((unsigned)registers[regs_32[rm]])];
+                    memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)registers[regs_32[rm]]));
+
                     num3 = num1 + num2;
                     num4 = unsigned(num1) + unsigned(num2);
 
@@ -1393,6 +1511,8 @@ string Adder::decode_mod_00(int w, int d, int reg, int rm)
                     num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
 
                     num2 = memories16bit[to_string((unsigned)registers[regs_32[rm]])];
+                    memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)registers[regs_32[rm]]));
+
                     num3 = num1 + num2;
                     num4 = unsigned(num1) + unsigned(num2);
 
@@ -1413,6 +1533,8 @@ string Adder::decode_mod_00(int w, int d, int reg, int rm)
 
                     num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
                     num2 = memories8bit[to_string((unsigned)registers[regs_32[rm]])];
+                    memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string((unsigned)registers[regs_32[rm]]));
+
                     num3 = num1 + num2;
                     num4 = unsigned(num1) + unsigned(num2);
 
@@ -1429,6 +1551,8 @@ string Adder::decode_mod_00(int w, int d, int reg, int rm)
                 if (d == 0)
                 {
                     int num1 = memories32bit[to_string((unsigned)registers[regs_32[reg]])];
+                    memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string((unsigned)registers[regs_32[reg]]));
+
                     int num2 = registers[regs_32[reg]]; //registers["ECX"]
                     int num3 = num1 + num2;
                     unsigned int num4 = unsigned(num1) + unsigned(num2);
@@ -1445,6 +1569,8 @@ string Adder::decode_mod_00(int w, int d, int reg, int rm)
                 else
                 {
                     int num1 = memories32bit[to_string((unsigned)registers[regs_32[rm]])];
+                    memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string((unsigned)registers[regs_32[rm]]));
+
                     int num2 = registers[regs_32[reg]];
                     int num3 = num1 + num2;
                     unsigned int num4 = unsigned(num1) + unsigned(num2);

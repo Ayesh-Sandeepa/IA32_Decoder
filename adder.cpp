@@ -88,6 +88,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                 {
                     if (index == 4)
                     {
+                        memoryAccesses.push_back("add %" + regs_8[reg] + "," + to_string(disp));
+
                         int8_t num1, num2, num3;
                         uint8_t num4;
 
@@ -108,16 +110,19 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         memories8bit[to_string(disp)] = num3;
 
                         memoryAccesses.push_back("write "+ to_string(num3)+" to "+to_string(disp));
-
+                        
                         common.setOverflow8bit(num1, num2, num3, registers);
                         common.setCarry8bit(num1, num4, registers);
                         common.setSign(num3, registers);
                         common.setZero(num3, registers);
 
                         dispWithSIB = "%" + regs_8[reg] + "," + to_string(disp) + "\n";
+
                     }
                     else
                     {
+                        memoryAccesses.push_back("add %" + regs_8[reg] + "," + to_string(disp) + "(,%" + regs_32[index] + "," + to_string(scale) + ")");
+
                         int8_t num1, num2, num3;
                         uint8_t num4;
 
@@ -228,6 +233,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                     {
                         if (index == 4)
                         {
+                            memoryAccesses.push_back("add %" + regs_16[reg] + "," + to_string(disp));
+
                             int16_t num1, num2, num3;
                             uint16_t num4;
 
@@ -251,6 +258,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         }
                         else
                         {
+                            memoryAccesses.push_back("add %" + regs_16[reg] + "," + to_string(disp) + "(,%" + regs_32[index] + "," + to_string(scale) + ")");
+                            
                             int16_t num1, num2, num3;
                             uint16_t num4;
 
@@ -325,6 +334,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                     {
                         if (index == 4)
                         {
+                            memoryAccesses.push_back("add %" + regs_32[reg] + "," + to_string(disp));
+
                             int num1 = memories32bit[to_string(disp)];
                             memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string(disp));
 
@@ -344,6 +355,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         }
                         else
                         {
+                            memoryAccesses.push_back("add %" + regs_32[reg] + "," + to_string(disp) + "(,%" + regs_32[index] + "," + to_string(scale) + ")");
+
                             int num1 = memories32bit[to_string((unsigned)(registers[regs_32[index]] * scale + disp))];
                             memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string((unsigned)(registers[regs_32[index]] * scale + disp)));
 
@@ -413,6 +426,7 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                 {
                     if (index == 4)
                     {
+                        memoryAccesses.push_back("add %" + regs_8[reg] + "," + "(%" + regs_32[base] + ")");
 
                         int8_t num1, num2, num3;
                         uint8_t num4;
@@ -443,6 +457,7 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                     }
                     else
                     {
+                        memoryAccesses.push_back("add %" + regs_8[reg] + "," + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")");
 
                         int8_t num1, num2, num3;
                         uint8_t num4;
@@ -556,6 +571,7 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                     {
                         if (index == 4)
                         {
+                            memoryAccesses.push_back("add %" + regs_16[reg] + "," + "(%" + regs_32[base] + ")");
 
                             int16_t num1, num2, num3;
                             uint16_t num4;
@@ -580,6 +596,7 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         }
                         else
                         {
+                            memoryAccesses.push_back("add %" + regs_16[reg] + "," + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")" );
 
                             int16_t num1, num2, num3;
                             uint16_t num4;
@@ -657,6 +674,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                     {
                         if (index == 4)
                         {
+                            memoryAccesses.push_back("add %"  + regs_32[reg] + "," + "(%" + regs_32[base] + ")");
+
                             int num1 = memories32bit[to_string((unsigned)registers[regs_32[base]])];
                             memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string((unsigned)registers[regs_32[base]]));
 
@@ -676,6 +695,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         }
                         else
                         {
+                            memoryAccesses.push_back("add %" + regs_32[reg] + "," + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")");
+
                             int num1 = memories32bit[to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp))];
                             memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)));
 
@@ -748,6 +769,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
             {
                 if (index == 4)
                 {
+                    memoryAccesses.push_back("add %"  + regs_8[reg] + "," + to_string(disp) + "(%" + regs_32[base] + ")");
+
                     int8_t num1, num2, num3;
                     uint8_t num4;
 
@@ -777,6 +800,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                 }
                 else
                 {
+                    memoryAccesses.push_back("add %"+ regs_8[reg] + "," + to_string(disp) + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")");
+
                     int8_t num1, num2, num3;
                     uint8_t num4;
 
@@ -887,6 +912,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                 {
                     if (index == 4)
                     {
+                        memoryAccesses.push_back("add %" + regs_16[reg] + "," + to_string(disp) + "(%" + regs_32[base] + ")");
+
                         int16_t num1, num2, num3;
                         uint16_t num4;
 
@@ -910,6 +937,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                     }
                     else
                     {
+                        memoryAccesses.push_back("add %" + regs_16[reg] + "," + to_string(disp) + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")");
+
                         int16_t num1, num2, num3;
                         uint16_t num4;
 
@@ -984,6 +1013,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                 {
                     if (index == 4)
                     {
+                        memoryAccesses.push_back("add %" + regs_32[reg] + "," + to_string(disp) + "(%" + regs_32[base] + ")");
+
                         int num1 = memories32bit[to_string((unsigned)(registers[regs_32[base]] + disp))];
                         memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string((unsigned)(registers[regs_32[base]] + disp)));
 
@@ -1003,6 +1034,8 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                     }
                     else
                     {
+                        memoryAccesses.push_back("add %" + regs_32[reg] + "," + to_string(disp) + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")");
+
                         int num1 = memories32bit[to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp))];
                         memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string((unsigned)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)));
 
@@ -1080,6 +1113,8 @@ string Adder::decode_displacement_without_SIB(int w, int d, int mod, int reg, in
         {
             if (d == 0)
             {
+                memoryAccesses.push_back("add %" + regs_8[reg] + "," + to_string(disp));
+
                 int8_t num1, num2, num3;
                 uint8_t num4;
 
@@ -1149,6 +1184,8 @@ string Adder::decode_displacement_without_SIB(int w, int d, int mod, int reg, in
             {
                 if (d == 0)
                 {
+                    memoryAccesses.push_back("add %" + regs_16[reg] + "," + to_string(disp));
+
                     int16_t num1, num2, num3;
                     uint16_t num4;
 
@@ -1196,6 +1233,8 @@ string Adder::decode_displacement_without_SIB(int w, int d, int mod, int reg, in
             {
                 if (d == 0)
                 {
+                    memoryAccesses.push_back("add %" + regs_32[reg] + "," + to_string(disp) );
+
                     int num1 = memories32bit[to_string(disp)];
                     memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string(disp));
 
@@ -1240,6 +1279,8 @@ string Adder::decode_displacement_without_SIB(int w, int d, int mod, int reg, in
         {
             if (d == 0)
             {
+                memoryAccesses.push_back("add %" + regs_8[reg] + "," + to_string(disp) + "(%" + regs_32[rm] + ")");
+
                 int8_t num1, num2, num3;
                 uint8_t num4;
 
@@ -1309,6 +1350,8 @@ string Adder::decode_displacement_without_SIB(int w, int d, int mod, int reg, in
             {
                 if (d == 0)
                 {
+                    memoryAccesses.push_back("add %" + regs_16[reg] + "," + to_string(disp) + "(%" + regs_32[rm] + ")");
+
                     int16_t num1, num2, num3;
                     uint16_t num4;
 
@@ -1434,6 +1477,7 @@ string Adder::decode_mod_00(int w, int d, int reg, int rm)
         {
             if (d == 0)
             {
+                memoryAccesses.push_back("add %" + regs_8[reg] + ",(%" + regs_32[rm] + ")");
                 string00 = "%" + regs_8[reg] + ",(%" + regs_32[rm] + ")\n";
 
                 int8_t num1, num2, num3;
@@ -1503,6 +1547,8 @@ string Adder::decode_mod_00(int w, int d, int reg, int rm)
             {
                 if (d == 0)
                 {
+                    memoryAccesses.push_back("add %" + regs_16[reg] + ",(%" + regs_32[rm] + ")");
+
                     string00 = "%" + regs_16[reg] + ",(%" + regs_32[rm] + ")\n";
 
                     int16_t num1, num2, num3;
@@ -1550,6 +1596,8 @@ string Adder::decode_mod_00(int w, int d, int reg, int rm)
             {
                 if (d == 0)
                 {
+                    memoryAccesses.push_back("add %" + regs_32[reg] + ",(%" + regs_32[rm] + ")");
+
                     int num1 = memories32bit[to_string((unsigned)registers[regs_32[reg]])];
                     memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string((unsigned)registers[regs_32[reg]]));
 

@@ -75,7 +75,7 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
     }
     else
     {
-        disp = common.assemble_bits(bytes, true, instruction, registers);
+        disp = common.assemble_bits(bytes, true, instruction, registers) ;
     }
 
     if (mod == 0)
@@ -1939,6 +1939,12 @@ string Adder::decode_add(short prefixes[4])
 
     cout << "EAX: " << hex << registers["EAX"] << "\n";
     cout << "ECX: " << hex << registers["ECX"] << "\n";
+    cout << "EDX: " << hex << registers["EDX"] << "\n";
+    cout << "EBX: " << hex << registers["EBX"] << "\n";
+    cout << "ESP: " << hex << registers["ESP"] << "\n";
+    cout << "EBP: " << hex << registers["EBP"] << "\n";
+    cout << "ESI: " << hex << registers["ESI"] << "\n";
+    cout << "EDI: " << hex << registers["EDI"] << "\n";
     cout << "EFLAGS: " << hex << registers["EFLAGS"] << "\n \n";
 
     return "Adder instantiated and done";

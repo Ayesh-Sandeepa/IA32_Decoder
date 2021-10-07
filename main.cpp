@@ -91,7 +91,7 @@ int main()
         nextOpcode = encoded_instructions.front();
         //cout << "Next opcode : " << nextOpcode << "\n";
 
-        listQueue(encoded_instructions);
+        common.listQueue(encoded_instructions);
         if(nextOpcode==0xf0 or nextOpcode==0xf2 or nextOpcode==0xf3){
             prefixes[0]=nextOpcode;
             encoded_instructions.pop();
@@ -127,14 +127,4 @@ int main()
     return 0;
 }
 
-void listQueue(queue<short> myQueue)
-{
-    //function to print the whole queue
-    while (!myQueue.empty())
-    {
-        cout << ' ' << std::setw(2) << std::setfill('0') << hex << myQueue.front();
-        myQueue.pop();
-    }
-    cout << "\n";
-}
 

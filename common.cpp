@@ -28,10 +28,12 @@ int Common::assemble_bits(int bytes, bool SIB, queue<short> &instruction, map<st
     }
     for (int i = 0; i < bytes; i++)
     {
-        stream << setw(2) << setfill('0') << hex << displacement[3 - i];
+        stream << setw(2) << setfill('0') << hex << displacement[bytes- 1 - i];
     }
 
     string result(stream.str());
+
+    //cout << "combined bytes:" << result << "\n";
 
     comb_no << hex << result;
     comb_no >> x;
@@ -156,3 +158,15 @@ void Common::setOverflow32bit(int num1, int num2, int num3, map<string, int> &re
         registers["EFLAGS"] = registers["EFLAGS"] & 0xfffff7ff;
     }
 }
+
+void Common::listQueue(queue<short> myQueue)
+{
+    //function to print the whole queue
+    while (!myQueue.empty())
+    {
+        cout << ' ' << std::setw(2) << std::setfill('0') << hex << myQueue.front();
+        myQueue.pop();
+    }
+    cout << "\n";
+}
+

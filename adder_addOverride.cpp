@@ -55,14 +55,14 @@ Adder_addOverride::Adder_addOverride(Common com, queue<short> &instruction, map<
     regs_8[0]="BH";
 
    
-    regs_16bitmode[0]="BX+SI";
-    regs_16bitmode[1]="BX+DI";
-    regs_16bitmode[2]="BP+SI";
-    regs_16bitmode[3]="BP+DI";
-    regs_16bitmode[4]="SI";
-    regs_16bitmode[5]="DI";
-    regs_16bitmode[6]="BP";
-    regs_16bitmode[7]="BX";
+    regs_16bitmode[0]="(BX+SI)";
+    regs_16bitmode[1]="(BX+DI)";
+    regs_16bitmode[2]="(BP+SI)";
+    regs_16bitmode[3]="(BP+DI)";
+    regs_16bitmode[4]="(SI)";
+    regs_16bitmode[5]="(DI)";
+    regs_16bitmode[6]="(BP)";
+    regs_16bitmode[7]="(BX)";
 
 
     list1[0] = (uint16_t *)&registers["EBX"];
@@ -76,910 +76,6 @@ Adder_addOverride::Adder_addOverride(Common com, queue<short> &instruction, map<
     list3[2] = (uint16_t *)&registers["EBP"];
     list3[3] = (uint16_t *)&registers["EBX"];
 }
-
-/*
-string Adder_addOverride::decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int scale, int base)
-{
-    string dispWithSIB = "";
-
-    int disp_bytes[] = {2, 1, 2};
-    int bytes = disp_bytes[mod];
-
-    int disp;
-
-    if (mod == 0 and base != 5)
-    {
-    }
-    else
-    {
-        disp = common.assemble_bits(bytes, true, instruction, registers);
-    }
-
-    if (mod == 0)
-    {
-        if (base == 5)
-        {
-            if (w == 0)
-            {
-                if (d == 0)
-                {
-                    if (index == 4)
-                    {
-                        int8_t num1, num2, num3;
-                        uint8_t num4;
-
-                        if (reg < 4)
-                        {
-                            num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
-                        }
-                        else
-                        {
-                            num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
-                        }
-                        num2 = memories8bit[to_string(disp)];
-                        num3 = num1 + num2;
-                        num4 = unsigned(num1) + unsigned(num2);
-
-                        memories8bit[to_string(disp)] = num3;
-
-                        common.setOverflow8bit(num1, num2, num3, registers);
-                        common.setCarry8bit(num1, num4, registers);
-                        common.setSign(num3, registers);
-                        common.setZero(num3, registers);
-
-                        dispWithSIB = "%" + regs_8[reg] + "," + to_string(disp) + "\n";
-                    }
-                    else
-                    {
-                        int8_t num1, num2, num3;
-                        uint8_t num4;
-
-                        if (reg < 4)
-                        {
-                            num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
-                        }
-                        else
-                        {
-                            num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
-                        }
-                        num2 = memories8bit[to_string(registers[regs_32[index]] * 2 + disp)];
-                        num3 = num1 + num2;
-                        num4 = unsigned(num1) + unsigned(num2);
-
-                        memories8bit[to_string(registers[regs_32[index]] * scale + disp)] = num3;
-
-                        common.setOverflow8bit(num1, num2, num3, registers);
-                        common.setCarry8bit(num1, num4, registers);
-                        common.setSign(num3, registers);
-                        common.setZero(num3, registers);
-
-                        dispWithSIB = "%" + regs_8[reg] + "," + to_string(disp) + "(,%" + regs_32[index] + "," + to_string(scale) + ")" + "\n";
-                    }
-                }
-                else if (d == 1)
-                {
-                    if (index == 4)
-                    {
-                        int8_t num1, num2, num3;
-                        uint8_t num4;
-
-                        if (reg < 4)
-                        {
-                            num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
-                            num2 = memories8bit[to_string(disp)];
-                            num3 = num1 + num2;
-                            num4 = unsigned(num1) + unsigned(num2);
-
-                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
-                        }
-                        else
-                        {
-                            num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
-                            num2 = memories8bit[to_string(disp)];
-                            num3 = num1 + num2;
-                            num4 = unsigned(num1) + unsigned(num2);
-
-                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
-                        }
-
-                        common.setOverflow8bit(num1, num2, num3, registers);
-                        common.setCarry8bit(num1, num4, registers);
-                        common.setSign(num3, registers);
-                        common.setZero(num3, registers);
-
-                        dispWithSIB = to_string(disp) + ",%" + regs_8[reg] + "\n";
-                    }
-                    else
-                    {
-                        int8_t num1, num2, num3;
-                        uint8_t num4;
-
-                        if (reg < 4)
-                        {
-                            num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
-                            num2 = memories8bit[to_string(registers[regs_32[index]] * scale + disp)];
-                            num3 = num1 + num2;
-                            num4 = unsigned(num1) + unsigned(num2);
-
-                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
-                        }
-                        else
-                        {
-                            num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
-                            num2 = memories8bit[to_string(registers[regs_32[index]] * scale + disp)];
-                            num3 = num1 + num2;
-                            num4 = unsigned(num1) + unsigned(num2);
-
-                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
-                        }
-
-                        common.setOverflow8bit(num1, num2, num3, registers);
-                        common.setCarry8bit(num1, num4, registers);
-                        common.setSign(num3, registers);
-                        common.setZero(num3, registers);
-
-                        dispWithSIB = to_string(disp) + "(,%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_8[reg] + "\n";
-                    }
-                }
-            }
-            else if (w == 1)
-            {
-                if (opSize)
-                {
-                    if (d == 0)
-                    {
-                        if (index == 4)
-                        {
-                            int16_t num1, num2, num3;
-                            uint16_t num4;
-
-                            num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
-
-                            num2 = memories16bit[to_string(disp)];
-                            num3 = num1 + num2;
-                            num4 = unsigned(num1) + unsigned(num2);
-
-                            memories16bit[to_string(disp)] = num3;
-
-                            common.setOverflow16bit(num1, num2, num3, registers);
-                            common.setCarry16bit(num1, num4, registers);
-                            common.setSign(num3, registers);
-                            common.setZero(num3, registers);
-
-                            dispWithSIB = "%" + regs_16[reg] + "," + to_string(disp) + "\n";
-                        }
-                        else
-                        {
-                            int16_t num1, num2, num3;
-                            uint16_t num4;
-
-                            num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
-
-                            num2 = memories16bit[to_string(registers[regs_32[index]] * 2 + disp)];
-                            num3 = num1 + num2;
-                            num4 = unsigned(num1) + unsigned(num2);
-
-                            memories16bit[to_string(registers[regs_32[index]] * scale + disp)] = num3;
-
-                            common.setOverflow16bit(num1, num2, num3, registers);
-                            common.setCarry16bit(num1, num4, registers);
-                            common.setSign(num3, registers);
-                            common.setZero(num3, registers);
-
-                            dispWithSIB = "%" + regs_16[reg] + "," + to_string(disp) + "(,%" + regs_32[index] + "," + to_string(scale) + ")" + "\n";
-                        }
-                    }
-                    else if (d == 1)
-                    {
-                        if (index == 4)
-                        {
-                            int16_t num1, num2, num3;
-                            uint16_t num4;
-
-                            num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
-                            num2 = memories16bit[to_string(disp)];
-                            num3 = num1 + num2;
-                            num4 = unsigned(num1) + unsigned(num2);
-
-                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
-
-                            common.setOverflow16bit(num1, num2, num3, registers);
-                            common.setCarry16bit(num1, num4, registers);
-                            common.setSign(num3, registers);
-                            common.setZero(num3, registers);
-
-                            dispWithSIB = to_string(disp) + ",%" + regs_16[reg] + "\n";
-                        }
-                        else
-                        {
-                            int16_t num1, num2, num3;
-                            uint16_t num4;
-
-                            num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
-                            num2 = memories16bit[to_string(registers[regs_32[index]] * scale + disp)];
-                            num3 = num1 + num2;
-                            num4 = unsigned(num1) + unsigned(num2);
-
-                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
-
-                            common.setOverflow16bit(num1, num2, num3, registers);
-                            common.setCarry16bit(num1, num4, registers);
-                            common.setSign(num3, registers);
-                            common.setZero(num3, registers);
-
-                            dispWithSIB = to_string(disp) + "(,%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_16[reg] + "\n";
-                        }
-                    }
-                }
-                else
-                {
-                    if (w == 1 and d == 0)
-                    {
-                        if (index == 4)
-                        {
-                            int num1 = memories32bit[to_string(disp)];
-                            int num2 = registers[regs_32[reg]];
-                            int num3 = num1 + num2;
-                            unsigned int num4 = unsigned(num1) + unsigned(num2);
-
-                            common.setOverflow32bit(num1, num2, num3, registers);
-                            common.setCarry32bit(num1, num4, registers);
-                            common.setSign(num3, registers);
-                            common.setZero(num3, registers);
-
-                            memories32bit[to_string(disp)] = num3;
-
-                            dispWithSIB = "%" + regs_32[reg] + "," + to_string(disp) + "\n";
-                        }
-                        else
-                        {
-                            int num1 = memories32bit[to_string(registers[regs_32[index]] * scale + disp)];
-                            int num2 = registers[regs_32[reg]];
-                            int num3 = num1 + num2;
-                            unsigned int num4 = unsigned(num1) + unsigned(num2);
-
-                            common.setOverflow32bit(num1, num2, num3, registers);
-                            common.setCarry32bit(num1, num4, registers);
-                            common.setSign(num3, registers);
-                            common.setZero(num3, registers);
-
-                            memories32bit[to_string(registers[regs_32[index]] * scale + disp)] = num3;
-
-                            dispWithSIB = "%" + regs_32[reg] + "," + to_string(disp) + "(,%" + regs_32[index] + "," + to_string(scale) + ")" + "\n";
-                        }
-                    }
-                    else
-                    {
-                        if (index == 4)
-                        {
-                            int num1 = memories32bit[to_string(disp)];
-                            int num2 = registers[regs_32[reg]];
-                            int num3 = num1 + num2;
-                            unsigned int num4 = unsigned(num1) + unsigned(num2);
-
-                            common.setOverflow32bit(num1, num2, num3, registers);
-                            common.setCarry32bit(num1, num4, registers);
-                            common.setSign(num3, registers);
-                            common.setZero(num3, registers);
-
-                            registers[regs_32[reg]] = num3;
-
-                            dispWithSIB = to_string(disp) + ",%" + regs_32[reg] + "\n";
-                        }
-                        else
-                        {
-
-                            int num1 = memories32bit[to_string(registers[regs_32[index]] * scale + disp)];
-                            int num2 = registers[regs_32[reg]];
-                            int num3 = num1 + num2;
-                            unsigned int num4 = unsigned(num1) + unsigned(num2);
-
-                            common.setOverflow32bit(num1, num2, num3, registers);
-                            common.setCarry32bit(num1, num4, registers);
-                            common.setSign(num3, registers);
-                            common.setZero(num3, registers);
-
-                            registers[regs_32[reg]] = num3;
-
-                            dispWithSIB = to_string(disp) + "(,%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg] + "\n";
-                        }
-                    }
-                }
-            }
-        }
-        else
-        {
-            if (w == 0)
-            {
-                if (d == 0)
-                {
-                    if (index == 4)
-                    {
-
-                        int8_t num1, num2, num3;
-                        uint8_t num4;
-
-                        if (reg < 4)
-                        {
-                            num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
-                        }
-                        else
-                        {
-                            num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
-                        }
-                        num2 = memories8bit[to_string(registers[regs_32[base]])];
-                        num3 = num1 + num2;
-                        num4 = unsigned(num1) + unsigned(num2);
-
-                        memories8bit[to_string(registers[regs_32[base]])] = num3;
-
-                        common.setOverflow8bit(num1, num2, num3, registers);
-                        common.setCarry8bit(num1, num4, registers);
-                        common.setSign(num3, registers);
-                        common.setZero(num3, registers);
-
-                        dispWithSIB = "%" + regs_8[reg] + "," + "(%" + regs_32[base] + ")" + "\n";
-                    }
-                    else
-                    {
-
-                        int8_t num1, num2, num3;
-                        uint8_t num4;
-
-                        if (reg < 4)
-                        {
-                            num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
-                        }
-                        else
-                        {
-                            num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
-                        }
-                        num2 = memories8bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp)];
-                        num3 = num1 + num2;
-                        num4 = unsigned(num1) + unsigned(num2);
-
-                        memories8bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp)] = num3;
-
-                        common.setOverflow8bit(num1, num2, num3, registers);
-                        common.setCarry8bit(num1, num4, registers);
-                        common.setSign(num3, registers);
-                        common.setZero(num3, registers);
-
-                        dispWithSIB = "%" + regs_8[reg] + "," + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")" + "\n";
-                    }
-                }
-                else if (d == 1)
-                {
-                    if (index == 4)
-                    {
-
-                        int8_t num1, num2, num3;
-                        uint8_t num4;
-
-                        if (reg < 4)
-                        {
-                            num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
-                            num2 = memories8bit[to_string(registers[regs_32[base]])];
-                            num3 = num1 + num2;
-                            num4 = unsigned(num1) + unsigned(num2);
-
-                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
-                        }
-                        else
-                        {
-                            num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
-                            num2 = memories8bit[to_string(registers[regs_32[base]])];
-                            num3 = num1 + num2;
-                            num4 = unsigned(num1) + unsigned(num2);
-
-                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
-                        }
-
-                        common.setOverflow8bit(num1, num2, num3, registers);
-                        common.setCarry8bit(num1, num4, registers);
-                        common.setSign(num3, registers);
-                        common.setZero(num3, registers);
-
-                        dispWithSIB = "(%" + regs_32[base] + "),%" + regs_8[reg] + "\n";
-                    }
-                    else
-                    {
-
-                        int8_t num1, num2, num3;
-                        uint8_t num4;
-
-                        if (reg < 4)
-                        {
-                            num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
-                            num2 = memories8bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)];
-                            num3 = num1 + num2;
-                            num4 = unsigned(num1) + unsigned(num2);
-
-                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
-                        }
-                        else
-                        {
-                            num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
-                            num2 = memories8bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)];
-                            num3 = num1 + num2;
-                            num4 = unsigned(num1) + unsigned(num2);
-
-                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
-                        }
-
-                        common.setOverflow8bit(num1, num2, num3, registers);
-                        common.setCarry8bit(num1, num4, registers);
-                        common.setSign(num3, registers);
-                        common.setZero(num3, registers);
-
-                        dispWithSIB = "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_8[reg] + "\n";
-                    }
-                }
-            }
-            else if (w == 1)
-            {
-                if (opSize)
-                {
-                    if (d == 0)
-                    {
-                        if (index == 4)
-                        {
-
-                            int16_t num1, num2, num3;
-                            uint16_t num4;
-
-                            num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
-
-                            num2 = memories16bit[to_string(registers[regs_32[base]])];
-                            num3 = num1 + num2;
-                            num4 = unsigned(num1) + unsigned(num2);
-
-                            memories16bit[to_string(registers[regs_32[base]])] = num3;
-
-                            common.setOverflow16bit(num1, num2, num3, registers);
-                            common.setCarry16bit(num1, num4, registers);
-                            common.setSign(num3, registers);
-                            common.setZero(num3, registers);
-
-                            dispWithSIB = "%" + regs_16[reg] + "," + "(%" + regs_32[base] + ")" + "\n";
-                        }
-                        else
-                        {
-
-                            int16_t num1, num2, num3;
-                            uint16_t num4;
-
-                            num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
-
-                            num2 = memories16bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp)];
-                            num3 = num1 + num2;
-                            num4 = unsigned(num1) + unsigned(num2);
-
-                            memories16bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp)] = num3;
-
-                            common.setOverflow16bit(num1, num2, num3, registers);
-                            common.setCarry16bit(num1, num4, registers);
-                            common.setSign(num3, registers);
-                            common.setZero(num3, registers);
-
-                            dispWithSIB = "%" + regs_16[reg] + "," + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")" + "\n";
-                        }
-                    }
-                    else if (d == 1)
-                    {
-                        if (index == 4)
-                        {
-
-                            int16_t num1, num2, num3;
-                            uint16_t num4;
-
-                            num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
-                            num2 = memories16bit[to_string(registers[regs_32[base]])];
-                            num3 = num1 + num2;
-                            num4 = unsigned(num1) + unsigned(num2);
-
-                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
-
-                            common.setOverflow16bit(num1, num2, num3, registers);
-                            common.setCarry16bit(num1, num4, registers);
-                            common.setSign(num3, registers);
-                            common.setZero(num3, registers);
-
-                            dispWithSIB = "(%" + regs_32[base] + "),%" + regs_16[reg] + "\n";
-                        }
-                        else
-                        {
-
-                            int16_t num1, num2, num3;
-                            uint16_t num4;
-
-                            num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
-                            num2 = memories16bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)];
-                            num3 = num1 + num2;
-                            num4 = unsigned(num1) + unsigned(num2);
-
-                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
-
-                            common.setOverflow16bit(num1, num2, num3, registers);
-                            common.setCarry16bit(num1, num4, registers);
-                            common.setSign(num3, registers);
-                            common.setZero(num3, registers);
-
-                            dispWithSIB = "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_16[reg] + "\n";
-                        }
-                    }
-                }
-                else
-                {
-                    if (d == 0)
-                    {
-                        if (index == 4)
-                        {
-                            int num1 = memories32bit[to_string(registers[regs_32[base]])];
-                            int num2 = registers[regs_32[reg]];
-                            int num3 = num1 + num2;
-                            unsigned int num4 = unsigned(num1) + unsigned(num2);
-
-                            common.setOverflow32bit(num1, num2, num3, registers);
-                            common.setCarry32bit(num1, num4, registers);
-                            common.setSign(num3, registers);
-                            common.setZero(num3, registers);
-
-                            memories32bit[to_string(registers[regs_32[base]])] = num3;
-
-                            dispWithSIB = "%" + regs_32[reg] + "," + "(%" + regs_32[base] + ")" + "\n";
-                        }
-                        else
-                        {
-                            int num1 = memories32bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)];
-                            int num2 = registers[regs_32[reg]];
-                            int num3 = num1 + num2;
-                            unsigned int num4 = unsigned(num1) + unsigned(num2);
-
-                            common.setOverflow32bit(num1, num2, num3, registers);
-                            common.setCarry32bit(num1, num4, registers);
-                            common.setSign(num3, registers);
-                            common.setZero(num3, registers);
-
-                            memories32bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)] = num3;
-
-                            dispWithSIB = "%" + regs_32[reg] + "," + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")" + "\n";
-                        }
-                    }
-                    else
-                    {
-                        if (index == 4)
-                        {
-                            int num1 = memories32bit[to_string(registers[regs_32[base]])];
-                            int num2 = registers[regs_32[reg]];
-                            int num3 = num1 + num2;
-                            unsigned int num4 = unsigned(num1) + unsigned(num2);
-
-                            common.setOverflow32bit(num1, num2, num3, registers);
-                            common.setCarry32bit(num1, num4, registers);
-                            common.setSign(num3, registers);
-                            common.setZero(num3, registers);
-
-                            registers[regs_32[reg]] = num3;
-
-                            dispWithSIB = "(%" + regs_32[base] + ")" + ",%" + regs_32[reg] + "\n";
-                        }
-                        else
-                        {
-                            int num1 = memories32bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)];
-                            int num2 = registers[regs_32[reg]];
-                            int num3 = num1 + num2;
-                            unsigned int num4 = unsigned(num1) + unsigned(num2);
-
-                            common.setOverflow32bit(num1, num2, num3, registers);
-                            common.setCarry32bit(num1, num4, registers);
-                            common.setSign(num3, registers);
-                            common.setZero(num3, registers);
-
-                            registers[regs_32[reg]] = num3;
-
-                            dispWithSIB = "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg] + "\n";
-                        }
-                    }
-                }
-            }
-        }
-        //printf("mod equals 0");
-    }
-    else
-    {
-        //printf("mod not equals 0");
-
-        if (w == 0)
-        {
-            if (d == 0)
-            {
-                if (index == 4)
-                {
-                    int8_t num1, num2, num3;
-                    uint8_t num4;
-
-                    if (reg < 4)
-                    {
-                        num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
-                    }
-                    else
-                    {
-                        num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
-                    }
-                    num2 = memories8bit[to_string(registers[regs_32[base]] + disp)];
-                    num3 = num1 + num2;
-                    num4 = unsigned(num1) + unsigned(num2);
-
-                    memories8bit[to_string(registers[regs_32[base]] + disp)] = num3;
-
-                    common.setOverflow8bit(num1, num2, num3, registers);
-                    common.setCarry8bit(num1, num4, registers);
-                    common.setSign(num3, registers);
-                    common.setZero(num3, registers);
-
-                    dispWithSIB = "%" + regs_8[reg] + "," + to_string(disp) + "(%" + regs_32[base] + ")" + "\n";
-                }
-                else
-                {
-                    int8_t num1, num2, num3;
-                    uint8_t num4;
-
-                    if (reg < 4)
-                    {
-                        num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
-                    }
-                    else
-                    {
-                        num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
-                    }
-                    num2 = memories8bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp)];
-                    num3 = num1 + num2;
-                    num4 = unsigned(num1) + unsigned(num2);
-
-                    memories8bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp)] = num3;
-
-                    common.setOverflow8bit(num1, num2, num3, registers);
-                    common.setCarry8bit(num1, num4, registers);
-                    common.setSign(num3, registers);
-                    common.setZero(num3, registers);
-
-                    dispWithSIB = "%" + regs_8[reg] + "," + to_string(disp) + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")" + "\n";
-                }
-            }
-            else if (d == 1)
-            {
-                if (index == 4)
-                {
-                    int8_t num1, num2, num3;
-                    uint8_t num4;
-
-                    if (reg < 4)
-                    {
-                        num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
-                        num2 = memories8bit[to_string(registers[regs_32[base]] + disp)];
-                        num3 = num1 + num2;
-                        num4 = unsigned(num1) + unsigned(num2);
-
-                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
-                    }
-                    else
-                    {
-                        num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
-                        num2 = memories8bit[to_string(registers[regs_32[base]] + disp)];
-                        num3 = num1 + num2;
-                        num4 = unsigned(num1) + unsigned(num2);
-
-                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
-                    }
-
-                    common.setOverflow8bit(num1, num2, num3, registers);
-                    common.setCarry8bit(num1, num4, registers);
-                    common.setSign(num3, registers);
-                    common.setZero(num3, registers);
-
-                    dispWithSIB = to_string(disp) + "(%" + regs_32[base] + "),%" + regs_8[reg] + "\n";
-                }
-                else
-                {
-                    int8_t num1, num2, num3;
-                    uint8_t num4;
-
-                    if (reg < 4)
-                    {
-                        num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
-                        num2 = memories8bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)];
-                        num3 = num1 + num2;
-                        num4 = unsigned(num1) + unsigned(num2);
-
-                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
-                    }
-                    else
-                    {
-                        num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
-                        num2 = memories8bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)];
-                        num3 = num1 + num2;
-                        num4 = unsigned(num1) + unsigned(num2);
-
-                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
-                    }
-
-                    common.setOverflow8bit(num1, num2, num3, registers);
-                    common.setCarry8bit(num1, num4, registers);
-                    common.setSign(num3, registers);
-                    common.setZero(num3, registers);
-
-                    dispWithSIB = to_string(disp) + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_8[reg] + "\n";
-                }
-            }
-        }
-        else if (w == 1)
-        {
-            if (opSize)
-            {
-                if (d == 0)
-                {
-                    if (index == 4)
-                    {
-                        int16_t num1, num2, num3;
-                        uint16_t num4;
-
-                        num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
-
-                        num2 = memories16bit[to_string(registers[regs_32[base]] + disp)];
-                        num3 = num1 + num2;
-                        num4 = unsigned(num1) + unsigned(num2);
-
-                        memories16bit[to_string(registers[regs_32[base]] + disp)] = num3;
-
-                        common.setOverflow16bit(num1, num2, num3, registers);
-                        common.setCarry16bit(num1, num4, registers);
-                        common.setSign(num3, registers);
-                        common.setZero(num3, registers);
-
-                        dispWithSIB = "%" + regs_16[reg] + "," + to_string(disp) + "(%" + regs_32[base] + ")" + "\n";
-                    }
-                    else
-                    {
-                        int16_t num1, num2, num3;
-                        uint16_t num4;
-
-                        num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
-
-                        num2 = memories16bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp)];
-                        num3 = num1 + num2;
-                        num4 = unsigned(num1) + unsigned(num2);
-
-                        memories16bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp)] = num3;
-
-                        common.setOverflow16bit(num1, num2, num3, registers);
-                        common.setCarry16bit(num1, num4, registers);
-                        common.setSign(num3, registers);
-                        common.setZero(num3, registers);
-
-                        dispWithSIB = "%" + regs_16[reg] + "," + to_string(disp) + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")" + "\n";
-                    }
-                }
-                else if (d == 1)
-                {
-                    if (index == 4)
-                    {
-                        int16_t num1, num2, num3;
-                        uint16_t num4;
-
-                        num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
-                        num2 = memories16bit[to_string(registers[regs_32[base]] + disp)];
-                        num3 = num1 + num2;
-                        num4 = unsigned(num1) + unsigned(num2);
-
-                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
-
-                        common.setOverflow16bit(num1, num2, num3, registers);
-                        common.setCarry16bit(num1, num4, registers);
-                        common.setSign(num3, registers);
-                        common.setZero(num3, registers);
-
-                        dispWithSIB = to_string(disp) + "(%" + regs_32[base] + "),%" + regs_16[reg] + "\n";
-                    }
-                    else
-                    {
-                        int16_t num1, num2, num3;
-                        uint16_t num4;
-
-                        num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
-                        num2 = memories16bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)];
-                        num3 = num1 + num2;
-                        num4 = unsigned(num1) + unsigned(num2);
-
-                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
-
-                        common.setOverflow16bit(num1, num2, num3, registers);
-                        common.setCarry16bit(num1, num4, registers);
-                        common.setSign(num3, registers);
-                        common.setZero(num3, registers);
-
-                        dispWithSIB = to_string(disp) + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_16[reg] + "\n";
-                    }
-                }
-            }
-            else
-            {
-                if (d == 0)
-                {
-                    if (index == 4)
-                    {
-                        int num1 = memories32bit[to_string(registers[regs_32[base]] + disp)];
-                        int num2 = registers[regs_32[reg]];
-                        int num3 = num1 + num2;
-                        unsigned int num4 = unsigned(num1) + unsigned(num2);
-
-                        common.setOverflow32bit(num1, num2, num3, registers);
-                        common.setCarry32bit(num1, num4, registers);
-                        common.setSign(num3, registers);
-                        common.setZero(num3, registers);
-
-                        memories32bit[to_string(registers[regs_32[base]] + disp)] = num3;
-
-                        dispWithSIB = "%" + regs_32[reg] + "," + to_string(disp) + "(%" + regs_32[base] + ")" + "\n";
-                    }
-                    else
-                    {
-                        int num1 = memories32bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)];
-                        int num2 = registers[regs_32[reg]];
-                        int num3 = num1 + num2;
-                        unsigned int num4 = unsigned(num1) + unsigned(num2);
-
-                        common.setOverflow32bit(num1, num2, num3, registers);
-                        common.setCarry32bit(num1, num4, registers);
-                        common.setSign(num3, registers);
-                        common.setZero(num3, registers);
-
-                        memories32bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)] = num3;
-
-                        dispWithSIB = "%" + regs_32[reg] + "," + to_string(disp) + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")" + "\n";
-                    }
-                }
-                else
-                {
-                    if (index == 4)
-                    {
-                        int num1 = memories32bit[to_string(registers[regs_32[base]] + disp)];
-                        int num2 = registers[regs_32[reg]];
-                        int num3 = num1 + num2;
-                        unsigned int num4 = unsigned(num1) + unsigned(num2);
-
-                        common.setOverflow32bit(num1, num2, num3, registers);
-                        common.setCarry32bit(num1, num4, registers);
-                        common.setSign(num3, registers);
-                        common.setZero(num3, registers);
-
-                        registers[regs_32[reg]] = num3;
-
-                        dispWithSIB = to_string(disp) + "(%" + regs_32[base] + ")" + ",%" + regs_32[reg] + "\n";
-                    }
-                    else
-                    {
-                        int num1 = memories32bit[to_string(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp)];
-                        int num2 = registers[regs_32[reg]];
-                        int num3 = num1 + num2;
-                        unsigned int num4 = unsigned(num1) + unsigned(num2);
-
-                        common.setOverflow32bit(num1, num2, num3, registers);
-                        common.setCarry32bit(num1, num4, registers);
-                        common.setSign(num3, registers);
-                        common.setZero(num3, registers);
-
-                        registers[regs_32[reg]] = num3;
-
-                        dispWithSIB = to_string(disp) + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg] + "\n";
-                    }
-                }
-            }
-        }
-    }
-    return dispWithSIB;
-}
-*/
 
 string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm)
 {
@@ -995,6 +91,8 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
         {
             if (d == 0)
             {
+                memoryAccesses.push_back("add %" + regs_8[reg] + "," + to_string(disp));
+
                 int8_t num1, num2, num3;
                 uint8_t num4;
 
@@ -1007,10 +105,13 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
                     num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
                 }
                 num2 = memories8bit[to_string(disp)];
+                memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(disp));
+
                 num3 = num1 + num2;
                 num4 = unsigned(num1) + unsigned(num2);
 
                 memories8bit[to_string(disp)] = num3;
+                memoryAccesses.push_back("Write "+ to_string(num3)+" to "+to_string(disp));
 
                 common.setOverflow8bit(num1, num2, num3, registers);
                 common.setCarry8bit(num1, num4, registers);
@@ -1028,6 +129,8 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
                 {
                     num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
                     num2 = memories8bit[to_string(disp)];
+                    memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(disp));
+
                     num3 = num1 + num2;
                     num4 = unsigned(num1) + unsigned(num2);
 
@@ -1037,6 +140,8 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
                 {
                     num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
                     num2 = memories8bit[to_string(disp)];
+                    memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(disp));
+
                     num3 = num1 + num2;
                     num4 = unsigned(num1) + unsigned(num2);
 
@@ -1057,16 +162,21 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
             {
                 if (d == 0)
                 {
+                    memoryAccesses.push_back("add %" + regs_16[reg] + "," + to_string(disp));
+
                     int16_t num1, num2, num3;
                     uint16_t num4;
 
                     num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
 
                     num2 = memories16bit[to_string(disp)];
+                    memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(disp));
+
                     num3 = num1 + num2;
                     num4 = unsigned(num1) + unsigned(num2);
 
                     memories16bit[to_string(disp)] = num3;
+                    memoryAccesses.push_back("Write "+ to_string(num3)+" to "+to_string(disp));
 
                     common.setOverflow16bit(num1, num2, num3, registers);
                     common.setCarry16bit(num1, num4, registers);
@@ -1082,6 +192,8 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
 
                     num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
                     num2 = memories16bit[to_string(disp)];
+                    memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(disp));
+
                     num3 = num1 + num2;
                     num4 = unsigned(num1) + unsigned(num2);
 
@@ -1099,7 +211,11 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
             {
                 if (d == 0)
                 {
+                    memoryAccesses.push_back("add %" + regs_32[reg] + "," + to_string(disp));
+
                     int num1 = memories32bit[to_string(disp)];
+                    memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string(disp));
+
                     int num2 = registers[regs_32[reg]];
                     int num3 = num1 + num2;
                     unsigned int num4 = unsigned(num1) + unsigned(num2);
@@ -1110,12 +226,15 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
                     common.setZero(num3, registers);
 
                     memories32bit[to_string(disp)] = num3;
+                    memoryAccesses.push_back("Write "+ to_string(num3)+" to "+to_string(disp));
 
                     dispWithoutSIB = "%" + regs_32[reg] + "," + to_string(disp) + "\n";
                 }
                 else
                 {
                     int num1 = memories32bit[to_string(disp)];
+                    memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string(disp));
+
                     int num2 = registers[regs_32[reg]];
                     int num3 = num1 + num2;
                     unsigned int num4 = unsigned(num1) + unsigned(num2);
@@ -1138,6 +257,8 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
         {
             if (d == 0)
             {
+                memoryAccesses.push_back("add %" + regs_8[reg] + "," + to_string(disp) + "(%" + regs_16bitmode[rm] + ")");
+
                 int8_t num1, num2, num3;
                 uint8_t num4;
 
@@ -1153,18 +274,24 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
                 if (rm < 4)
                 {
                     num2 = memories8bit[to_string(*list1[rm / 2] + *list2[rm % 2] + disp)];
+                    memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(*list1[rm / 2] + *list2[rm % 2] + disp));
+
                     num3 = num1 + num2;
                     num4 = unsigned(num1) + unsigned(num2);
 
                     memories8bit[to_string(*list1[rm / 2] + *list2[rm % 2] + disp)] = num3;
+                    memoryAccesses.push_back("Write "+ to_string(num3)+" to "+to_string(*list1[rm / 2] + *list2[rm % 2] + disp));
                 }
                 else
                 {
                     num2 = memories8bit[to_string(*list3[rm % 4] + disp)];
+                    memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(*list3[rm % 4] + disp));
+
                     num3 = num1 + num2;
                     num4 = unsigned(num1) + unsigned(num2);
 
                     memories8bit[to_string(*list3[rm % 4] + disp)] = num3;
+                    memoryAccesses.push_back("Write "+ to_string(num3)+" to "+to_string(*list3[rm % 4] + disp));
                 }
 
                 common.setOverflow8bit(num1, num2, num3, registers);
@@ -1182,10 +309,12 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
                 if (rm < 4)
                 {
                     num2 = memories8bit[to_string(*list1[rm / 2] + *list2[rm % 2] + disp)];
+                    memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(*list1[rm / 2] + *list2[rm % 2] + disp));
                 }
                 else
                 {
                     num2 = memories8bit[to_string(*list3[rm % 4] + disp)];
+                    memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(*list3[rm % 4] + disp));
                 }
 
                 if (reg < 4)
@@ -1219,6 +348,8 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
             {
                 if (d == 0)
                 {
+                    memoryAccesses.push_back("add %"  + regs_16[reg] + "," + to_string(disp) + "(%" + regs_16bitmode[rm] + ")");
+
                     int16_t num1, num2, num3;
                     uint16_t num4;
 
@@ -1227,18 +358,24 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
                     if (rm < 4)
                     {
                         num2 = memories16bit[to_string(*list1[rm / 2] + *list2[rm % 2] + disp)];
+                        memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(*list1[rm / 2] + *list2[rm % 2] + disp));
+
                         num3 = num1 + num2;
                         num4 = unsigned(num1) + unsigned(num2);
 
                         memories16bit[to_string(*list1[rm / 2] + *list2[rm % 2] + disp)] = num3;
+                        memoryAccesses.push_back("Write "+ to_string(num3)+" to "+to_string(*list1[rm / 2] + *list2[rm % 2] + disp));
                     }
                     else
                     {
                         num2 = memories16bit[to_string(*list3[rm % 4] + disp)];
+                        memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(*list3[rm % 4] + disp));
+
                         num3 = num1 + num2;
                         num4 = unsigned(num1) + unsigned(num2);
 
                         memories16bit[to_string(*list3[rm % 4] + disp)] = num3;
+                        memoryAccesses.push_back("Write "+ to_string(num3)+" to "+to_string(*list3[rm % 4] + disp));
                     }
 
                     common.setOverflow16bit(num1, num2, num3, registers);
@@ -1256,10 +393,12 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
                     if (rm < 4)
                     {
                         num2 = memories16bit[to_string(*list1[rm / 2] + *list2[rm % 2] + disp)];
+                        memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(*list1[rm / 2] + *list2[rm % 2] + disp));
                     }
                     else
                     {
                         num2 = memories16bit[to_string(*list3[rm % 4] + disp)];
+                        memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(*list3[rm % 4] + disp));
                     }
 
                     num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
@@ -1280,26 +419,34 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
             {
                 if (d == 0)
                 {
+                    memoryAccesses.push_back("add %" + regs_32[reg] + "," + to_string(disp) + "(%" + regs_16bitmode[rm] + ")");
+
                     int num1,num2,num3;
                     unsigned int num4;
 
                     if (rm < 4)
                     {
                         num1 = memories32bit[to_string(*list1[rm / 2] + *list2[rm % 2] + disp)];
+                        memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string(*list1[rm / 2] + *list2[rm % 2] + disp));
+
                         num2 = registers[regs_32[reg]];
                         num3 = num1 + num2;
                         num4 = unsigned(num1) + unsigned(num2);
 
                         memories32bit[to_string(*list1[rm / 2] + *list2[rm % 2] + disp)] = num3;
+                        memoryAccesses.push_back("Write "+ to_string(num3)+" to "+to_string(*list1[rm / 2] + *list2[rm % 2] + disp));
                     }
                     else
                     {
                         num1 = memories32bit[to_string(*list3[rm % 4] + disp)];
+                        memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string(*list3[rm % 4] + disp));
+
                         num2 = registers[regs_32[reg]];
                         num3 = num1 + num2;
                         num4 = unsigned(num1) + unsigned(num2);
 
                         memories32bit[to_string(*list3[rm % 4] + disp)] = num3;
+                        memoryAccesses.push_back("Write "+ to_string(num3)+" to "+to_string(*list3[rm % 4] + disp));
                     }
 
                     
@@ -1318,10 +465,12 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
                      if (rm < 4)
                     {
                         num1 = memories32bit[to_string(*list1[rm / 2] + *list2[rm % 2] + disp)];
+                        memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string(*list1[rm / 2] + *list2[rm % 2] + disp));
                     }
                     else
                     {
                         num1 = memories32bit[to_string(*list3[rm % 4] + disp)];
+                        memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string(*list3[rm % 4] + disp));
                     }
                     num2 = registers[regs_32[reg]];
                     num3 = num1 + num2;
@@ -1379,6 +528,7 @@ string Adder_addOverride::decode_mod_00(int w, int d, int reg, int rm)
         {
             if (d == 0)
             {
+                memoryAccesses.push_back("add %" + regs_8[reg] + ",(%" + regs_16bitmode[rm] + ")");
                 string00 = "%" + regs_8[reg] + ",(%" + regs_16bitmode[rm] + ")\n";
 
                 int8_t num1, num2, num3;
@@ -1396,18 +546,24 @@ string Adder_addOverride::decode_mod_00(int w, int d, int reg, int rm)
                 if (rm < 4)
                 {
                     num2 = memories8bit[to_string(*list1[rm / 2] + *list2[rm % 2])];
+                    memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(*list1[rm / 2] + *list2[rm % 2]));
+
                     num3 = num1 + num2;
                     num4 = unsigned(num1) + unsigned(num2);
 
                     memories8bit[to_string(*list1[rm / 2] + *list2[rm % 2])] = num3;
+                    memoryAccesses.push_back("Write "+ to_string(num3)+" to "+to_string(*list1[rm / 2] + *list2[rm % 2]));
                 }
                 else
                 {
                     num2 = memories8bit[to_string(*list3[rm % 4])];
+                    memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(*list3[rm % 4]));
+
                     num3 = num1 + num2;
                     num4 = unsigned(num1) + unsigned(num2);
 
                     memories8bit[to_string(*list3[rm % 4])] = num3;
+                    memoryAccesses.push_back("Write "+ to_string(num3)+" to "+to_string(*list3[rm % 4]));
                 }
 
                 common.setOverflow8bit(num1, num2, num3, registers);
@@ -1425,10 +581,12 @@ string Adder_addOverride::decode_mod_00(int w, int d, int reg, int rm)
                 if (rm < 4)
                 {
                     num2 = memories8bit[to_string(*list1[rm / 2] + *list2[rm % 2])];
+                    memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(*list1[rm / 2] + *list2[rm % 2]));
                 }
                 else
                 {
                     num2 = memories8bit[to_string(*list3[rm % 4])];
+                    memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(*list3[rm % 4]));
                 }
 
                 if (reg < 4)
@@ -1460,6 +618,7 @@ string Adder_addOverride::decode_mod_00(int w, int d, int reg, int rm)
             {
                 if (d == 0)
                 {
+                    memoryAccesses.push_back("add %" + regs_16[reg] + ",(%" + regs_16bitmode[rm] + ")");
                     string00 = "%" + regs_16[reg] + ",(%" + regs_16bitmode[rm] + ")\n";
 
                     int16_t num1, num2, num3;
@@ -1470,18 +629,24 @@ string Adder_addOverride::decode_mod_00(int w, int d, int reg, int rm)
                     if (rm < 4)
                     {
                         num2 = memories16bit[to_string(*list1[rm / 2] + *list2[rm % 2])];
+                        memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(*list1[rm / 2] + *list2[rm % 2]));
+
                         num3 = num1 + num2;
                         num4 = unsigned(num1) + unsigned(num2);
 
                         memories16bit[to_string(*list1[rm / 2] + *list2[rm % 2])] = num3;
+                        memoryAccesses.push_back("Write "+ to_string(num3)+" to "+to_string(*list1[rm / 2] + *list2[rm % 2]));
                     }
                     else
                     {
                         num2 = memories16bit[to_string(*list3[rm % 4])];
+                        memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(*list3[rm % 4]));
+
                         num3 = num1 + num2;
                         num4 = unsigned(num1) + unsigned(num2);
 
                         memories16bit[to_string(*list3[rm % 4])] = num3;
+                        memoryAccesses.push_back("Write "+ to_string(num3)+" to "+to_string(*list3[rm % 4]));
                     }
 
                     common.setOverflow16bit(num1, num2, num3, registers);
@@ -1501,10 +666,12 @@ string Adder_addOverride::decode_mod_00(int w, int d, int reg, int rm)
                     if (rm < 4)
                     {
                         num2 = memories16bit[to_string(*list1[rm / 2] + *list2[rm % 2])];
+                        memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(*list1[rm / 2] + *list2[rm % 2]));
                     }
                     else
                     {
                         num2 = memories16bit[to_string(*list3[rm % 4])];
+                        memoryAccesses.push_back("Read "+ to_string(num2)+" from "+to_string(*list3[rm % 4]));
                     }
 
                     num3 = num1 + num2;
@@ -1522,25 +689,35 @@ string Adder_addOverride::decode_mod_00(int w, int d, int reg, int rm)
             {
                 if (d == 0)
                 {
+                    memoryAccesses.push_back("add %" + regs_32[reg] + ",(%" + regs_16bitmode[rm] + ")");
+
                     int num1, num2, num3;
                     unsigned int num4;
                     if (rm < 4)
                     {
+
                         num1 = memories32bit[to_string(*list1[rm / 2] + *list2[rm % 2])];
+                        memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string(*list1[rm / 2] + *list2[rm % 2]));
+
                         num2 = registers[regs_32[reg]]; //registers["ECX"]
                         num3 = num1 + num2;
                         num4 = unsigned(num1) + unsigned(num2);
 
                         memories32bit[to_string(*list1[rm / 2] + *list2[rm % 2])] = num3;
+                        memoryAccesses.push_back("Write "+ to_string(num3)+" to "+to_string(*list1[rm / 2] + *list2[rm % 2]));
                     }
                     else
                     {
                         num1 = memories32bit[to_string(*list3[rm % 4])];
+                        memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string(*list3[rm % 4]));
+
                         num2 = registers[regs_32[reg]]; //registers["ECX"]
                         num3 = num1 + num2;
                         num4 = unsigned(num1) + unsigned(num2);
 
                         memories32bit[to_string(*list3[rm % 4])] = num3;
+                        memoryAccesses.push_back("Write "+ to_string(num3)+" to "+to_string(*list3[rm % 4]));
+                        
                     }
 
                     common.setOverflow32bit(num1, num2, num3, registers);
@@ -1558,10 +735,12 @@ string Adder_addOverride::decode_mod_00(int w, int d, int reg, int rm)
                     if (rm < 4)
                     {
                         num1 = memories32bit[to_string(*list1[rm / 2] + *list2[rm % 2])];
+                        memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string(*list1[rm / 2] + *list2[rm % 2]));
                     }
                     else
                     {
                         num1 = memories32bit[to_string(*list3[rm % 4])];
+                        memoryAccesses.push_back("Read "+ to_string(num1)+" from "+to_string(*list3[rm % 4]));
                     }
 
                     num2 = registers[regs_32[reg]];
@@ -1806,5 +985,5 @@ string Adder_addOverride::decode_add(short prefixes[4])
         decoded_bytes = decode_mod_11(w, d, reg, rm);
     }
 
-    return "Adder instantiated and done";
+    return decoded_bytes;
 }

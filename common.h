@@ -19,4 +19,6 @@ class Common{
         void setOverflow8bit(int8_t num1, int8_t num2, int8_t num3, map<string, int> &registers);
         void setOverflow16bit(int16_t num1, int16_t num2, int16_t num3, map<string, int> &registers);
         void setOverflow32bit(int num1, int num2, int num3, map<string, int> &registers);
+
+        void listQueue(queue<short> myQueue);
 };

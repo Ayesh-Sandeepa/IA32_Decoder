@@ -1,21 +1,21 @@
-8b 82 14 00 00 00    	mov    0x14(%edx),%eax
-ff b3 2c 00 00 00    	pushl  0x2c(%ebx)
+eax       0xbf8db144
+ecx       0x88c5cffb
+edx       0x1
+ebx       0xae5ff4
+esp       0xbf8db0bc
+ebp       0xbf8db118
+esi       0x9a0ca0
+edi       0x0
+eip       0x8048354
+eflags    0x246
+cs        0x73
+ss        0x7b
+ds        0x7b
+es        0x7b
+fs        0x0
+gs        0x33
 
-83 c6 01             	add    $0x1,%esi
-83 c4 10             	add    $0x10,%esp
-01 1b                	add    %ebx,(%ebx)
-03 3b                	add    (%ebx),%edi
-00 00                	add    %al,(%eax)
-00 30                	add    %dh,(%eax)
-00 05 f1 ff ff 04    	add    %al,0x4fffff1
-
-
-
-
-
--------------------------------------------------------------
-
-
+------------------------------------------------------------------------------------
 
 01 c1                	add    %eax,%ecx
 66 01 c1             	add    %ax,%cx

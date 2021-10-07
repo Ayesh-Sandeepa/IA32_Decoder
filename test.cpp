@@ -25,7 +25,17 @@ int main()
    printf("First 8 bits:%d\n", *num1);
    */
 
-   unsigned int a=0x91;
+   int num1, num2, num3;
+   unsigned int num4,num5;
 
+   num1=0xa5c11111;
+   num2=0x35b12345;
+
+   num3=num1+num2;
+   num4=unsigned(num1)+unsigned(num2);
+   num5=unsigned(num3);
+
+   printf ("num1:%d ; num2:%d ; num3:%d ; num4:%u ; num5:%u",num1,num2,num3,num4,num5);
+   cout << "num4:"<<num4<<"\n";
    return 0;
 }

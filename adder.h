@@ -10,6 +10,7 @@
 #include <list>
 
 #include "common.h"
+#include "immediate.h"
 
 using namespace std;
 class Adder
@@ -40,6 +41,7 @@ public:
     string decode_mod_01(int w, int d, int reg, int rm);
     string decode_mod_10(int w, int d, int reg, int rm);
     string decode_mod_11(int w, int d, int reg, int rm);
+    string decode_imm(int opCode, int w, int d);
 };
 
 class Adder_addOverride
@@ -70,4 +72,5 @@ public:
     string decode_mod_01(int w, int d, int reg, int rm);
     string decode_mod_10(int w, int d, int reg, int rm);
     string decode_mod_11(int w, int d, int reg, int rm);
+    string decode_imm(int opCode, int w, int d);
 };

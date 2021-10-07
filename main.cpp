@@ -108,7 +108,7 @@ int main()
             prefixes[3]=nextOpcode;
             encoded_instructions.pop();
         }
-        else if (nextOpcode == 0x0 or nextOpcode == 0x1 or nextOpcode == 0x2 or nextOpcode == 0x3 or nextOpcode == 0x4 or nextOpcode == 0x5 or nextOpcode == 0x80 or nextOpcode == 0x81 or nextOpcode == 0x82 or nextOpcode == 0x83)
+        else if (nextOpcode == 0x0 or nextOpcode == 0x1 or nextOpcode == 0x2 or nextOpcode == 0x3 or nextOpcode == 0x4 or nextOpcode == 0x5 or nextOpcode == 0x80 or nextOpcode == 0x81 or nextOpcode == 0x83)
         {
             adder.decode_add(prefixes);
             prefixes[0]=0;

@@ -13,7 +13,7 @@ int Common::get_bits(int pos, int noOfBits, int number)
     return (((1 << noOfBits) - 1) & (number >> (pos - 1)));
 }
 
-int Common::assemble_bits(int bytes, bool SIB, queue<short> &instruction, map<string, int> &registers)
+int Common::assemble_bits(int bytes, queue<short> &instruction, map<string, int> &registers)
 {
     int x, offset;
     short displacement[4];

@@ -10,7 +10,7 @@ class Common{
 
     public:
         int get_bits(int pos, int noOfBits, int number);
-        int assemble_bits(int bytes, bool SIB, queue<short> &instruction, map<string, int> &registers);
+        int assemble_bits(int bytes, queue<short> &instruction, map<string, int> &registers);
         void setZero(int number, map<string, int> &registers);
         void setSign(int number, map<string, int> &registers);
         void setCarry8bit(int8_t num1, uint8_t num4, map<string, int> &registers);

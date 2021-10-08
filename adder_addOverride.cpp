@@ -83,7 +83,7 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
     int disp_bytes[] = {2, 1, 2};
     int bytes = disp_bytes[mod];
 
-    int disp = common.assemble_bits(bytes, false, instruction, registers);
+    int disp = common.assemble_bits(bytes, instruction, registers);
 
     if (mod == 0)
     {

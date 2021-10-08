@@ -69,7 +69,7 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
     }
     else
     {
-        disp = common.assemble_bits(bytes, true, instruction, registers);
+        disp = common.assemble_bits(bytes, instruction, registers);
         st = common.getHex(disp,0,0);
     }
 
@@ -464,14 +464,14 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         {
                             num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
                         }
-                        num2 = memories8bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp,0,0)];
-                        memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp,0,0));
+                        num2 = memories8bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 ,0,0)];
+                        memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 ,0,0));
 
                         num3 = num1 + num2;
                         num4 = unsigned(num3);
 
-                        memories8bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp,0,0)] = num3;
-                        memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp,0,0));
+                        memories8bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 ,0,0)] = num3;
+                        memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 ,0,0));
 
                         common.setOverflow8bit(num1, num2, num3, registers);
                         common.setCarry8bit(num1, num4, registers);
@@ -1099,7 +1099,7 @@ string Adder::decode_displacement_without_SIB(int w, int d, int mod, int reg, in
     int disp_bytes[] = {4, 1, 4};
     int bytes = disp_bytes[mod];
 
-    unsigned int disp = common.assemble_bits(bytes, false, instruction, registers);
+    unsigned int disp = common.assemble_bits(bytes, instruction, registers);
     string st = common.getHex(disp,0,0);
 
     if (mod == 0)
@@ -1420,8 +1420,8 @@ string Adder::decode_displacement_without_SIB(int w, int d, int mod, int reg, in
                 }
                 else
                 {
-                    int num1 = memories32bit[to_string((unsigned)(registers[regs_32[rm]] + disp))];
-                    memoryAccesses.push_back("Read " + to_string(num1) + " from " + to_string((unsigned)(registers[regs_32[rm]] + disp)));
+                    int num1 = memories32bit[common.getHex(registers[regs_32[rm]] + disp,0,0)];
+                    memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[rm]] + disp,0,0));
 
                     int num2 = registers[regs_32[reg]];
                     int num3 = num1 + num2;
@@ -1495,14 +1495,14 @@ string Adder::decode_mod_00(int w, int d, int reg, int rm)
                 {
                     num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
                 }
-                num2 = memories8bit[to_string((unsigned)registers[regs_32[rm]])];
-                memoryAccesses.push_back("Read " + to_string(num2) + " from " + to_string((unsigned)registers[regs_32[rm]]));
+                num2 = memories8bit[common.getHex(registers[regs_32[rm]],0,0)];
+                memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[rm]],0,0));
 
                 num3 = num1 + num2;
                 num4 = unsigned(num3);
 
-                memories8bit[to_string((unsigned)registers[regs_32[rm]])] = num3;
-                memoryAccesses.push_back("write " + to_string(num3) + " to " + to_string((unsigned)registers[regs_32[rm]]));
+                memories8bit[common.getHex(registers[regs_32[rm]],0,0)] = num3;
+                memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[rm]],0,0));
 
                 common.setOverflow8bit(num1, num2, num3, registers);
                 common.setCarry8bit(num1, num4, registers);
@@ -1519,8 +1519,8 @@ string Adder::decode_mod_00(int w, int d, int reg, int rm)
                 if (reg < 4)
                 {
                     num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
-                    num2 = memories8bit[to_string((unsigned)registers[regs_32[rm]])];
-                    memoryAccesses.push_back("Read " + to_string(num2) + " from " + to_string((unsigned)registers[regs_32[rm]]));
+                    num2 = memories8bit[common.getHex(registers[regs_32[rm]],0,0)];
+                    memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[rm]],0,0));
 
                     num3 = num1 + num2;
                     num4 = unsigned(num3);
@@ -1530,8 +1530,8 @@ string Adder::decode_mod_00(int w, int d, int reg, int rm)
                 else
                 {
                     num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
-                    num2 = memories8bit[to_string((unsigned)registers[regs_32[rm]])];
-                    memoryAccesses.push_back("Read " + to_string(num2) + " from " + to_string((unsigned)registers[regs_32[rm]]));
+                    num2 = memories8bit[common.getHex(registers[regs_32[rm]],0,0)];
+                    memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[rm]],0,0));
 
                     num3 = num1 + num2;
                     num4 = unsigned(num3);
@@ -1560,14 +1560,14 @@ string Adder::decode_mod_00(int w, int d, int reg, int rm)
 
                     num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
 
-                    num2 = memories16bit[to_string((unsigned)registers[regs_32[rm]])];
-                    memoryAccesses.push_back("Read " + to_string(num2) + " from " + to_string((unsigned)registers[regs_32[rm]]));
+                    num2 = memories16bit[common.getHex(registers[regs_32[rm]],0,0)];
+                    memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[rm]],0,0));
 
                     num3 = num1 + num2;
                     num4 = unsigned(num3);
 
-                    memories16bit[to_string((unsigned)registers[regs_32[rm]])] = num3;
-                    memoryAccesses.push_back("write " + to_string(num3) + " to " + to_string((unsigned)registers[regs_32[rm]]));
+                    memories16bit[common.getHex(registers[regs_32[rm]],0,0)] = num3;
+                    memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[rm]],0,0));
 
                     common.setOverflow16bit(num1, num2, num3, registers);
                     common.setCarry16bit(num1, num4, registers);
@@ -1582,8 +1582,8 @@ string Adder::decode_mod_00(int w, int d, int reg, int rm)
                     uint16_t num4;
 
                     num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
-                    num2 = memories8bit[to_string((unsigned)registers[regs_32[rm]])];
-                    memoryAccesses.push_back("Read " + to_string(num2) + " from " + to_string((unsigned)registers[regs_32[rm]]));
+                    num2 = memories16bit[common.getHex(registers[regs_32[rm]],0,0)];
+                    memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[rm]],0,0));
 
                     num3 = num1 + num2;
                     num4 = unsigned(num3);
@@ -1602,8 +1602,8 @@ string Adder::decode_mod_00(int w, int d, int reg, int rm)
                 {
                     memoryAccesses.push_back("add %" + regs_32[reg] + ",(%" + regs_32[rm] + ")");
 
-                    int num1 = memories32bit[to_string((unsigned)registers[regs_32[reg]])];
-                    memoryAccesses.push_back("Read " + to_string(num1) + " from " + to_string((unsigned)registers[regs_32[reg]]));
+                    int num1 = memories32bit[common.getHex(registers[regs_32[rm]],0,0)];
+                    memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[rm]],0,0));
 
                     int num2 = registers[regs_32[reg]]; //registers["ECX"]
                     int num3 = num1 + num2;
@@ -1615,13 +1615,13 @@ string Adder::decode_mod_00(int w, int d, int reg, int rm)
                     common.setZero(num3, registers);
 
                     string00 = "%" + regs_32[reg] + ",(%" + regs_32[rm] + ")\n";
-                    memories32bit[to_string((unsigned)registers[regs_32[rm]])] = num3;
-                    memoryAccesses.push_back("write " + to_string(num3) + " to " + to_string((unsigned)registers[regs_32[rm]]));
+                    memories32bit[common.getHex(registers[regs_32[rm]],0,0)] = num3;
+                    memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[rm]],0,0));
                 }
                 else
                 {
-                    int num1 = memories32bit[to_string((unsigned)registers[regs_32[rm]])];
-                    memoryAccesses.push_back("Read " + to_string(num1) + " from " + to_string((unsigned)registers[regs_32[rm]]));
+                    int num1 = memories32bit[common.getHex(registers[regs_32[rm]],0,0)];
+                    memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[rm]],0,0));
 
                     int num2 = registers[regs_32[reg]];
                     int num3 = num1 + num2;
@@ -1842,7 +1842,7 @@ string Adder::decode_imm(int opCode, int w, int d)
     {
         int8_t num1, num2;
         uint8_t num3;
-        imm = common.assemble_bits(1, true, instruction, registers);
+        imm = common.assemble_bits(1, instruction, registers);
 
         string st = common.getHex(imm, 0, 0);
 
@@ -1867,7 +1867,7 @@ string Adder::decode_imm(int opCode, int w, int d)
             int16_t num1, num2;
             uint16_t num3;
 
-            imm = common.assemble_bits(2, true, instruction, registers);
+            imm = common.assemble_bits(2, instruction, registers);
             string st = common.getHex(imm, 0, 0);
 
             dec_imm = "$" + st + "%" + "AX";
@@ -1889,7 +1889,7 @@ string Adder::decode_imm(int opCode, int w, int d)
             int num1, num2;
             unsigned int num3;
 
-            imm = common.assemble_bits(4, true, instruction, registers);
+            imm = common.assemble_bits(4,instruction, registers);
             string st = common.getHex(imm, 0, 0);
 
             dec_imm = "$" + st + "%" + "EAX";
@@ -2010,8 +2010,8 @@ string Adder::decode_add(short prefixes[4])
 
             if (immediate)
             {
-                //Immediate immediate(common, instruction, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-                //decoded_bytes = immediate.decode_imm(prefixes, w, d, mod, rm);
+                Immediate immediate(common, instruction, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+                decoded_bytes = immediate.decode_imm(prefixes, w, d, mod, rm);
             }
             else
             {

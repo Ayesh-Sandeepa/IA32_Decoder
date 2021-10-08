@@ -25,7 +25,7 @@ void convert_binary(short *encodings)
     cout << num1 << "\n";
 }
 */
-
+/*
 Immediate::Immediate(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
     : common(com), instruction(instruction), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses)
 {
@@ -1666,70 +1666,37 @@ string Immediate::decode_mod_11(int w, int s, int rm)
     string string11 = "";
     if (w == 0)
     {
-        if (s == 0)
+
+        //printf("w:0 and d:0 \n");
+
+        int8_t num1, num2, num3;
+        uint8_t num4;
+
+        num1 = common.assemble_bits(1, true, instruction, registers);
+
+        if (rm < 4)
         {
-            //printf("w:0 and d:0 \n");
-
-            int8_t num1, num2, num3;
-            uint8_t num4;
-
-            num1 = common.assemble_bits(1, true, instruction, registers);
-
-            if (rm < 4)
-            {
-                num2 = common.get_bits(1, 8, registers[regs_32[rm]]);
-                num3 = num1 + num2;
-                num4 = unsigned(num3);
-                registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffffff00) | (num3 & 0x000000ff);
-            }
-            else
-            {
-                num2 = common.get_bits(9, 8, registers[regs_32[rm % 4]]);
-                num3 = num1 + num2;
-                num4 = unsigned(num3);
-                registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffff00ff) | ((num3 << 8) & 0x0000ff00);
-            }
-
-            //cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
-
-            common.setOverflow8bit(num1, num2, num3, registers);
-            common.setCarry8bit(num1, num4, registers);
-            common.setSign(num3, registers);
-            common.setZero(num3, registers);
-
-            string11 = "%" + regs_8[reg] + ",%" + regs_8[rm] + "\n";
+            num2 = common.get_bits(1, 8, registers[regs_32[rm]]);
+            num3 = num1 + num2;
+            num4 = unsigned(num3);
+            registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffffff00) | (num3 & 0x000000ff);
         }
-        else if (s == 1)
+        else
         {
-            //printf("w:0 and d:1 \n");
-
-            int8_t num1, num2, num3;
-            uint8_t num4;
-            if (reg < 4)
-            {
-                num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
-                num2 = common.get_bits(1, 8, registers[regs_32[rm]]);
-                num3 = num1 + num2;
-                num4 = unsigned(num3);
-                registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
-            }
-            else
-            {
-                num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
-                num2 = common.get_bits(9, 8, registers[regs_32[rm % 4]]);
-                num3 = num1 + num2;
-                num4 = unsigned(num3);
-                registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((num3 << 8) & 0x0000ff00);
-            }
-            //cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
-
-            common.setOverflow8bit(num1, num2, num3, registers);
-            common.setCarry8bit(num1, num4, registers);
-            common.setSign(num3, registers);
-            common.setZero(num3, registers);
-
-            string11 = "%" + regs_8[rm] + ",%" + regs_8[reg] + "\n";
+            num2 = common.get_bits(9, 8, registers[regs_32[rm % 4]]);
+            num3 = num1 + num2;
+            num4 = unsigned(num3);
+            registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffff00ff) | ((num3 << 8) & 0x0000ff00);
         }
+
+        //cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
+
+        common.setOverflow8bit(num1, num2, num3, registers);
+        common.setCarry8bit(num1, num4, registers);
+        common.setSign(num3, registers);
+        common.setZero(num3, registers);
+
+        string11 = "$" + to_string(num1) + ",%" + regs_8[rm] + "\n";
     }
     else if (w == 1)
     {
@@ -1742,7 +1709,7 @@ string Immediate::decode_mod_11(int w, int s, int rm)
                 int16_t num1, num2, num3;
                 uint16_t num4;
 
-                num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
+                //num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
                 num2 = common.get_bits(1, 16, registers[regs_32[rm]]);
                 num3 = num1 + num2;
                 num4 = unsigned(num3);
@@ -1755,7 +1722,7 @@ string Immediate::decode_mod_11(int w, int s, int rm)
                 common.setSign(num3, registers);
                 common.setZero(num3, registers);
 
-                string11 = "%" + regs_16[reg] + ",%" + regs_16[rm] + "\n";
+                //string11 = "%" + regs_16[reg] + ",%" + regs_16[rm] + "\n";
             }
             else if (s == 1)
             {
@@ -1785,7 +1752,7 @@ string Immediate::decode_mod_11(int w, int s, int rm)
             if (s == 0)
             {
                 //printf("w:1 and d:0 \n");
-                int num1 = registers[regs_32[reg]];
+                //int num1 = registers[regs_32[reg]];
                 int num2 = registers[regs_32[rm]];
                 int num3 = num1 + num2;
                 unsigned int num4 = unsigned(num3);
@@ -1798,12 +1765,12 @@ string Immediate::decode_mod_11(int w, int s, int rm)
                 common.setSign(num3, registers);
                 common.setZero(num3, registers);
 
-                string11 = "%" + regs_32[reg] + ",%" + regs_32[rm] + "\n";
+                //string11 = "%" + regs_32[reg] + ",%" + regs_32[rm] + "\n";
             }
             else
             {
                 //printf("w:1 and d:1 \n");
-                int num1 = registers[regs_32[reg]];
+                //int num1 = registers[regs_32[reg]];
                 int num2 = registers[regs_32[rm]];
                 int num3 = num1 + num2;
                 unsigned int num4 = unsigned(num3);
@@ -1823,7 +1790,7 @@ string Immediate::decode_mod_11(int w, int s, int rm)
 
     return string11;
 }
-
+*/
 string Immediate::decode_imm(short prefixes[4], int w, int s, int mod, int rm)
 {
     string decoded_bytes;

@@ -21,4 +21,5 @@ class Common{
         void setOverflow32bit(int num1, int num2, int num3, map<string, int> &registers);
 
         void listQueue(queue<short> myQueue);
+        string getHex(int num, int width, char fill);
 };

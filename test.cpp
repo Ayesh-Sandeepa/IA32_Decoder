@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <iostream>
 #include <map>
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <iomanip>
 
 using namespace std;
 int main()
@@ -25,17 +29,14 @@ int main()
    printf("First 8 bits:%d\n", *num1);
    */
 
-   int num1, num2, num3;
-   unsigned int num4,num5;
+   int num1=0xa4c256;
 
-   num1=0xa5c11111;
-   num2=0x35b12345;
+   stringstream ms;
+   ms << "0x" <<hex << num1;
+   string rs(ms.str());
 
-   num3=num1+num2;
-   num4=unsigned(num1)+unsigned(num2);
-   num5=unsigned(num3);
+   string ss = "num1:"+rs+"\n";
+   cout << ss;
 
-   printf ("num1:%d ; num2:%d ; num3:%d ; num4:%u ; num5:%u",num1,num2,num3,num4,num5);
-   cout << "num4:"<<num4<<"\n";
    return 0;
 }

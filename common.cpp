@@ -28,7 +28,7 @@ int Common::assemble_bits(int bytes, bool SIB, queue<short> &instruction, map<st
     }
     for (int i = 0; i < bytes; i++)
     {
-        stream << setw(2) << setfill('0') << hex << displacement[bytes- 1 - i];
+        stream << setw(2) << setfill('0') << hex << displacement[bytes - 1 - i];
     }
 
     string result(stream.str());
@@ -170,3 +170,21 @@ void Common::listQueue(queue<short> myQueue)
     cout << "\n";
 }
 
+string Common::getHex(int num, int width = 0, char fill = '0')
+{
+
+    if (width == 0)
+    {
+        stringstream ms;
+        ms << "0x"<< hex << num;
+        string rs(ms.str());
+        return rs;
+    }
+    else
+    {
+        stringstream ms;
+        ms << "0x" << setw(width) << setfill(fill) << hex << num;
+        string rs(ms.str());
+        return rs;
+    }
+}

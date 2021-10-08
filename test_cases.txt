@@ -34,6 +34,9 @@ gs        0x33
 03 44 4b 80  		add    0x80(%ebx,%ecx,2),%eax
 03 44 4d 80 	 	add    0x80(%ebp,%ecx,2),%eax
 
+83 c3 80             	add    $0xffffff80,%ebx  - [sign extended in immediate]
+
+
 
 
 

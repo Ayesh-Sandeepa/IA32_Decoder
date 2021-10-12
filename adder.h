@@ -42,6 +42,8 @@ public:
     string decode_mod_10(int w, int d, int reg, int rm);
     string decode_mod_11(int w, int d, int reg, int rm);
     string decode_imm(int opCode, int w, int d);
+
+    //int test();
 };
 
 class Adder_addOverride

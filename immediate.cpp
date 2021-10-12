@@ -1271,7 +1271,7 @@ string Immediate::decode_mod_11(int w, int s, int rm)
     if (w == 0)
     {
 
-        //printf("w:0 and d:0 \n");
+        //printf("w:0 and d:0 test make \n");
 
         int8_t num1, num2, num3;
         uint8_t num4;

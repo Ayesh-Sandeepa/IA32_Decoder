@@ -35,6 +35,8 @@ public:
     string decode_mod_01(int w, int s, int rm);
     string decode_mod_10(int w, int s, int rm);
     string decode_mod_11(int w, int s, int rm);
+
+    //int test1();
 };
 
 class Immediate_addOverride

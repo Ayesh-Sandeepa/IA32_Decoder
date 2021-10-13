@@ -8,6 +8,7 @@
 #include <list>
 
 #include "adder.h"
+#include "bitset.h"
 
 using namespace std;
 
@@ -20,7 +21,7 @@ int main()
     map<string, int16_t> memories16bit;
     map<string, int8_t> memories8bit;
     queue<short> encoded_instructions;
-    short prefixes[4]={0,0,0,0};
+    short prefixes[4] = {0, 0, 0, 0};
 
     map<string, int> registers;
     registers["EAX"] = 0xbf8db144;
@@ -40,7 +41,7 @@ int main()
     registers["FS"] = 0x0;
     registers["GS"] = 0x33;
 
-/*
+    /*
     memories32bit[to_string(0xbf8db144)]=0;
     memories32bit[to_string(0x88c5cffb)]=0;
     memories32bit[to_string(0x1)]=0;
@@ -69,10 +70,9 @@ int main()
     ifstream myfile;
     myfile.open("test.txt");
 
-    
-
     Common common;
-    Adder adder(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+    Adder adder(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+    Bitset bitset(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
 
     stringstream sss;
     string test_data, word;
@@ -89,42 +89,74 @@ int main()
     {
 
         nextOpcode = encoded_instructions.front();
+        bool twoBytesOpcode = false;
+        bool threeBytesOpcode = false;
         //cout << "Next opcode : " << nextOpcode << "\n";
 
         common.listQueue(encoded_instructions);
-        if(nextOpcode==0xf0 or nextOpcode==0xf2 or nextOpcode==0xf3){
-            prefixes[0]=nextOpcode;
-            encoded_instructions.pop();
-        }
-        else if(nextOpcode==0x2e or nextOpcode==0x36 or nextOpcode==0x3e or nextOpcode==0x26 or nextOpcode==0x64 or nextOpcode==0x65){
-            prefixes[1]=nextOpcode;
-            encoded_instructions.pop();
-        }
-        else if(nextOpcode==0x66){
-            prefixes[2]=nextOpcode;
-            encoded_instructions.pop();
-        }
-        else if(nextOpcode==0x67){
-            prefixes[3]=nextOpcode;
-            encoded_instructions.pop();
-        }
-        else if (nextOpcode == 0x0 or nextOpcode == 0x1 or nextOpcode == 0x2 or nextOpcode == 0x3 or nextOpcode == 0x4 or nextOpcode == 0x5 or nextOpcode == 0x80 or nextOpcode == 0x81 or nextOpcode == 0x83)
+        if (nextOpcode == 0xf0 or nextOpcode == 0xf2 or nextOpcode == 0xf3)
         {
-            adder.decode_add(prefixes);
-            prefixes[0]=0;
-            prefixes[1]=0;
-            prefixes[2]=0;
-            prefixes[3]=0;
+            prefixes[0] = nextOpcode;
+            encoded_instructions.pop();
+        }
+        else if (nextOpcode == 0x2e or nextOpcode == 0x36 or nextOpcode == 0x3e or nextOpcode == 0x26 or nextOpcode == 0x64 or nextOpcode == 0x65)
+        {
+            prefixes[1] = nextOpcode;
+            encoded_instructions.pop();
+        }
+        else if (nextOpcode == 0x66)
+        {
+            prefixes[2] = nextOpcode;
+            encoded_instructions.pop();
+        }
+        else if (nextOpcode == 0x67)
+        {
+            prefixes[3] = nextOpcode;
+            encoded_instructions.pop();
+        }
+        else if (nextOpcode == 0x0f)
+        {
+            twoBytesOpcode = true;
+            encoded_instructions.pop();
+        }
+        else if (twoBytesOpcode == true and nextOpcode == 0x38)
+        {
+            threeBytesOpcode = true;
+            encoded_instructions.pop();
+        }
+        else
+        {
+            if (threeBytesOpcode)
+            {
+            }
+            else if (twoBytesOpcode)
+            {
+                if(nextOpcode==0xa3 or nextOpcode==0xba){
+                    bitset.decode_bt(prefixes);
+                }
+            }
+            else
+            {
+                if (nextOpcode == 0x0 or nextOpcode == 0x1 or nextOpcode == 0x2 or nextOpcode == 0x3 or nextOpcode == 0x4 or nextOpcode == 0x5 or nextOpcode == 0x80 or nextOpcode == 0x81 or nextOpcode == 0x83)
+                {
+                    adder.decode_add(prefixes);
+                }
+            }
+            prefixes[0] = 0;
+            prefixes[1] = 0;
+            prefixes[2] = 0;
+            prefixes[3] = 0;
+            twoBytesOpcode=false;
+            threeBytesOpcode=false;
         }
     }
 
-    for(auto it=memoryAccesses.begin();it!=memoryAccesses.end();++it){
-        cout << *it <<"\n";
+    for (auto it = memoryAccesses.begin(); it != memoryAccesses.end(); ++it)
+    {
+        cout << *it << "\n";
     }
 
     myfile.close();
 
     return 0;
 }
-
-

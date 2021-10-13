@@ -1002,11 +1002,6 @@ string Adder_addOverride::decode_add(short prefixes[4])
     instruction.pop();
     registers["EIP"] = registers["EIP"] + 1;
 
-    //printf("d:%d \n", d);
-    //printf("w:%d \n", w);
-    //printf("mod:%d \n", mod);
-    //printf("reg:%d \n", reg);
-    //printf("rm:%d \n", rm);
 
     string decoded_bytes;
     if (prefixes[2] == 0x66)

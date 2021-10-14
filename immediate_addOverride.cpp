@@ -80,7 +80,7 @@ string Immediate_addOverride::decode_displacement_without_SIB(int w, int s, int 
         if (w == 0)
         {
             int8_t num1 = common.assemble_bits(1, instruction, registers);
-            memoryAccesses.push_back("add $" + common.getHex(num1, 0, 0) + "," + common.getHex(disp, 0, 0));
+            memoryAccesses.push_back("add " + common.getHex(disp, 0, 0) + ", $" + common.getHex(num1, 0, 0));
 
             int8_t num2, num3;
             uint8_t num4;
@@ -99,7 +99,7 @@ string Immediate_addOverride::decode_displacement_without_SIB(int w, int s, int 
             common.setSign(num3, registers);
             common.setZero(num3, registers);
 
-            dispWithoutSIB = "$" + common.getHex(num1, 0, 0) + "," + common.getHex(disp, 0, 0) + "\n";
+            dispWithoutSIB = common.getHex(disp, 0, 0) + ", $" + common.getHex(num1, 0, 0) + "\n";
         }
         else if (w == 1)
         {
@@ -108,7 +108,7 @@ string Immediate_addOverride::decode_displacement_without_SIB(int w, int s, int 
                 if (s == 0)
                 {
                     int16_t num1 = common.assemble_bits(2, instruction, registers);
-                    memoryAccesses.push_back("add $" + common.getHex(num1, 0, 0) + "," + common.getHex(disp, 0, 0));
+                    memoryAccesses.push_back("add " + common.getHex(disp, 0, 0) + ", $" + common.getHex(num1, 0, 0));
 
                     int16_t num2, num3;
                     uint16_t num4;
@@ -127,12 +127,12 @@ string Immediate_addOverride::decode_displacement_without_SIB(int w, int s, int 
                     common.setSign(num3, registers);
                     common.setZero(num3, registers);
 
-                    dispWithoutSIB = "$" + common.getHex(num1, 0, 0) + "," + common.getHex(disp, 0, 0) + "\n";
+                    dispWithoutSIB = common.getHex(disp, 0, 0) + ", $" + common.getHex(num1, 0, 0) + "\n";
                 }
                 else if (s == 1)
                 {
                     int8_t num = common.assemble_bits(1, instruction, registers);
-                    memoryAccesses.push_back("add $" + common.getHex(num, 4, 'f') + "," + common.getHex(disp, 0, 0));
+                    memoryAccesses.push_back("add " + common.getHex(disp, 0, 0) + ", $" + common.getHex(num, 4, 'f'));
 
                     int16_t num1, num2, num3;
                     uint16_t num4;
@@ -152,7 +152,7 @@ string Immediate_addOverride::decode_displacement_without_SIB(int w, int s, int 
                     common.setSign(num3, registers);
                     common.setZero(num3, registers);
 
-                    dispWithoutSIB = "$" + common.getHex(num, 4, 'f') + "," + common.getHex(disp, 0, 0) + "\n";
+                    dispWithoutSIB = common.getHex(disp, 0, 0) + ", $" + common.getHex(num, 4, 'f') + "\n";
                 }
             }
             else
@@ -160,7 +160,7 @@ string Immediate_addOverride::decode_displacement_without_SIB(int w, int s, int 
                 if (s == 0)
                 {
                     int num2 = common.assemble_bits(4, instruction, registers);
-                    memoryAccesses.push_back("add $" + common.getHex(num2, 0, 0) + "," + common.getHex(disp, 0, 0));
+                    memoryAccesses.push_back("add " + common.getHex(disp, 0, 0) + ", $" + common.getHex(num2, 0, 0));
 
                     int num1 = memories32bit[common.getHex(disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(disp, 0, 0));
@@ -176,12 +176,12 @@ string Immediate_addOverride::decode_displacement_without_SIB(int w, int s, int 
                     memories32bit[common.getHex(disp, 0, 0)] = num3;
                     memoryAccesses.push_back("Write " + to_string(num3) + " to " + common.getHex(disp, 0, 0));
 
-                    dispWithoutSIB = "$" + common.getHex(num2, 0, 0) + "," + common.getHex(disp, 0, 0) + "\n";
+                    dispWithoutSIB = common.getHex(disp, 0, 0) + ", $" + common.getHex(num2, 0, 0) + "\n";
                 }
                 else
                 {
                     int8_t num = common.assemble_bits(1, instruction, registers);
-                    memoryAccesses.push_back("add $" + common.getHex(num, 8, 'f') + "," + common.getHex(disp, 0, 0));
+                    memoryAccesses.push_back("add " + common.getHex(disp, 0, 0) + ", $" + common.getHex(num, 8, 'f'));
 
                     int num1 = memories32bit[common.getHex(disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(disp, 0, 0));
@@ -198,7 +198,7 @@ string Immediate_addOverride::decode_displacement_without_SIB(int w, int s, int 
                     memories32bit[common.getHex(disp, 0, 0)] = num3;
                     memoryAccesses.push_back("Write " + to_string(num3) + " to " + common.getHex(disp, 0, 0));
 
-                    dispWithoutSIB = "$" + common.getHex(num, 8, 'f') + "," + common.getHex(disp, 0, 0) + "\n";
+                    dispWithoutSIB = common.getHex(disp, 0, 0) + ", $" + common.getHex(num, 8, 'f') + "\n";
                 }
             }
         }
@@ -208,7 +208,7 @@ string Immediate_addOverride::decode_displacement_without_SIB(int w, int s, int 
         if (w == 0)
         {
             int8_t num1 = common.assemble_bits(1, instruction, registers);
-            memoryAccesses.push_back("add $" + common.getHex(num1, 0, 0) + "," + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")");
+            memoryAccesses.push_back("add " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")" + ", $" + common.getHex(num1, 0, 0));
 
             int8_t num2, num3;
             uint8_t num4;
@@ -241,7 +241,7 @@ string Immediate_addOverride::decode_displacement_without_SIB(int w, int s, int 
             common.setSign(num3, registers);
             common.setZero(num3, registers);
 
-            dispWithoutSIB = "$" + common.getHex(num1, 0, 0) + "," + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ") \n";
+            dispWithoutSIB = common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")" + ", $" + common.getHex(num1, 0, 0) + " \n";
         }
         else if (w == 1)
         {
@@ -250,7 +250,7 @@ string Immediate_addOverride::decode_displacement_without_SIB(int w, int s, int 
                 if (s == 0)
                 {
                     int16_t num1 = common.assemble_bits(2, instruction, registers);
-                    memoryAccesses.push_back("add $" + common.getHex(num1, 0, 0) + "," + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")");
+                    memoryAccesses.push_back("add " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")" + ", $" + common.getHex(num1, 0, 0));
 
                     int16_t num2, num3;
                     uint16_t num4;
@@ -283,12 +283,12 @@ string Immediate_addOverride::decode_displacement_without_SIB(int w, int s, int 
                     common.setSign(num3, registers);
                     common.setZero(num3, registers);
 
-                    dispWithoutSIB = "$" + common.getHex(num1, 0, 0) + "," + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ") \n";
+                    dispWithoutSIB = common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")" + ", $" + common.getHex(num1, 0, 0) + " \n";
                 }
                 else if (s == 1)
                 {
                     int8_t num = common.assemble_bits(1, instruction, registers);
-                    memoryAccesses.push_back("add $" + common.getHex(num, 4, 'f') + "," + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")");
+                    memoryAccesses.push_back("add " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")" + ", $" + common.getHex(num, 4, 'f'));
 
                     int16_t num1, num2, num3;
                     uint16_t num4;
@@ -323,15 +323,15 @@ string Immediate_addOverride::decode_displacement_without_SIB(int w, int s, int 
                     common.setSign(num3, registers);
                     common.setZero(num3, registers);
 
-                    dispWithoutSIB = "$" + common.getHex(num, 4, 'f') + "," + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")" + "\n";
+                    dispWithoutSIB = common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")" + ", $" + common.getHex(num, 4, 'f') + "\n";
                 }
             }
             else
             {
                 if (s == 0)
                 {
-                    int num2=common.assemble_bits(4,instruction,registers);
-                    memoryAccesses.push_back("add $" + common.getHex(num2,0,0) + "," + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")");
+                    int num2 = common.assemble_bits(4, instruction, registers);
+                    memoryAccesses.push_back("add " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")" + ", $" + common.getHex(num2, 0, 0));
 
                     int num1, num3;
                     unsigned int num4;
@@ -341,7 +341,6 @@ string Immediate_addOverride::decode_displacement_without_SIB(int w, int s, int 
                         num1 = memories32bit[common.getHex(*list1[rm / 2] + *list2[rm % 2] + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(*list1[rm / 2] + *list2[rm % 2] + disp, 0, 0));
 
-                        
                         num3 = num1 + num2;
                         num4 = unsigned(num3);
 
@@ -365,17 +364,17 @@ string Immediate_addOverride::decode_displacement_without_SIB(int w, int s, int 
                     common.setSign(num3, registers);
                     common.setZero(num3, registers);
 
-                    dispWithoutSIB = "$" + common.getHex(num2,0,0) + "," + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ") \n";
+                    dispWithoutSIB = common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")" + ", $" + common.getHex(num2, 0, 0) + " \n";
                 }
                 else
                 {
-                    int8_t num=common.assemble_bits(1,instruction,registers);
-                     memoryAccesses.push_back("add $" + common.getHex(num,8,'f') + "," + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")");
+                    int8_t num = common.assemble_bits(1, instruction, registers);
+                    memoryAccesses.push_back("add " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")" + ", $" + common.getHex(num, 8, 'f'));
 
                     int num1, num2, num3;
                     unsigned int num4;
 
-                    num2=num;
+                    num2 = num;
                     if (rm < 4)
                     {
                         num1 = memories32bit[common.getHex(*list1[rm / 2] + *list2[rm % 2] + disp, 0, 0)];
@@ -404,7 +403,7 @@ string Immediate_addOverride::decode_displacement_without_SIB(int w, int s, int 
                     common.setSign(num3, registers);
                     common.setZero(num3, registers);
 
-                    dispWithoutSIB = "$"+common.getHex(num,8,'f')+","+common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")" + "\n";
+                    dispWithoutSIB = common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")" + ", $" + common.getHex(num, 8, 'f') + "\n";
                 }
             }
         }
@@ -425,10 +424,10 @@ string Immediate_addOverride::decode_mod_00(int w, int s, int rm)
         if (w == 0)
         {
             int8_t num1 = common.assemble_bits(1, instruction, registers);
-            memoryAccesses.push_back("add $" + common.getHex(num1, 0, 0) + ",(%" + regs_16bitmode[rm] + ")");
-            string00 = "$" + common.getHex(num1, 0, 0) + ",(%" + regs_16bitmode[rm] + ")\n";
+            memoryAccesses.push_back("add (%" + regs_16bitmode[rm] + ")"+", $" + common.getHex(num1, 0, 0));
+            string00 =  "(%" + regs_16bitmode[rm] + ")"+", $" + common.getHex(num1, 0, 0) +"\n";
 
-            int8_t  num2, num3;
+            int8_t num2, num3;
             uint8_t num4;
 
             if (rm < 4)
@@ -466,8 +465,8 @@ string Immediate_addOverride::decode_mod_00(int w, int s, int rm)
                 if (s == 0)
                 {
                     int16_t num1 = common.assemble_bits(2, instruction, registers);
-                    memoryAccesses.push_back("add $" + common.getHex(num1, 0, 0) + ",(%" + regs_16bitmode[rm] + ")");
-                    string00 = "$" + common.getHex(num1, 0, 0) + ",(%" + regs_16bitmode[rm] + ")\n";
+                    memoryAccesses.push_back("add (%" + regs_16bitmode[rm] + ")"+", $" + common.getHex(num1, 0, 0));
+                    string00 =  "(%" + regs_16bitmode[rm] + ")"+", $" + common.getHex(num1, 0, 0) +"\n";
 
                     int16_t num2, num3;
                     uint16_t num4;
@@ -503,7 +502,7 @@ string Immediate_addOverride::decode_mod_00(int w, int s, int rm)
                 else if (s == 1)
                 {
                     int8_t num = common.assemble_bits(1, instruction, registers);
-                    string00 = "$" + common.getHex(num, 4, 'f') + ",(%" + regs_16bitmode[rm] + ")" + "\n";
+                    string00 = "(%" + regs_16bitmode[rm] + ")" + ", $" + common.getHex(num, 4, 'f') + "\n";
 
                     int16_t num1, num2, num3;
                     uint16_t num4;
@@ -544,7 +543,7 @@ string Immediate_addOverride::decode_mod_00(int w, int s, int rm)
                 if (s == 0)
                 {
                     int num2 = common.assemble_bits(4, instruction, registers);
-                    memoryAccesses.push_back("add $" + common.getHex(num2, 0, 0) + ",(%" + regs_16bitmode[rm] + ")");
+                    memoryAccesses.push_back("add (%" + regs_16bitmode[rm] + ")"+", $" + common.getHex(num2, 0, 0));
 
                     int num1, num3;
                     unsigned int num4;
@@ -577,7 +576,7 @@ string Immediate_addOverride::decode_mod_00(int w, int s, int rm)
                     common.setSign(num3, registers);
                     common.setZero(num3, registers);
 
-                    string00 = "$" + common.getHex(num2, 0, 0) + ",(%" + regs_16bitmode[rm] + ")\n";
+                    string00 = "(%" + regs_16bitmode[rm] + ")"+", $" + common.getHex(num2, 0, 0) + "\n";
                 }
                 else
                 {
@@ -615,7 +614,7 @@ string Immediate_addOverride::decode_mod_00(int w, int s, int rm)
                     common.setSign(num3, registers);
                     common.setZero(num3, registers);
 
-                    string00 = "$" + common.getHex(num, 8, 'f') + ",(%" + regs_16bitmode[rm] + ")" + "\n";
+                    string00 = "(%" + regs_16bitmode[rm] + ")" +  ", $" + common.getHex(num, 8, 'f') +"\n";
                 }
             }
         }
@@ -671,7 +670,7 @@ string Immediate_addOverride::decode_mod_11(int w, int s, int rm)
         common.setSign(num3, registers);
         common.setZero(num3, registers);
 
-        string11 = "$" + common.getHex(num1, 0, 0) + ",%" + regs_8[rm] + "\n";
+        string11 =  "%" + regs_8[rm] + ", $" + common.getHex(num1, 0, 0) +"\n";
     }
     else if (w == 1)
     {
@@ -697,7 +696,7 @@ string Immediate_addOverride::decode_mod_11(int w, int s, int rm)
                 common.setSign(num3, registers);
                 common.setZero(num3, registers);
 
-                string11 = "$" + common.getHex(num1, 0, 0) + ",%" + regs_16[rm] + "\n";
+                string11 =  "%" + regs_16[rm] +", $" + common.getHex(num1, 0, 0) + "\n";
             }
             else if (s == 1)
             {
@@ -721,7 +720,7 @@ string Immediate_addOverride::decode_mod_11(int w, int s, int rm)
                 common.setSign(num3, registers);
                 common.setZero(num3, registers);
 
-                string11 = "$" + common.getHex(num, 4, 'f') + ",%" + regs_16[rm] + "\n";
+                string11 =  "%" + regs_16[rm] + ", $" + common.getHex(num, 4, 'f') +"\n";
             }
         }
         else
@@ -742,7 +741,7 @@ string Immediate_addOverride::decode_mod_11(int w, int s, int rm)
                 common.setSign(num3, registers);
                 common.setZero(num3, registers);
 
-                string11 = "$" + common.getHex(num1, 0, 0) + ",%" + regs_32[rm] + "\n";
+                string11 =  "%" + regs_32[rm] + ", $" + common.getHex(num1, 0, 0) +"\n";
             }
             else
             {
@@ -762,7 +761,7 @@ string Immediate_addOverride::decode_mod_11(int w, int s, int rm)
                 common.setSign(num3, registers);
                 common.setZero(num3, registers);
 
-                string11 = "$" + common.getHex(num, 8, 'f') + ",%" + regs_32[rm] + "\n";
+                string11 =  "%" + regs_32[rm] + ", $" + common.getHex(num, 8, 'f') +"\n";
             }
         }
     }

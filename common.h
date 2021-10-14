@@ -1,3 +1,7 @@
+#ifndef COMMON_H
+#define COMMON_H
+
+
 #include <stdio.h>
 #include <string>
 #include <map>
@@ -23,3 +27,5 @@ class Common{
         void listQueue(queue<short> myQueue);
         string getHex(int num, int width, char fill);
 };
+
+#endif 

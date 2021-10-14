@@ -74,13 +74,12 @@ string Bitset_addOverride::decode_displacement_without_SIB(int mod, int reg, int
 
     if (imm)
     {
-        int8_t imd=common.assemble_bits(1,instruction,registers);
+        int8_t imd = common.assemble_bits(1, instruction, registers);
         if (mod == 0)
         {
             if (opSize)
             {
-                memoryAccesses.push_back("bt $" + common.getHex(imd,0,0) + "," + common.getHex(disp, 0, 0));
-
+                memoryAccesses.push_back("bt " + common.getHex(disp, 0, 0) + ",$" + common.getHex(imd, 0, 0));
 
                 bool bit = common.get_bits(imd % 16 + 1, 1, memories16bit[common.getHex(disp, 0, 0)]);
                 memoryAccesses.push_back("Read " + to_string(imd % 16) + "bit from " + common.getHex(disp, 0, 0));
@@ -94,13 +93,12 @@ string Bitset_addOverride::decode_displacement_without_SIB(int mod, int reg, int
                     registers["EFLAGS"] = registers["EFLAGS"] & 0xfffffffe;
                 }
 
-                dispWithoutSIB = "bt $" + common.getHex(imd,0,0) + "," + common.getHex(disp, 0, 0) + "\n";
+                dispWithoutSIB = "bt " + common.getHex(disp, 0, 0) + ",$" + common.getHex(imd, 0, 0) + "\n";
             }
             else
             {
-                memoryAccesses.push_back("bt $" + common.getHex(imd,0,0)+ "," + common.getHex(disp, 0, 0));
+                memoryAccesses.push_back("bt " + common.getHex(disp, 0, 0) + ",$" + common.getHex(imd, 0, 0));
 
-                
                 bool bit = common.get_bits(imd % 32 + 1, 1, memories32bit[common.getHex(disp, 0, 0)]);
                 memoryAccesses.push_back("Read " + to_string(imd % 32) + "bit from " + common.getHex(disp, 0, 0));
 
@@ -113,16 +111,15 @@ string Bitset_addOverride::decode_displacement_without_SIB(int mod, int reg, int
                     registers["EFLAGS"] = registers["EFLAGS"] & 0xfffffffe;
                 }
 
-                dispWithoutSIB = "bt $" + common.getHex(imd,0,0) + "," + common.getHex(disp, 0, 0) + "\n";
+                dispWithoutSIB = "bt " + common.getHex(disp, 0, 0) + ",$" + common.getHex(imd, 0, 0) + "\n";
             }
         }
         else
         {
             if (opSize)
             {
-                memoryAccesses.push_back("bt $" + common.getHex(imd,0,0) + "," + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")");
+                memoryAccesses.push_back("bt " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + "),$" + common.getHex(imd, 0, 0));
 
-                
                 bool bit;
 
                 if (rm < 4)
@@ -145,13 +142,12 @@ string Bitset_addOverride::decode_displacement_without_SIB(int mod, int reg, int
                     registers["EFLAGS"] = registers["EFLAGS"] & 0xfffffffe;
                 }
 
-                dispWithoutSIB = "bt $" + common.getHex(imd,0,0) + "," + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ") \n";
+                dispWithoutSIB = "bt " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + "),$" + common.getHex(imd, 0, 0) + "\n";
             }
             else
             {
-                memoryAccesses.push_back("bt $" + common.getHex(imd,0,0) + "," + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")");
+                memoryAccesses.push_back("bt " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + "),$" + common.getHex(imd, 0, 0));
 
-                
                 bool bit;
 
                 if (rm < 4)
@@ -174,7 +170,7 @@ string Bitset_addOverride::decode_displacement_without_SIB(int mod, int reg, int
                     registers["EFLAGS"] = registers["EFLAGS"] & 0xfffffffe;
                 }
 
-                dispWithoutSIB = "bt $" + common.getHex(imd,0,0) + "," + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ") \n";
+                dispWithoutSIB = "bt " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + "),$" + common.getHex(imd, 0, 0) + " \n";
             }
         }
     }
@@ -184,7 +180,7 @@ string Bitset_addOverride::decode_displacement_without_SIB(int mod, int reg, int
         {
             if (opSize)
             {
-                memoryAccesses.push_back("bt %" + regs_16[reg] + "," + common.getHex(disp, 0, 0));
+                memoryAccesses.push_back("bt " + common.getHex(disp, 0, 0) + ",%" + regs_16[reg]);
 
                 int16_t num1;
 
@@ -202,11 +198,11 @@ string Bitset_addOverride::decode_displacement_without_SIB(int mod, int reg, int
                     registers["EFLAGS"] = registers["EFLAGS"] & 0xfffffffe;
                 }
 
-                dispWithoutSIB = "bt %" + regs_16[reg] + "," + common.getHex(disp, 0, 0) + "\n";
+                dispWithoutSIB = "bt " + common.getHex(disp, 0, 0) + ",%" + regs_16[reg] + "\n";
             }
             else
             {
-                memoryAccesses.push_back("bt %" + regs_32[reg] + "," + common.getHex(disp, 0, 0));
+                memoryAccesses.push_back("bt " + common.getHex(disp, 0, 0) + ",%" + regs_32[reg]);
 
                 int num2 = registers[regs_32[reg]];
                 bool bit = common.get_bits(num2 % 32 + 1, 1, memories32bit[common.getHex(disp, 0, 0)]);
@@ -221,14 +217,14 @@ string Bitset_addOverride::decode_displacement_without_SIB(int mod, int reg, int
                     registers["EFLAGS"] = registers["EFLAGS"] & 0xfffffffe;
                 }
 
-                dispWithoutSIB = "bt %" + regs_32[reg] + "," + common.getHex(disp, 0, 0) + "\n";
+                dispWithoutSIB = "bt " + common.getHex(disp, 0, 0) + ",%" + regs_32[reg] + "\n";
             }
         }
         else
         {
             if (opSize)
             {
-                memoryAccesses.push_back("bt %" + regs_16[reg] + "," + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")");
+                memoryAccesses.push_back("bt " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + "),%" + regs_16[reg]);
 
                 int16_t num1;
                 bool bit;
@@ -255,11 +251,11 @@ string Bitset_addOverride::decode_displacement_without_SIB(int mod, int reg, int
                     registers["EFLAGS"] = registers["EFLAGS"] & 0xfffffffe;
                 }
 
-                dispWithoutSIB = "bt %" + regs_16[reg] + "," + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ") \n";
+                dispWithoutSIB = "bt " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + "),%" + regs_16[reg] + "\n";
             }
             else
             {
-                memoryAccesses.push_back("bt %" + regs_32[reg] + "," + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")");
+                memoryAccesses.push_back("bt " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + "),%" + regs_32[reg]);
 
                 int num2 = registers[regs_32[reg]];
                 bool bit;
@@ -284,7 +280,7 @@ string Bitset_addOverride::decode_displacement_without_SIB(int mod, int reg, int
                     registers["EFLAGS"] = registers["EFLAGS"] & 0xfffffffe;
                 }
 
-                dispWithoutSIB = "bt %" + regs_32[reg] + "," + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ") \n";
+                dispWithoutSIB = "bt " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + "),%" + regs_32[reg] + "\n";
             }
         }
     }
@@ -303,8 +299,8 @@ string Bitset_addOverride::decode_mod_00(int reg, int rm)
     {
         if (opSize)
         {
-            memoryAccesses.push_back("bt %" + regs_16[reg] + ",(%" + regs_16bitmode[rm] + ")");
-            string00 = "bt %" + regs_16[reg] + ",(%" + regs_16bitmode[rm] + ")\n";
+            memoryAccesses.push_back("bt (%" + regs_16bitmode[rm] + "),%" + regs_16[reg]);
+            string00 = "bt (%" + regs_16bitmode[rm] + "),%" + regs_16[reg] + "\n";
 
             int16_t num1;
             bool bit;
@@ -333,7 +329,7 @@ string Bitset_addOverride::decode_mod_00(int reg, int rm)
         }
         else
         {
-            memoryAccesses.push_back("bt %" + regs_32[reg] + ",(%" + regs_16bitmode[rm] + ")");
+            memoryAccesses.push_back("bt (%" + regs_16bitmode[rm] + "),%" + regs_32[reg]);
 
             int num2 = registers[regs_32[reg]];
             bool bit;
@@ -357,7 +353,7 @@ string Bitset_addOverride::decode_mod_00(int reg, int rm)
                 registers["EFLAGS"] = registers["EFLAGS"] & 0xfffffffe;
             }
 
-            string00 = "bt %" + regs_32[reg] + ",(%" + regs_16bitmode[rm] + ")\n";
+            string00 = "bt (%" + regs_16bitmode[rm] + "),%" + regs_32[reg] + "\n";
         }
     }
 
@@ -396,7 +392,7 @@ string Bitset_addOverride::decode_mod_11(int reg, int rm)
                 registers["EFLAGS"] = registers["EFLAGS"] & 0xfffffffe;
             }
 
-            string11 = "bt $" + common.getHex(imd, 0, 0) + ",%" + regs_16[rm] + "\n";
+            string11 = "bt %" + regs_16[rm] + ",$" + common.getHex(imd, 0, 0) + "\n";
         }
         else
         {
@@ -411,7 +407,7 @@ string Bitset_addOverride::decode_mod_11(int reg, int rm)
                 registers["EFLAGS"] = registers["EFLAGS"] & 0xfffffffe;
             }
 
-            string11 = "bt $" + common.getHex(imd, 0, 0) + ",%" + regs_16bitmode[rm] + "\n";
+            string11 = "bt %" + regs_16bitmode[rm] + ",$" + common.getHex(imd, 0, 0) + "\n";
         }
     }
     else
@@ -433,7 +429,7 @@ string Bitset_addOverride::decode_mod_11(int reg, int rm)
                 registers["EFLAGS"] = registers["EFLAGS"] & 0xfffffffe;
             }
 
-            string11 = "bt %" + regs_16[reg] + ",%" + regs_16[rm] + "\n";
+            string11 = "bt %" + regs_16[rm] + ",%" + regs_16[reg] + "\n";
         }
         else
         {
@@ -450,7 +446,7 @@ string Bitset_addOverride::decode_mod_11(int reg, int rm)
                 registers["EFLAGS"] = registers["EFLAGS"] & 0xfffffffe;
             }
 
-            string11 = "bt %" + regs_32[reg] + ",%" + regs_16bitmode[rm] + "\n";
+            string11 = "bt %" + regs_32[rm] + ",%" + regs_16bitmode[reg] + "\n";
         }
     }
 

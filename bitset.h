@@ -9,8 +9,8 @@
 #include <map>
 #include <list>
 
-//#include "common.h"
-#include "immediate.h"
+#include "common.h"
+//#include "immediate.h"
 
 using namespace std;
 class Bitset

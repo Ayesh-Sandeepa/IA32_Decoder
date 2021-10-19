@@ -97,16 +97,16 @@ int main()
     bool twoBytesOpcode = false;
     bool threeBytesOpcode = false;
 
-    EIP=registers["EIP"];
+    registers["EIP"]=EIP;
     
-    while (cs.find(common.getHex(EIP,0,0))==cs.end())
+    while (cs.find(common.getHex(registers["EIP"],0,0))!=cs.end())
     {
 
-        printf("Entered while \n");
+        //cout << "registers[EIP]:"<<common.getHex(registers["EIP"],0,0)<<"\n";
         //nextOpcode = encoded_instructions.front();
         nextOpcode = cs[common.getHex(registers["EIP"],0,0)];
 
-        //cout << "Next opcode : " << nextOpcode << "\n";
+        //cout << "Next opcode : " << common.getHex(nextOpcode,0,0) << "\n";
 
         //common.listQueue(encoded_instructions);
         //cout << "Next opcode:" << common.getHex(nextOpcode, 0, 0) << "\n";

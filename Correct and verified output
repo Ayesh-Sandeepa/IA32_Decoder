@@ -1,0 +1,115 @@
+01 c1 
+add %EAX,%ECX
+EAX: bf8db144
+ECX: 4853813f
+EDX: 1
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: a07
+ 
+00 c1
+add %AL,%CL
+EAX: bf8db144
+ECX: 48538183
+EDX: 1
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: a86
+ 
+03 c1 
+add %ECX,%EAX
+EAX: 7e132c7
+ECX: 48538183
+EDX: 1
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 207
+ 
+02 c1
+add %CL,%AL
+EAX: 7e1324a
+ECX: 48538183
+EDX: 1
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: a07
+ 
+03 08
+add (%EAX),%ECX
+EAX: 7e1324a
+ECX: 48538183
+EDX: 1
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 206
+ 
+02 04 5a 
+add (%EDX,%EBX,2),%AL
+EAX: 7e1324a
+ECX: 48538183
+EDX: 1
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 206
+ 
+03 44 4b 80
+add 128(%EBX,%ECX,2),%EAX
+EAX: 7e1324a
+ECX: 48538183
+EDX: 1
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 206
+ 
+01 04 4d 80 00 00 00
+add %EAX,128(,%ECX,2)
+EAX: 7e1324a
+ECX: 48538183
+EDX: 1
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 206
+ 
+03 8c 55 80 00 00 00
+add 128(%EBP,%EDX,2),%ECX
+EAX: 7e1324a
+ECX: 48538183
+EDX: 1
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 206
+ 
+Read 0 from 132198986
+Read 0 from 22855657
+Read 0 from 2438292346
+add %EAX,128(,%ECX,2)
+Read 0 from 2426864518
+write 132198986 to 2426864518
+Read 0 from 3213734298

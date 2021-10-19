@@ -157,7 +157,7 @@ int main()
                 {
                     adder.decode_add(prefixes);
                 }
-                else if (nextOpcode == 0x88 or nextOpcode == 0x89 or nextOpcode == 0x8a or nextOpcode == 0x8b)
+                else if (nextOpcode == 0x88 or nextOpcode == 0x89 or nextOpcode == 0x8a or nextOpcode == 0x8b or nextOpcode == 0xb0 or nextOpcode == 0xb8 or nextOpcode == 0xc6 or nextOpcode == 0xc7)
                 {
                     mov.decode_mov(prefixes);
                 }

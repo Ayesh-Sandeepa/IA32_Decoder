@@ -925,12 +925,26 @@ string Mov::decode_mov(short prefixes[4])
         {
             opSize = false;
         }
-        if(opCode == 0xb0 or opCode == 0xb8){
+        if(opCode == 0xb0 or opCode == 0xb8)
+        {
             bool w = common.get_bits(4, 1, opCode);
             int reg = common.get_bits(0, 3, opCode);
             decoded_bytes = decode_imm_alt(opCode,w,reg);
         }
-        else{
+        else if(opCode == 0xc7 or opCode == 0xc6)
+        {
+            int mod = instruction.front() >> 6;
+            int reg = common.get_bits(4, 3, instruction.front());
+            int rm = common.get_bits(1, 3, instruction.front());
+
+            instruction.pop();
+            registers["EIP"] = registers["EIP"] + 1;
+            
+            Mov_immediate mov_immediate(common, instruction, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+            decoded_bytes = mov_immediate.decode_imm(prefixes, w, mod, rm);            
+        }
+        else
+        {
             int mod = instruction.front() >> 6;
             int reg = common.get_bits(4, 3, instruction.front());
             int rm = common.get_bits(1, 3, instruction.front());
@@ -956,6 +970,7 @@ string Mov::decode_mov(short prefixes[4])
             }
         }
     }
+    
 
     cout << "mov " << decoded_bytes;
 

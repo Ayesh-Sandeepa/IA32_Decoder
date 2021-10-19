@@ -856,6 +856,49 @@ string Mov::decode_mod_11(int w, int d, int reg, int rm)
     return string11;
 }
 
+string Mov::decode_imm_alt(int opCode, int w, int reg)
+{
+    string dec_imm_alt;
+    int imm;
+
+    if (w == 0)
+    {
+        imm = common.assemble_bits(1, instruction, registers);
+        string st = common.getHex(imm, 0, 0);
+
+        dec_imm_alt = "%" + regs_8[reg] + ",$" + st + "\n";
+
+        if (reg < 4)
+        {
+            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (imm & 0x000000ff);                  
+        }
+        else
+        {
+            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (imm & 0x0000ff00);
+        }
+    }
+    else
+    {
+        if (opSize)
+        {
+            imm = common.assemble_bits(2, instruction, registers);
+            string st = common.getHex(imm, 0, 0);
+
+            dec_imm_alt = "%" + regs_16[reg] + ",$" + st + "\n";
+            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (imm & 0x0000ffff);
+        }
+        else
+        {
+            imm = common.assemble_bits(4, instruction, registers);
+            string st = common.getHex(imm, 0, 0);
+
+            dec_imm_alt = "%" + regs_32[reg] + ",$" + st + "\n";
+            registers[regs_32[reg]] = imm;
+        }
+    }
+
+    return dec_imm_alt;
+}
 string Mov::decode_mov(short prefixes[4])
 {
     string decoded_bytes;
@@ -870,13 +913,7 @@ string Mov::decode_mov(short prefixes[4])
         bool d = common.get_bits(2, 1, instruction.front());
         bool w = common.get_bits(1, 1, instruction.front());
 
-        instruction.pop();
-        registers["EIP"] = registers["EIP"] + 1;
-
-        int mod = instruction.front() >> 6;
-        int reg = common.get_bits(4, 3, instruction.front());
-        int rm = common.get_bits(1, 3, instruction.front());
-
+        short opCode = instruction.front();
         instruction.pop();
         registers["EIP"] = registers["EIP"] + 1;
 
@@ -888,22 +925,35 @@ string Mov::decode_mov(short prefixes[4])
         {
             opSize = false;
         }
+        if(opCode == 0xb0 or opCode == 0xb8){
+            bool w = common.get_bits(4, 1, opCode);
+            int reg = common.get_bits(0, 3, opCode);
+            decoded_bytes = decode_imm_alt(opCode,w,reg);
+        }
+        else{
+            int mod = instruction.front() >> 6;
+            int reg = common.get_bits(4, 3, instruction.front());
+            int rm = common.get_bits(1, 3, instruction.front());
 
-        if (mod == 0)
-        {
-            decoded_bytes = decode_mod_00(w, d, reg, rm);
-        }
-        else if (mod == 1)
-        {
-            decoded_bytes = decode_mod_01(w, d, reg, rm);
-        }
-        else if (mod == 2)
-        {
-            decoded_bytes = decode_mod_10(w, d, reg, rm);
-        }
-        else
-        {
-            decoded_bytes = decode_mod_11(w, d, reg, rm);
+            instruction.pop();
+            registers["EIP"] = registers["EIP"] + 1;
+
+            if (mod == 0)
+            {
+                decoded_bytes = decode_mod_00(w, d, reg, rm);
+            }
+            else if (mod == 1)
+            {
+                decoded_bytes = decode_mod_01(w, d, reg, rm);
+            }
+            else if (mod == 2)
+            {
+                decoded_bytes = decode_mod_10(w, d, reg, rm);
+            }
+            else
+            {
+                decoded_bytes = decode_mod_11(w, d, reg, rm);
+            }
         }
     }
 

@@ -37,4 +37,5 @@ class Mov{
         string decode_mod_01(int w, int d, int reg, int rm);
         string decode_mod_10(int w, int d, int reg, int rm);
         string decode_mod_11(int w, int d, int reg, int rm);
+        string decode_imm_alt(int opCode, int w, int reg);
 };

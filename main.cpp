@@ -20,6 +20,7 @@ int main()
     map<string, int> memories32bit;
     map<string, int16_t> memories16bit;
     map<string, int8_t> memories8bit;
+    map<string, int> cs;
     queue<short> encoded_instructions;
     short prefixes[4] = {0, 0, 0, 0};
 
@@ -71,27 +72,39 @@ int main()
     myfile.open("test.txt");
 
     Common common;
-    Adder adder(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-    Bitset bitset(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+    Adder adder(common, cs, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+    Bitset bitset(common, cs, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
 
     stringstream sss;
     string test_data, word;
-    int num, nextOpcode;
+    int nextOpcode;
+    int num;
+    
+    int EIP=registers["EIP"];
     while (myfile >> word)
     {
         sss << hex << word;
         sss >> num;
         sss.clear();
         encoded_instructions.push(num);
+        cs[common.getHex(registers["EIP"],0,0)]=num;
+
+        //cout << common.getHex(num,0,0) << "\n";
+        cout << "registers[EIP]:"<<common.getHex(registers["EIP"],0,0)<< "; value:"<<common.getHex(cs[common.getHex(registers["EIP"],0,0)],0,0) << "\n ********* \n";
+        registers["EIP"]=registers["EIP"]+1;
     }
 
     bool twoBytesOpcode = false;
     bool threeBytesOpcode = false;
 
-    while (!encoded_instructions.empty())
+    EIP=registers["EIP"];
+    
+    while (cs.find(common.getHex(EIP,0,0))==cs.end())
     {
 
-        nextOpcode = encoded_instructions.front();
+        printf("Entered while \n");
+        //nextOpcode = encoded_instructions.front();
+        nextOpcode = cs[common.getHex(registers["EIP"],0,0)];
 
         //cout << "Next opcode : " << nextOpcode << "\n";
 
@@ -101,37 +114,44 @@ int main()
         {
             //printf("Prefix 1 set\n");
             prefixes[0] = nextOpcode;
-            encoded_instructions.pop();
+            //encoded_instructions.pop();
+            registers["EIP"]=registers["EIP"]+1;
+            registers["EIP"]=registers["EIP"]+1;
         }
         else if (nextOpcode == 0x2e or nextOpcode == 0x36 or nextOpcode == 0x3e or nextOpcode == 0x26 or nextOpcode == 0x64 or nextOpcode == 0x65)
         {
             //printf("Prefix 2 set\n");
             prefixes[1] = nextOpcode;
-            encoded_instructions.pop();
+            //encoded_instructions.pop();
+            registers["EIP"]=registers["EIP"]+1;
         }
         else if (nextOpcode == 0x66)
         {
             //printf("Prefix 3 set\n");
             prefixes[2] = nextOpcode;
-            encoded_instructions.pop();
+            //encoded_instructions.pop();
+            registers["EIP"]=registers["EIP"]+1;
         }
         else if (nextOpcode == 0x67)
         {
             //printf("Prefix 4 set\n");
             prefixes[3] = nextOpcode;
-            encoded_instructions.pop();
+            //encoded_instructions.pop();
+            registers["EIP"]=registers["EIP"]+1;
         }
         else if (nextOpcode == 0x0f)
         {
             twoBytesOpcode = true;
             //printf("Two byte opcode enables\n");
-            encoded_instructions.pop();
+            //encoded_instructions.pop();
+            registers["EIP"]=registers["EIP"]+1;
         }
         else if (twoBytesOpcode == true and nextOpcode == 0x38)
         {
             threeBytesOpcode = true;
             //printf("Three byte opcode enables\n");
-            encoded_instructions.pop();
+            //encoded_instructions.pop();
+            registers["EIP"]=registers["EIP"]+1;
         }
         else
         {
@@ -157,7 +177,8 @@ int main()
                 }
                 else
                 {
-                    encoded_instructions.pop();
+                    //encoded_instructions.pop();
+            registers["EIP"]=registers["EIP"]+1;
                 }
             }
             prefixes[0] = 0;

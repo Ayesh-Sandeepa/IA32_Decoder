@@ -1,1 +1,1 @@
-add    %al,%cl
+mov $2,%AL

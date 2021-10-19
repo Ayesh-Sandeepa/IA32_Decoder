@@ -13,8 +13,8 @@
 
 using namespace std;
 
-Bitset::Bitset(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
-    : common(com), instruction(instruction), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses)
+Bitset::Bitset(Common com, map<string, int> cs, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
+    : common(com), cs(cs), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses)
 {
     regs_32[0] = "EAX";
     regs_32[1] = "ECX";
@@ -59,13 +59,13 @@ string Bitset::decode_displacement_with_SIB(int mod, int reg, int index, int sca
     }
     else
     {
-        disp = common.assemble_bits(bytes, instruction, registers);
+        disp = common.assemble_bits(bytes, cs, registers);
         st = common.getHex(disp, 0, 0);
     }
 
     if (imm)
     {
-        int8_t imd = common.assemble_bits(1, instruction, registers);
+        int8_t imd = common.assemble_bits(1, cs, registers);
         if (mod == 0)
         {
             if (base == 5)
@@ -614,12 +614,12 @@ string Bitset::decode_displacement_without_SIB(int mod, int reg, int rm)
     int disp_bytes[] = {4, 1, 4};
     int bytes = disp_bytes[mod];
 
-    unsigned int disp = common.assemble_bits(bytes, instruction, registers);
+    unsigned int disp = common.assemble_bits(bytes, cs, registers);
     string st = common.getHex(disp, 0, 0);
 
     if (imm)
     {
-        int8_t imd = common.assemble_bits(1, instruction, registers);
+        int8_t imd = common.assemble_bits(1, cs, registers);
         if (mod == 0)
         {
             if (opSize)
@@ -793,11 +793,11 @@ string Bitset::decode_SIB(int mod, int reg)
 {
     string stringSib = "";
 
-    int scale = common.get_bits(7, 2, instruction.front());
-    int index = common.get_bits(4, 3, instruction.front());
-    int base = common.get_bits(1, 3, instruction.front());
+    int scale = common.get_bits(7, 2, cs[common.getHex(registers["EIP"],0,0)]);
+    int index = common.get_bits(4, 3, cs[common.getHex(registers["EIP"],0,0)]);
+    int base = common.get_bits(1, 3, cs[common.getHex(registers["EIP"],0,0)]);
 
-    instruction.pop();
+    //instruction.pop();
     registers["EIP"] = registers["EIP"] + 1;
 
     //printf("scale:%d \n", scale);
@@ -825,7 +825,7 @@ string Bitset::decode_mod_00(int reg, int rm)
     {
         if (imm)
         {
-            int8_t imd = common.assemble_bits(1, instruction, registers);
+            int8_t imd = common.assemble_bits(1, cs, registers);
             if (opSize)
             {
                 memoryAccesses.push_back("bt (%" + regs_32[rm] + "),$" + common.getHex(imd, 0, 0));
@@ -946,7 +946,7 @@ string Bitset::decode_mod_11(int reg, int rm)
 
     if (imm)
     {
-        int8_t imd = common.assemble_bits(1, instruction, registers);
+        int8_t imd = common.assemble_bits(1, cs, registers);
         if (opSize)
         {
 
@@ -1028,14 +1028,14 @@ string Bitset::decode_bt(short prefixes[4])
 
     if (prefixes[3] == 0x67)
     {
-        Bitset_addOverride bitset_addOverride(common, instruction, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+        Bitset_addOverride bitset_addOverride(common, cs, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
         decoded_bytes = bitset_addOverride.decode_bt(prefixes);
     }
     else
     {
-        short opCode = instruction.front();
+        short opCode = cs[common.getHex(registers["EIP"],0,0)];
 
-        instruction.pop();
+        //instruction.pop();
         registers["EIP"] = registers["EIP"] + 1;
 
         if (prefixes[2] == 0x66)
@@ -1055,12 +1055,12 @@ string Bitset::decode_bt(short prefixes[4])
         {
             imm = false;
         }
-        short modrm = instruction.front();
+        short modrm = cs[common.getHex(registers["EIP"],0,0)];
         int mod = modrm >> 6;
         int reg = common.get_bits(4, 3, modrm);
         int rm = common.get_bits(1, 3, modrm);
 
-        instruction.pop();
+        //instruction.pop();
         registers["EIP"] = registers["EIP"] + 1;
 
         if (mod == 0)

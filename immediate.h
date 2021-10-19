@@ -18,14 +18,15 @@ private:
 
 public:
     Common common;
-    queue<short> &instruction;
+    //queue<short> &instruction;
+    map<string, int> cs;
     map<string, int> &registers;
     map<string, int> &memories32bit;
     map<string, int16_t> &memories16bit;
     map<string, int8_t> &memories8bit;
     list<string> &memoryAccesses;
 
-    Immediate(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses);
+    Immediate(Common com, map<string, int> cs, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses);
 
     string decode_imm(short prefixes[4], int w, int s, int mod, int rm);
     string decode_displacement_with_SIB(int w, int s, int mod, int index, int scale, int base);
@@ -51,14 +52,15 @@ private:
 
 public:
     Common common;
-    queue<short> &instruction;
+    //queue<short> &instruction;
+    map<string, int> cs;
     map<string, int> &registers;
     map<string, int> &memories32bit;
     map<string, int16_t> &memories16bit;
     map<string, int8_t> &memories8bit;
     list<string> &memoryAccesses;
 
-    Immediate_addOverride(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses);
+    Immediate_addOverride(Common com, map<string, int> cs, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses);
 
     string decode_imm(short prefixes[4], int w, int s, int mod, int rm);
     string decode_displacement_with_SIB(int w, int s, int mod, int index, int scale, int base);

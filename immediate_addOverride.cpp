@@ -16,8 +16,8 @@
 
 using namespace std;
 
-Immediate_addOverride::Immediate_addOverride(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
-    : common(com), instruction(instruction), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses)
+Immediate_addOverride::Immediate_addOverride(Common com, map<string, int> cs, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
+    : common(com), cs(cs), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses)
 {
     regs_32[0] = "EAX";
     regs_32[1] = "ECX";
@@ -73,13 +73,13 @@ string Immediate_addOverride::decode_displacement_without_SIB(int w, int s, int 
     int disp_bytes[] = {2, 1, 2};
     int bytes = disp_bytes[mod];
 
-    int disp = common.assemble_bits(bytes, instruction, registers);
+    int disp = common.assemble_bits(bytes, cs, registers);
 
     if (mod == 0)
     {
         if (w == 0)
         {
-            int8_t num1 = common.assemble_bits(1, instruction, registers);
+            int8_t num1 = common.assemble_bits(1, cs, registers);
             memoryAccesses.push_back("add " + common.getHex(disp, 0, 0) + ", $" + common.getHex(num1, 0, 0));
 
             int8_t num2, num3;
@@ -107,7 +107,7 @@ string Immediate_addOverride::decode_displacement_without_SIB(int w, int s, int 
             {
                 if (s == 0)
                 {
-                    int16_t num1 = common.assemble_bits(2, instruction, registers);
+                    int16_t num1 = common.assemble_bits(2, cs, registers);
                     memoryAccesses.push_back("add " + common.getHex(disp, 0, 0) + ", $" + common.getHex(num1, 0, 0));
 
                     int16_t num2, num3;
@@ -131,7 +131,7 @@ string Immediate_addOverride::decode_displacement_without_SIB(int w, int s, int 
                 }
                 else if (s == 1)
                 {
-                    int8_t num = common.assemble_bits(1, instruction, registers);
+                    int8_t num = common.assemble_bits(1, cs, registers);
                     memoryAccesses.push_back("add " + common.getHex(disp, 0, 0) + ", $" + common.getHex(num, 4, 'f'));
 
                     int16_t num1, num2, num3;
@@ -159,7 +159,7 @@ string Immediate_addOverride::decode_displacement_without_SIB(int w, int s, int 
             {
                 if (s == 0)
                 {
-                    int num2 = common.assemble_bits(4, instruction, registers);
+                    int num2 = common.assemble_bits(4, cs, registers);
                     memoryAccesses.push_back("add " + common.getHex(disp, 0, 0) + ", $" + common.getHex(num2, 0, 0));
 
                     int num1 = memories32bit[common.getHex(disp, 0, 0)];
@@ -180,7 +180,7 @@ string Immediate_addOverride::decode_displacement_without_SIB(int w, int s, int 
                 }
                 else
                 {
-                    int8_t num = common.assemble_bits(1, instruction, registers);
+                    int8_t num = common.assemble_bits(1, cs, registers);
                     memoryAccesses.push_back("add " + common.getHex(disp, 0, 0) + ", $" + common.getHex(num, 8, 'f'));
 
                     int num1 = memories32bit[common.getHex(disp, 0, 0)];
@@ -207,7 +207,7 @@ string Immediate_addOverride::decode_displacement_without_SIB(int w, int s, int 
     {
         if (w == 0)
         {
-            int8_t num1 = common.assemble_bits(1, instruction, registers);
+            int8_t num1 = common.assemble_bits(1, cs, registers);
             memoryAccesses.push_back("add " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")" + ", $" + common.getHex(num1, 0, 0));
 
             int8_t num2, num3;
@@ -249,7 +249,7 @@ string Immediate_addOverride::decode_displacement_without_SIB(int w, int s, int 
             {
                 if (s == 0)
                 {
-                    int16_t num1 = common.assemble_bits(2, instruction, registers);
+                    int16_t num1 = common.assemble_bits(2, cs, registers);
                     memoryAccesses.push_back("add " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")" + ", $" + common.getHex(num1, 0, 0));
 
                     int16_t num2, num3;
@@ -287,7 +287,7 @@ string Immediate_addOverride::decode_displacement_without_SIB(int w, int s, int 
                 }
                 else if (s == 1)
                 {
-                    int8_t num = common.assemble_bits(1, instruction, registers);
+                    int8_t num = common.assemble_bits(1, cs, registers);
                     memoryAccesses.push_back("add " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")" + ", $" + common.getHex(num, 4, 'f'));
 
                     int16_t num1, num2, num3;
@@ -330,7 +330,7 @@ string Immediate_addOverride::decode_displacement_without_SIB(int w, int s, int 
             {
                 if (s == 0)
                 {
-                    int num2 = common.assemble_bits(4, instruction, registers);
+                    int num2 = common.assemble_bits(4, cs, registers);
                     memoryAccesses.push_back("add " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")" + ", $" + common.getHex(num2, 0, 0));
 
                     int num1, num3;
@@ -368,7 +368,7 @@ string Immediate_addOverride::decode_displacement_without_SIB(int w, int s, int 
                 }
                 else
                 {
-                    int8_t num = common.assemble_bits(1, instruction, registers);
+                    int8_t num = common.assemble_bits(1, cs, registers);
                     memoryAccesses.push_back("add " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")" + ", $" + common.getHex(num, 8, 'f'));
 
                     int num1, num2, num3;
@@ -423,7 +423,7 @@ string Immediate_addOverride::decode_mod_00(int w, int s, int rm)
     {
         if (w == 0)
         {
-            int8_t num1 = common.assemble_bits(1, instruction, registers);
+            int8_t num1 = common.assemble_bits(1, cs, registers);
             memoryAccesses.push_back("add (%" + regs_16bitmode[rm] + ")"+", $" + common.getHex(num1, 0, 0));
             string00 =  "(%" + regs_16bitmode[rm] + ")"+", $" + common.getHex(num1, 0, 0) +"\n";
 
@@ -464,7 +464,7 @@ string Immediate_addOverride::decode_mod_00(int w, int s, int rm)
             {
                 if (s == 0)
                 {
-                    int16_t num1 = common.assemble_bits(2, instruction, registers);
+                    int16_t num1 = common.assemble_bits(2, cs, registers);
                     memoryAccesses.push_back("add (%" + regs_16bitmode[rm] + ")"+", $" + common.getHex(num1, 0, 0));
                     string00 =  "(%" + regs_16bitmode[rm] + ")"+", $" + common.getHex(num1, 0, 0) +"\n";
 
@@ -501,7 +501,7 @@ string Immediate_addOverride::decode_mod_00(int w, int s, int rm)
                 }
                 else if (s == 1)
                 {
-                    int8_t num = common.assemble_bits(1, instruction, registers);
+                    int8_t num = common.assemble_bits(1, cs, registers);
                     string00 = "(%" + regs_16bitmode[rm] + ")" + ", $" + common.getHex(num, 4, 'f') + "\n";
 
                     int16_t num1, num2, num3;
@@ -542,7 +542,7 @@ string Immediate_addOverride::decode_mod_00(int w, int s, int rm)
             {
                 if (s == 0)
                 {
-                    int num2 = common.assemble_bits(4, instruction, registers);
+                    int num2 = common.assemble_bits(4, cs, registers);
                     memoryAccesses.push_back("add (%" + regs_16bitmode[rm] + ")"+", $" + common.getHex(num2, 0, 0));
 
                     int num1, num3;
@@ -583,7 +583,7 @@ string Immediate_addOverride::decode_mod_00(int w, int s, int rm)
                     int num1, num2, num3;
                     unsigned int num4;
 
-                    int8_t num = common.assemble_bits(1, instruction, registers);
+                    int8_t num = common.assemble_bits(1, cs, registers);
                     num2 = num;
 
                     if (rm < 4)
@@ -646,7 +646,7 @@ string Immediate_addOverride::decode_mod_11(int w, int s, int rm)
         int8_t num1, num2, num3;
         uint8_t num4;
 
-        num1 = common.assemble_bits(1, instruction, registers);
+        num1 = common.assemble_bits(1, cs, registers);
 
         if (rm < 4)
         {
@@ -683,7 +683,7 @@ string Immediate_addOverride::decode_mod_11(int w, int s, int rm)
                 int16_t num1, num2, num3;
                 uint16_t num4;
 
-                num1 = common.assemble_bits(2, instruction, registers);
+                num1 = common.assemble_bits(2, cs, registers);
                 num2 = common.get_bits(1, 16, registers[regs_32[rm]]);
                 num3 = num1 + num2;
                 num4 = unsigned(num3);
@@ -705,7 +705,7 @@ string Immediate_addOverride::decode_mod_11(int w, int s, int rm)
                 int16_t num1, num2, num3;
                 uint16_t num4;
 
-                int8_t num = common.assemble_bits(1, instruction, registers);
+                int8_t num = common.assemble_bits(1, cs, registers);
 
                 num1 = num;
                 num2 = common.get_bits(1, 16, registers[regs_32[rm]]);
@@ -728,7 +728,7 @@ string Immediate_addOverride::decode_mod_11(int w, int s, int rm)
             if (s == 0)
             {
                 //printf("w:1 and d:0 \n");
-                int num1 = common.assemble_bits(4, instruction, registers);
+                int num1 = common.assemble_bits(4, cs, registers);
                 int num2 = registers[regs_32[rm]];
                 int num3 = num1 + num2;
                 unsigned int num4 = unsigned(num3);
@@ -746,7 +746,7 @@ string Immediate_addOverride::decode_mod_11(int w, int s, int rm)
             else
             {
                 //printf("w:1 and d:1 \n");
-                int8_t num = common.assemble_bits(1, instruction, registers);
+                int8_t num = common.assemble_bits(1, cs, registers);
 
                 int num1 = num;
                 int num2 = registers[regs_32[rm]];

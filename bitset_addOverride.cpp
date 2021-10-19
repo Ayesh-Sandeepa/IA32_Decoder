@@ -13,8 +13,8 @@
 
 using namespace std;
 
-Bitset_addOverride::Bitset_addOverride(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
-    : common(com), instruction(instruction), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses)
+Bitset_addOverride::Bitset_addOverride(Common com, map<string, int> cs, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
+    : common(com), cs(cs), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses)
 {
     regs_32[0] = "EAX";
     regs_32[1] = "ECX";
@@ -70,11 +70,11 @@ string Bitset_addOverride::decode_displacement_without_SIB(int mod, int reg, int
     int disp_bytes[] = {2, 1, 2};
     int bytes = disp_bytes[mod];
 
-    int disp = common.assemble_bits(bytes, instruction, registers);
+    int disp = common.assemble_bits(bytes, cs, registers);
 
     if (imm)
     {
-        int8_t imd = common.assemble_bits(1, instruction, registers);
+        int8_t imd = common.assemble_bits(1, cs, registers);
         if (mod == 0)
         {
             if (opSize)
@@ -378,7 +378,7 @@ string Bitset_addOverride::decode_mod_11(int reg, int rm)
 
     if (imm)
     {
-        int8_t imd = common.assemble_bits(1, instruction, registers);
+        int8_t imd = common.assemble_bits(1, cs, registers);
         if (opSize)
         {
             bool bit = common.get_bits(imd % 16 + 1, 1, registers[regs_32[rm]]);
@@ -457,9 +457,9 @@ string Bitset_addOverride::decode_bt(short prefixes[4])
 {
     string decoded_bytes;
 
-    short opCode = instruction.front();
+    short opCode = cs[common.getHex(registers["EIP"],0,0)];
 
-    instruction.pop();
+    //instruction.pop();
     registers["EIP"] = registers["EIP"] + 1;
 
     if (prefixes[2] == 0x66)
@@ -479,12 +479,12 @@ string Bitset_addOverride::decode_bt(short prefixes[4])
     {
         imm = false;
     }
-    short modrm = instruction.front();
+    short modrm = cs[common.getHex(registers["EIP"],0,0)];
     int mod = modrm >> 6;
     int reg = common.get_bits(4, 3, modrm);
     int rm = common.get_bits(1, 3, modrm);
 
-    instruction.pop();
+    //instruction.pop();
     registers["EIP"] = registers["EIP"] + 1;
 
     if (mod == 0)

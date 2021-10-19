@@ -13,7 +13,7 @@ int Common::get_bits(int pos, int noOfBits, int number)
     return (((1 << noOfBits) - 1) & (number >> (pos - 1)));
 }
 
-int Common::assemble_bits(int bytes, queue<short> &instruction, map<string, int> &registers)
+int Common::assemble_bits(int bytes, map<string, int> cs, map<string, int> &registers)
 {
     int x, offset;
     short displacement[4];
@@ -22,8 +22,8 @@ int Common::assemble_bits(int bytes, queue<short> &instruction, map<string, int>
 
     for (int count = 0; count < bytes; count++)
     {
-        displacement[count] = instruction.front();
-        instruction.pop();
+        displacement[count] = cs[getHex(registers["EIP"],0,0)];
+        //instruction.pop();
         registers["EIP"] = registers["EIP"] + 1;
     }
     for (int i = 0; i < bytes; i++)

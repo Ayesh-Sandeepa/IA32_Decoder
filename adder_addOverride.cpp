@@ -13,8 +13,8 @@
 
 using namespace std;
 
-Adder_addOverride::Adder_addOverride(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
-    : common(com), instruction(instruction), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses)
+Adder_addOverride::Adder_addOverride(Common com, map<string, int> cs, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
+    : common(com), cs(cs), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses)
 {
     regs_32[0] = "EAX";
     regs_32[1] = "ECX";
@@ -70,7 +70,7 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
     int disp_bytes[] = {2, 1, 2};
     int bytes = disp_bytes[mod];
 
-    int disp = common.assemble_bits(bytes, instruction, registers);
+    int disp = common.assemble_bits(bytes, cs, registers);
 
     if (mod == 0)
     {
@@ -922,7 +922,7 @@ string Adder_addOverride::decode_imm(int opCode, int w, int d)
     {
         int8_t num1, num2;
         uint8_t num3;
-        imm = common.assemble_bits(1, instruction, registers);
+        imm = common.assemble_bits(1, cs, registers);
 
         string st = common.getHex(imm, 0, 0);
 
@@ -947,7 +947,7 @@ string Adder_addOverride::decode_imm(int opCode, int w, int d)
             int16_t num1, num2;
             uint16_t num3;
 
-            imm = common.assemble_bits(2, instruction, registers);
+            imm = common.assemble_bits(2, cs, registers);
             string st = common.getHex(imm, 0, 0);
 
             dec_imm = "%%AX, $"+st;
@@ -969,7 +969,7 @@ string Adder_addOverride::decode_imm(int opCode, int w, int d)
             int num1, num2;
             unsigned int num3;
 
-            imm = common.assemble_bits(4, instruction, registers);
+            imm = common.assemble_bits(4, cs, registers);
             string st = common.getHex(imm, 0, 0);
 
             dec_imm = "%%EAX, $"+st;
@@ -995,11 +995,12 @@ string Adder_addOverride::decode_add(short prefixes[4])
 {
     printf ("Adder when address override is present\n");
 
-    short opCode = instruction.front();
+    short opCode = cs[common.getHex(registers["EIP"],0,0)];
     bool d = common.get_bits(2, 1, opCode);
     bool w = common.get_bits(1, 1, opCode);
 
-    instruction.pop();
+    //instruction.pop();
+    registers["EIP"]=registers["EIP"]+1;
     registers["EIP"] = registers["EIP"] + 1;
 
 
@@ -1019,19 +1020,20 @@ string Adder_addOverride::decode_add(short prefixes[4])
     }
     else
     {
-        short modrm = instruction.front();
+        short modrm = cs[common.getHex(registers["EIP"],0,0)];
         int mod = modrm >> 6;
         int reg = common.get_bits(4, 3, modrm);
         int rm = common.get_bits(1, 3, modrm);
 
         bool immediate = common.get_bits(8, 1, opCode);
 
-        instruction.pop();
+         //instruction.pop();
+    registers["EIP"]=registers["EIP"]+1;
         registers["EIP"] = registers["EIP"] + 1;
 
         if (immediate)
         {
-            Immediate_addOverride immediate_addOverride(common, instruction, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+            Immediate_addOverride immediate_addOverride(common, cs, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
             decoded_bytes = immediate_addOverride.decode_imm(prefixes, w, d, mod, rm);
         }
         else

@@ -16,8 +16,8 @@
 
 using namespace std;
 
-Immediate::Immediate(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
-    : common(com), instruction(instruction), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses)
+Immediate::Immediate(Common com, map<string, int> cs, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
+    : common(com), cs(cs), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses)
 {
     regs_32[0] = "EAX";
     regs_32[1] = "ECX";
@@ -62,7 +62,7 @@ string Immediate::decode_displacement_with_SIB(int w, int s, int mod, int index,
     }
     else
     {
-        disp = common.assemble_bits(bytes, instruction, registers);
+        disp = common.assemble_bits(bytes, cs, registers);
         st = common.getHex(disp, 0, 0);
     }
 
@@ -72,7 +72,7 @@ string Immediate::decode_displacement_with_SIB(int w, int s, int mod, int index,
         {
             if (w == 0)
             {
-                int8_t num1 = common.assemble_bits(1, instruction, registers);
+                int8_t num1 = common.assemble_bits(1, cs, registers);
                 if (index == 4)
                 {
                     memoryAccesses.push_back("add " +st + ", $" + common.getHex(num1, 0, 0));
@@ -127,7 +127,7 @@ string Immediate::decode_displacement_with_SIB(int w, int s, int mod, int index,
                 {
                     if (s == 0)
                     {
-                        int16_t num1 = common.assemble_bits(2, instruction, registers);
+                        int16_t num1 = common.assemble_bits(2, cs, registers);
                         if (index == 4)
                         {
                             memoryAccesses.push_back("add " + st + ", $" + common.getHex(num1, 0, 0));
@@ -177,7 +177,7 @@ string Immediate::decode_displacement_with_SIB(int w, int s, int mod, int index,
                     }
                     else if (s == 1)
                     {
-                        int8_t num = common.assemble_bits(1, instruction, registers);
+                        int8_t num = common.assemble_bits(1, cs, registers);
                         if (index == 4)
                         {
                             int16_t num1, num2, num3;
@@ -228,7 +228,7 @@ string Immediate::decode_displacement_with_SIB(int w, int s, int mod, int index,
                 {
                     if (s == 0)
                     {
-                        int num2 = common.assemble_bits(4, instruction, registers);
+                        int num2 = common.assemble_bits(4, cs, registers);
                         if (index == 4)
                         {
                             memoryAccesses.push_back("add " + st + ", $" + common.getHex(num2, 0, 0));
@@ -272,7 +272,7 @@ string Immediate::decode_displacement_with_SIB(int w, int s, int mod, int index,
                     }
                     else
                     {
-                        int8_t num = common.assemble_bits(1, instruction, registers);
+                        int8_t num = common.assemble_bits(1, cs, registers);
                         if (index == 4)
                         {
                             int num1 = memories32bit[st];
@@ -320,7 +320,7 @@ string Immediate::decode_displacement_with_SIB(int w, int s, int mod, int index,
         {
             if (w == 0)
             {
-                int8_t num1 = common.assemble_bits(1, instruction, registers);
+                int8_t num1 = common.assemble_bits(1, cs, registers);
                 if (index == 4)
                 {
                     memoryAccesses.push_back("add (%" + regs_32[base] + "), $" + common.getHex(num1, 0, 0));
@@ -374,7 +374,7 @@ string Immediate::decode_displacement_with_SIB(int w, int s, int mod, int index,
                 {
                     if (s == 0)
                     {
-                        int16_t num1 = common.assemble_bits(2, instruction, registers);
+                        int16_t num1 = common.assemble_bits(2, cs, registers);
                         if (index == 4)
                         {
                             memoryAccesses.push_back("add (%" + regs_32[base] + "), $" + common.getHex(num1, 0, 0));
@@ -424,7 +424,7 @@ string Immediate::decode_displacement_with_SIB(int w, int s, int mod, int index,
                     }
                     else if (s == 1)
                     {
-                        int8_t num = common.assemble_bits(1, instruction, registers);
+                        int8_t num = common.assemble_bits(1, cs, registers);
                         if (index == 4)
                         {
 
@@ -477,7 +477,7 @@ string Immediate::decode_displacement_with_SIB(int w, int s, int mod, int index,
                 {
                     if (s == 0)
                     {
-                        int num2 = common.assemble_bits(4, instruction, registers);
+                        int num2 = common.assemble_bits(4, cs, registers);
                         if (index == 4)
                         {
                             memoryAccesses.push_back("add (%" + regs_32[base] + ")" +", $" + common.getHex(num2, 0, 0) );
@@ -521,7 +521,7 @@ string Immediate::decode_displacement_with_SIB(int w, int s, int mod, int index,
                     }
                     else
                     {
-                        int8_t num = common.assemble_bits(1, instruction, registers);
+                        int8_t num = common.assemble_bits(1, cs, registers);
                         if (index == 4)
                         {
                             int num1 = memories32bit[common.getHex(registers[regs_32[base]], 0, 0)];
@@ -572,7 +572,7 @@ string Immediate::decode_displacement_with_SIB(int w, int s, int mod, int index,
 
         if (w == 0)
         {
-            int8_t num1 = common.assemble_bits(1, instruction, registers);
+            int8_t num1 = common.assemble_bits(1, cs, registers);
             if (index == 4)
             {
                 memoryAccesses.push_back("add " +st + "(%" + regs_32[base] + ")" + ", $" + common.getHex(num1, 0, 0));
@@ -626,7 +626,7 @@ string Immediate::decode_displacement_with_SIB(int w, int s, int mod, int index,
             {
                 if (s == 0)
                 {
-                    int16_t num1 = common.assemble_bits(2, instruction, registers);
+                    int16_t num1 = common.assemble_bits(2, cs, registers);
                     if (index == 4)
                     {
                         memoryAccesses.push_back("add " + st + "(%" + regs_32[base] + ")" + ", $" + common.getHex(num1, 0, 0));
@@ -676,7 +676,7 @@ string Immediate::decode_displacement_with_SIB(int w, int s, int mod, int index,
                 }
                 else if (s == 1)
                 {
-                    int8_t num = common.assemble_bits(1, instruction, registers);
+                    int8_t num = common.assemble_bits(1, cs, registers);
                     if (index == 4)
                     {
                         int16_t num1, num2, num3;
@@ -727,7 +727,7 @@ string Immediate::decode_displacement_with_SIB(int w, int s, int mod, int index,
             {
                 if (s == 0)
                 {
-                    int num2 = common.assemble_bits(4, instruction, registers);
+                    int num2 = common.assemble_bits(4, cs, registers);
                     if (index == 4)
                     {
                         memoryAccesses.push_back("add " + st + "(%" + regs_32[base] + ")" + ", $" + common.getHex(num2, 0, 0));
@@ -771,7 +771,7 @@ string Immediate::decode_displacement_with_SIB(int w, int s, int mod, int index,
                 }
                 else
                 {
-                    int8_t num = common.assemble_bits(1, instruction, registers);
+                    int8_t num = common.assemble_bits(1, cs, registers);
                     if (index == 4)
                     {
                         int num1 = memories32bit[common.getHex(registers[regs_32[base]] + disp, 0, 0)];
@@ -823,14 +823,14 @@ string Immediate::decode_displacement_without_SIB(int w, int s, int mod, int rm)
     int disp_bytes[] = {4, 1, 4};
     int bytes = disp_bytes[mod];
 
-    unsigned int disp = common.assemble_bits(bytes, instruction, registers);
+    unsigned int disp = common.assemble_bits(bytes, cs, registers);
     string st = common.getHex(disp, 0, 0);
 
     if (mod == 0)
     {
         if (w == 0)
         {
-            int8_t num1 = common.assemble_bits(1, instruction, registers);
+            int8_t num1 = common.assemble_bits(1, cs, registers);
             memoryAccesses.push_back("add " + st + ", $" + common.getHex(num1, 0, 0));
 
             int8_t num2, num3;
@@ -858,7 +858,7 @@ string Immediate::decode_displacement_without_SIB(int w, int s, int mod, int rm)
             {
                 if (s == 0)
                 {
-                    int16_t num1 = common.assemble_bits(2, instruction, registers);
+                    int16_t num1 = common.assemble_bits(2, cs, registers);
                     memoryAccesses.push_back("add " +st + ", $" + common.getHex(num1, 0, 0));
 
                     int16_t num2, num3;
@@ -882,7 +882,7 @@ string Immediate::decode_displacement_without_SIB(int w, int s, int mod, int rm)
                 }
                 else if (s == 1)
                 {
-                    int8_t num = common.assemble_bits(1, instruction, registers);
+                    int8_t num = common.assemble_bits(1, cs, registers);
                     int16_t num1, num2, num3;
                     uint16_t num4;
 
@@ -908,7 +908,7 @@ string Immediate::decode_displacement_without_SIB(int w, int s, int mod, int rm)
             {
                 if (s == 0)
                 {
-                    int num2 = common.assemble_bits(4, instruction, registers);
+                    int num2 = common.assemble_bits(4, cs, registers);
                     memoryAccesses.push_back("add " + st + ", $" + common.getHex(num2, 0, 0));
 
                     int num1 = memories32bit[st];
@@ -929,7 +929,7 @@ string Immediate::decode_displacement_without_SIB(int w, int s, int mod, int rm)
                 }
                 else
                 {
-                    int8_t num = common.assemble_bits(1, instruction, registers);
+                    int8_t num = common.assemble_bits(1, cs, registers);
                     int num1 = memories32bit[st];
 
                     memoryAccesses.push_back("add " + st + ", $" + common.getHex(num, 8, 'f') );
@@ -956,7 +956,7 @@ string Immediate::decode_displacement_without_SIB(int w, int s, int mod, int rm)
     {
         if (w == 0)
         {
-            int8_t num1 = common.assemble_bits(1, instruction, registers);
+            int8_t num1 = common.assemble_bits(1, cs, registers);
             memoryAccesses.push_back("add " + st + "(%" + regs_32[rm] + ")"+", $" + common.getHex(num1, 0, 0));
 
             int8_t num2, num3;
@@ -984,7 +984,7 @@ string Immediate::decode_displacement_without_SIB(int w, int s, int mod, int rm)
             {
                 if (s == 0)
                 {
-                    int16_t num1 = common.assemble_bits(2, instruction, registers);
+                    int16_t num1 = common.assemble_bits(2, cs, registers);
                     memoryAccesses.push_back("add " +  st + "(%" + regs_32[rm] + ") "+", $" + common.getHex(num1, 0, 0));
 
                     int16_t num2, num3;
@@ -1008,7 +1008,7 @@ string Immediate::decode_displacement_without_SIB(int w, int s, int mod, int rm)
                 }
                 else if (s == 1)
                 {
-                    int8_t num = common.assemble_bits(1, instruction, registers);
+                    int8_t num = common.assemble_bits(1, cs, registers);
                     int16_t num1, num2, num3;
                     uint16_t num4;
 
@@ -1036,7 +1036,7 @@ string Immediate::decode_displacement_without_SIB(int w, int s, int mod, int rm)
             {
                 if (s == 0)
                 {
-                    int num2 = common.assemble_bits(4, instruction, registers);
+                    int num2 = common.assemble_bits(4, cs, registers);
                     int num1 = memories32bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
 
@@ -1055,7 +1055,7 @@ string Immediate::decode_displacement_without_SIB(int w, int s, int mod, int rm)
                 }
                 else
                 {
-                    int8_t num = common.assemble_bits(1, instruction, registers);
+                    int8_t num = common.assemble_bits(1, cs, registers);
                     int num1 = memories32bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
 
@@ -1084,11 +1084,11 @@ string Immediate::decode_SIB(int w, int s, int mod)
 {
     string stringSib = "";
 
-    int scale = common.get_bits(7, 2, instruction.front());
-    int index = common.get_bits(4, 3, instruction.front());
-    int base = common.get_bits(1, 3, instruction.front());
+    int scale = common.get_bits(7, 2, cs[common.getHex(registers["EIP"],0,0)]);
+    int index = common.get_bits(4, 3, cs[common.getHex(registers["EIP"],0,0)]);
+    int base = common.get_bits(1, 3, cs[common.getHex(registers["EIP"],0,0)]);
 
-    instruction.pop();
+    //instruction.pop();
     registers["EIP"] = registers["EIP"] + 1;
 
     //printf("scale:%d \n", scale);
@@ -1116,7 +1116,7 @@ string Immediate::decode_mod_00(int w, int s, int rm)
     {
         if (w == 0)
         {
-            int8_t num1 = common.assemble_bits(1, instruction, registers);
+            int8_t num1 = common.assemble_bits(1, cs, registers);
             memoryAccesses.push_back("add (%" + regs_32[rm] + "), $" + common.getHex(num1, 0, 0));
             string00 =   "(%" + regs_32[rm] + "), $" + common.getHex(num1, 0, 0)+"\n";
 
@@ -1142,7 +1142,7 @@ string Immediate::decode_mod_00(int w, int s, int rm)
             {
                 if (s == 0)
                 {
-                    int16_t num1 = common.assemble_bits(2, instruction, registers);
+                    int16_t num1 = common.assemble_bits(2, cs, registers);
                     memoryAccesses.push_back("add (%" + regs_32[rm] + "), $" + common.getHex(num1, 0, 0));
 
                     string00 =  "(%" + regs_32[rm] + "), $" + common.getHex(num1, 0, 0) +"\n";
@@ -1166,7 +1166,7 @@ string Immediate::decode_mod_00(int w, int s, int rm)
                 }
                 else if (s == 1)
                 {
-                    int8_t num = common.assemble_bits(1, instruction, registers);
+                    int8_t num = common.assemble_bits(1, cs, registers);
                     string00 =  "(%" + regs_32[rm] + "), $" + common.getHex(num, 4, 'f') +"\n";
 
                     int16_t num1, num2, num3;
@@ -1192,7 +1192,7 @@ string Immediate::decode_mod_00(int w, int s, int rm)
             {
                 if (s == 0)
                 {
-                    int num2 = common.assemble_bits(4, instruction, registers);
+                    int num2 = common.assemble_bits(4, cs, registers);
                     memoryAccesses.push_back("add (%" + regs_32[rm] + "), $" + common.getHex(num2, 0, 0));
 
                     int num1 = memories32bit[common.getHex(registers[regs_32[rm]], 0, 0)];
@@ -1213,7 +1213,7 @@ string Immediate::decode_mod_00(int w, int s, int rm)
                 }
                 else
                 {
-                    int8_t num = common.assemble_bits(1, instruction, registers);
+                    int8_t num = common.assemble_bits(1, cs, registers);
                     int num1 = memories32bit[common.getHex(registers[regs_32[rm]], 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[rm]], 0, 0));
 
@@ -1276,7 +1276,7 @@ string Immediate::decode_mod_11(int w, int s, int rm)
         int8_t num1, num2, num3;
         uint8_t num4;
 
-        num1 = common.assemble_bits(1, instruction, registers);
+        num1 = common.assemble_bits(1, cs, registers);
 
         if (rm < 4)
         {
@@ -1313,7 +1313,7 @@ string Immediate::decode_mod_11(int w, int s, int rm)
                 int16_t num1, num2, num3;
                 uint16_t num4;
 
-                num1 = common.assemble_bits(2, instruction, registers);
+                num1 = common.assemble_bits(2, cs, registers);
                 num2 = common.get_bits(1, 16, registers[regs_32[rm]]);
                 num3 = num1 + num2;
                 num4 = unsigned(num3);
@@ -1332,7 +1332,7 @@ string Immediate::decode_mod_11(int w, int s, int rm)
                 int16_t num1, num2, num3;
                 uint16_t num4;
 
-                int8_t num = common.assemble_bits(1, instruction, registers);
+                int8_t num = common.assemble_bits(1, cs, registers);
                 num1 = num;
                 num2 = common.get_bits(1, 16, registers[regs_32[rm]]);
                 num3 = num1 + num2;
@@ -1354,7 +1354,7 @@ string Immediate::decode_mod_11(int w, int s, int rm)
             if (s == 0)
             {
                 //printf("w:1 and d:0 \n");
-                int num1 = common.assemble_bits(4, instruction, registers);
+                int num1 = common.assemble_bits(4, cs, registers);
                 int num2 = registers[regs_32[rm]];
                 int num3 = num1 + num2;
                 unsigned int num4 = unsigned(num3);
@@ -1370,7 +1370,7 @@ string Immediate::decode_mod_11(int w, int s, int rm)
             else
             {
                 //printf("w:1 and d:1 \n");
-                int8_t num = common.assemble_bits(1, instruction, registers);
+                int8_t num = common.assemble_bits(1, cs, registers);
                 int num1 = num;
                 int num2 = registers[regs_32[rm]];
                 int num3 = num1 + num2;

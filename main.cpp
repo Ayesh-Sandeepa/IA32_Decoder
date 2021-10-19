@@ -90,7 +90,7 @@ int main()
         cs[common.getHex(registers["EIP"],0,0)]=num;
 
         //cout << common.getHex(num,0,0) << "\n";
-        cout << "registers[EIP]:"<<common.getHex(registers["EIP"],0,0)<< "; value:"<<common.getHex(cs[common.getHex(registers["EIP"],0,0)],0,0) << "\n ********* \n";
+        //cout << "registers[EIP]:"<<common.getHex(registers["EIP"],0,0)<< "; value:"<<common.getHex(cs[common.getHex(registers["EIP"],0,0)],0,0) << "\n ********* \n";
         registers["EIP"]=registers["EIP"]+1;
     }
 

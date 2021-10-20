@@ -902,8 +902,8 @@ string Mov::decode_imm_alt(int opCode, int w, int reg)
 string Mov::decode_mov(short prefixes[4])
 {
     string decoded_bytes;
-
-    if (prefixes[3] == 0x67)
+    short opCode = instruction.front();
+    if (prefixes[3] == 0x67 and !(opCode == 0xb0 or opCode == 0xb8))
     {
         Mov_override mov_override(common, instruction, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
         decoded_bytes = mov_override.decode_mov(prefixes);
@@ -913,7 +913,7 @@ string Mov::decode_mov(short prefixes[4])
         bool d = common.get_bits(2, 1, instruction.front());
         bool w = common.get_bits(1, 1, instruction.front());
 
-        short opCode = instruction.front();
+        //short opCode = instruction.front();
         instruction.pop();
         registers["EIP"] = registers["EIP"] + 1;
 

@@ -1,12 +1,12 @@
 CC=gcc
 CXX=g++
 CFLAGS=-I
-DEPS=adder.h immediate.h common.h
+DEPS=adder.h immediate.h common.h bitset.h mov.h mov_immediate.h
 
 %.o:%.cpp $(DEPS)
 	$(CXX) -c -o $@ $< 
 	
-main: main.o common.o adder.o adder_addOverride.o immediate.o immediate_addOverride.o bitset.o bitset_addOverride.o
+main: main.o common.o adder.o adder_addOverride.o immediate.o immediate_addOverride.o bitset.o bitset_addOverride.o mov.o mov_immediate.o mov_override.o mov_override_immediate.o
 	$(CXX) -o main main.o common.o adder.o adder_addOverride.o immediate.o immediate_addOverride.o bitset.o bitset_addOverride.o mov.o mov_immediate.o mov_override.o mov_override_immediate.o
 	
 #adder.o:adder.cpp adder.h 

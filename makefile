@@ -6,8 +6,8 @@ DEPS=adder.h immediate.h common.h bitset.h mov.h mov_immediate.h
 %.o:%.cpp $(DEPS)
 	$(CXX) -c -o $@ $< 
 	
-main: main.o common.o adder.o adder_addOverride.o immediate.o immediate_addOverride.o bitset.o bitset_addOverride.o mov.o mov_immediate.o mov_override.o mov_override_immediate.o
-	$(CXX) -o main main.o common.o adder.o adder_addOverride.o immediate.o immediate_addOverride.o bitset.o bitset_addOverride.o mov.o mov_immediate.o mov_override.o mov_override_immediate.o
+main: main.o common.o adder.o adder_addOverride.o immediate.o immediate_addOverride.o bitset.o bitset_addOverride.o mov.o mov_immediate.o mov_override.o mov_override_immediate.o And.o andOverride.o
+	$(CXX) -o main main.o common.o adder.o adder_addOverride.o immediate.o immediate_addOverride.o bitset.o bitset_addOverride.o mov.o mov_immediate.o mov_override.o mov_override_immediate.o And.o andOverride.o
 	
 #adder.o:adder.cpp adder.h 
 #	$(CXX) -c -o $@ $^

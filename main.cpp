@@ -10,6 +10,7 @@
 #include "adder.h"
 #include "bitset.h"
 #include "mov.h"
+#include "And.h"
 
 using namespace std;
 
@@ -75,6 +76,7 @@ int main()
     Adder adder(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
     Bitset bitset(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
     Mov mov(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+    And and_(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
 
     stringstream sss;
     string test_data, word;
@@ -160,6 +162,12 @@ int main()
                 else if (nextOpcode == 0x88 or nextOpcode == 0x89 or nextOpcode == 0x8a or nextOpcode == 0x8b or nextOpcode == 0xb0 or nextOpcode == 0xb8 or nextOpcode == 0xc6 or nextOpcode == 0xc7)
                 {
                     mov.decode_mov(prefixes);
+                }
+                else if (nextOpcode == 0x20 or nextOpcode == 0x21 or nextOpcode == 0x22 or nextOpcode == 0x23 or nextOpcode == 0x24 or nextOpcode == 0x25 or nextOpcode == 0x80 or nextOpcode == 0x81 or nextOpcode == 0x83)
+                {
+                    // and_.decode_and(encoded_instructions, registers);
+                    and_.decode_and(prefixes);
+  
                 }
                 else
                 {

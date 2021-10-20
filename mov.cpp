@@ -80,7 +80,7 @@ string Mov::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                     }
                     else
                     {
-                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (memories8bit[st] & 0x0000ff00); 
+                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((memories8bit[st] << 8) & 0x0000ff00); 
                     } 
                 }
                 else
@@ -94,7 +94,7 @@ string Mov::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                     }
                     else
                     {
-                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (memories8bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)] & 0x0000ff00);
+                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((memories8bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)] << 8) & 0x0000ff00);
                     } 
                 }
             }
@@ -219,7 +219,7 @@ string Mov::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                     }
                     else
                     {
-                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (memories8bit[regs_32[base]] & 0x0000ff00); 
+                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((memories8bit[regs_32[base]] << 8) & 0x0000ff00); 
                     } 
                 }
                 else
@@ -233,7 +233,7 @@ string Mov::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                     }
                     else
                     {
-                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (memories8bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale, 0, 0)] & 0x0000ff00);
+                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((memories8bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale, 0, 0)] << 8) & 0x0000ff00);
                     }
                 }
             }
@@ -361,7 +361,7 @@ string Mov::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                     }
                     else
                     {
-                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (memories8bit[common.getHex(registers[regs_32[base]] + disp, 0, 0)] & 0x0000ff00); 
+                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((memories8bit[common.getHex(registers[regs_32[base]] + disp, 0, 0)] << 8) & 0x0000ff00); 
                     }
                 }
                 else
@@ -379,7 +379,7 @@ string Mov::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                     {
                         num1 = memories8bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0));
-                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num1 & 0x0000ff00);
+                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((num1 << 8) & 0x0000ff00);
                     }
                 }
             }
@@ -533,7 +533,7 @@ string Mov::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
             }
             else
             {
-                registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (memories8bit[st] & 0x0000ff00); 
+                registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((memories8bit[st] << 8) & 0x0000ff00); 
             } 
         }
         else if (w == 0 and d == 0)
@@ -601,7 +601,7 @@ string Mov::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                 }
                 else
                 {
-                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (memories8bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)] & 0x0000ff00); 
+                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((memories8bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)] << 8) & 0x0000ff00); 
                 }
                 
             }
@@ -705,7 +705,7 @@ string Mov::decode_mod_00(int w, int d, int reg, int rm)
                 }
                 else
                 {
-                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (memories8bit[common.getHex(registers[regs_32[rm]], 0, 0)] & 0x0000ff00); 
+                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((memories8bit[common.getHex(registers[regs_32[rm]], 0, 0)] << 8) & 0x0000ff00); 
                 }
             }
             else if (d == 0)
@@ -807,7 +807,7 @@ string Mov::decode_mod_11(int w, int d, int reg, int rm)
             }
             else
             {
-                registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((registers[regs_32[rm]]) & 0x0000ff00); 
+                registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((registers[regs_32[rm]] << 8) & 0x0000ff00); 
             }
         }
         else if (d == 0)
@@ -820,7 +820,7 @@ string Mov::decode_mod_11(int w, int d, int reg, int rm)
             }
             else
             {
-                registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffff00ff) | ((registers[regs_32[reg]]) & 0x0000ff00); 
+                registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffff00ff) | ((registers[regs_32[reg]] << 8) & 0x0000ff00); 
             }
         }
     }
@@ -874,7 +874,7 @@ string Mov::decode_imm_alt(int opCode, int w, int reg)
         }
         else
         {
-            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (imm & 0x0000ff00);
+            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((imm << 8) & 0x0000ff00);
         }
     }
     else
@@ -905,8 +905,8 @@ string Mov::decode_mov(short prefixes[4])
 
     if (prefixes[3] == 0x67)
     {
-        //Adder_addOverride adder_addOverride(common, instruction, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-        //decoded_bytes = adder_addOverride.decode_add(prefixes);
+        Mov_override mov_override(common, instruction, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+        decoded_bytes = mov_override.decode_mov(prefixes);
     }
     else
     {

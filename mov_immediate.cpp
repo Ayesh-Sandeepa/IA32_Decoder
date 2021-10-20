@@ -388,10 +388,6 @@ string Mov_immediate::decode_SIB(int w, int mod)
     instruction.pop();
     registers["EIP"] = registers["EIP"] + 1;
 
-    //printf("scale:%d \n", scale);
-    //printf("index:%d \n", index);
-    //printf("base:%d \n", base);
-
     scale = pow(2, scale);
 
     stringSib = decode_displacement_with_SIB(w, mod, index, scale, base);

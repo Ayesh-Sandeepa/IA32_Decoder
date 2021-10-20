@@ -172,7 +172,7 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                             num3 = num1 + num2;
                             num4 = unsigned(num3);
 
-                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
+                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((num3<<8)  & 0x0000ff00);
                         }
 
                         common.setOverflow8bit(num1, num2, num3, registers);
@@ -207,7 +207,7 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                             num3 = num1 + num2;
                             num4 = unsigned(num3);
 
-                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
+                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((num3<<8) & 0x0000ff00);
                         }
 
                         common.setOverflow8bit(num1, num2, num3, registers);
@@ -508,7 +508,7 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                             num3 = num1 + num2;
                             num4 = unsigned(num3);
 
-                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
+                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((num3<<8) & 0x0000ff00);
                         }
 
                         common.setOverflow8bit(num1, num2, num3, registers);
@@ -543,7 +543,7 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                             num3 = num1 + num2;
                             num4 = unsigned(num3);
 
-                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
+                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((num3<<8) & 0x0000ff00);
                         }
 
                         common.setOverflow8bit(num1, num2, num3, registers);
@@ -850,7 +850,7 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         num3 = num1 + num2;
                         num4 = unsigned(num3);
 
-                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
+                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((num3<<8) & 0x0000ff00);
                     }
 
                     common.setOverflow8bit(num1, num2, num3, registers);
@@ -885,7 +885,7 @@ string Adder::decode_displacement_with_SIB(int w, int d, int mod, int reg, int i
                         num3 = num1 + num2;
                         num4 = unsigned(num3);
 
-                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
+                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((num3<<8) & 0x0000ff00);
                     }
 
                     common.setOverflow8bit(num1, num2, num3, registers);
@@ -1161,7 +1161,7 @@ string Adder::decode_displacement_without_SIB(int w, int d, int mod, int reg, in
                     num3 = num1 + num2;
                     num4 = unsigned(num3);
 
-                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
+                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((num3<<8) & 0x0000ff00);
                 }
 
                 common.setOverflow8bit(num1, num2, num3, registers);
@@ -1327,7 +1327,7 @@ string Adder::decode_displacement_without_SIB(int w, int d, int mod, int reg, in
                     num3 = num1 + num2;
                     num4 = unsigned(num3);
 
-                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
+                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((num3<<8) & 0x0000ff00);
                 }
 
                 common.setOverflow8bit(num1, num2, num3, registers);
@@ -1527,7 +1527,7 @@ string Adder::decode_mod_00(int w, int d, int reg, int rm)
                     num3 = num1 + num2;
                     num4 = unsigned(num3);
 
-                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
+                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((num3<<8) & 0x0000ff00);
                 }
 
                 common.setOverflow8bit(num1, num2, num3, registers);
@@ -1698,6 +1698,8 @@ string Adder::decode_mod_11(int w, int d, int reg, int rm)
                 registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffff00ff) | ((num3 << 8) & 0x0000ff00);
             }
 
+             cout << "Num1:"<<common.getHex(num1,0,0)<<" ; Num2:"<<common.getHex(num2,0,0) << " ; Num3:"<<common.getHex(num3,0,0)<<"\n";
+
             //cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
 
             common.setOverflow8bit(num1, num2, num3, registers);
@@ -1764,7 +1766,8 @@ string Adder::decode_mod_11(int w, int d, int reg, int rm)
                 num4 = unsigned(num3);
                 registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffff0000) | (num3 & 0x0000ffff);
 
-                //cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
+                cout << "Num1:"<<common.getHex(num1,0,0)<<" ; Num2:"<<common.getHex(num2,0,0) << " ; Num3:"<<common.getHex(num3,0,0)<<"\n";
+                cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
 
                 common.setOverflow16bit(num1, num2, num3, registers);
                 common.setCarry16bit(num1, num4, registers);

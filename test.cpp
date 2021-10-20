@@ -29,13 +29,16 @@ int main()
    printf("First 8 bits:%d\n", *num1);
    */
 
-   int num1=0xa4c256;
+   int8_t num1=0x56;
+   int8_t num2=0x2;
+
+   int16_t num=num1*num2;
 
    stringstream ms;
-   ms << "0x" <<hex << num1;
+   ms << "0x" <<hex << num;
    string rs(ms.str());
 
-   string ss = "num1:"+rs+"\n";
+   string ss = "num:"+rs+"\n";
    cout << ss;
 
    return 0;

@@ -9,6 +9,7 @@
 
 #include "adder.h"
 #include "bitset.h"
+#include "mul.h"
 
 using namespace std;
 
@@ -73,6 +74,7 @@ int main()
     Common common;
     Adder adder(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
     Bitset bitset(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+    Multiplier multiplier(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
 
     stringstream sss;
     string test_data, word;
@@ -154,6 +156,8 @@ int main()
                 if (nextOpcode == 0x0 or nextOpcode == 0x1 or nextOpcode == 0x2 or nextOpcode == 0x3 or nextOpcode == 0x4 or nextOpcode == 0x5 or nextOpcode == 0x80 or nextOpcode == 0x81 or nextOpcode == 0x83)
                 {
                     adder.decode_add(prefixes);
+                }else if(nextOpcode==0xf6 or nextOpcode==0xf7){
+                    multiplier.decode_mul(prefixes);
                 }
                 else
                 {

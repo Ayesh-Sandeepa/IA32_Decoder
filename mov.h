@@ -40,7 +40,7 @@ class Mov{
         string decode_imm_alt(int opCode, int w, int reg);
 };
 
-class Mov_addOverride
+class Mov_override
 {
 private:
     bool opSize;
@@ -58,9 +58,9 @@ public:
     map<string, int8_t> &memories8bit;
     list<string> &memoryAccesses;
 
-    Mov_addOverride(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses);
+    Mov_override(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses);
 
-    string decode_add(short prefixes[4]);
+    string decode_mov(short prefixes[4]);
     string decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int scale, int base);
     string decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm);
     string decode_SIB(int w, int d, int mod, int reg);
@@ -68,5 +68,5 @@ public:
     string decode_mod_01(int w, int d, int reg, int rm);
     string decode_mod_10(int w, int d, int reg, int rm);
     string decode_mod_11(int w, int d, int reg, int rm);
-    string decode_imm(int opCode, int w, int d);
+    string decode_imm_alt(int opCode, int w, int d);
 };

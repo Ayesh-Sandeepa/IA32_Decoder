@@ -557,7 +557,7 @@ string Mov_override::decode_mod_11(int w, int d, int reg, int rm)
     return string11;
 }
 
-string Mov::decode_imm_alt(int opCode, int w, int reg)
+string Mov_override::decode_imm_alt(int opCode, int w, int reg)
 {
     string dec_imm_alt;
     int imm;

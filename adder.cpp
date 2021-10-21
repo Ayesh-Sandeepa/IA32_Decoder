@@ -1766,8 +1766,9 @@ string Adder::decode_mod_11(int w, int d, int reg, int rm)
                 num4 = unsigned(num3);
                 registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffff0000) | (num3 & 0x0000ffff);
 
-                cout << "Num1:"<<common.getHex(num1,0,0)<<" ; Num2:"<<common.getHex(num2,0,0) << " ; Num3:"<<common.getHex(num3,0,0)<<"\n";
-                cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
+                //cout << sizeof(num1) << "\n";
+                //cout << "Num1:"<<common.getHex((uint16_t)num1,0,0)<<" ; Num2:"<<common.getHex(num2,0,0) << " ; Num3:"<<common.getHex(num3,0,0)<<"\n";
+                //cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
 
                 common.setOverflow16bit(num1, num2, num3, registers);
                 common.setCarry16bit(num1, num4, registers);

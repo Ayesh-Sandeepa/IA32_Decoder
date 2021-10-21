@@ -72,7 +72,7 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
 
                 if (index == 4)
                 {
-                    int8_t num1, num2;
+                    int16_t num1, num2;
                     int16_t num3;
                     uint8_t num4, num5;
 
@@ -82,7 +82,7 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
 
                     num3 = num1 * num2;
                     num4 = common.get_bits(1, 8, num3);
-                    num5 = common.get_bits(8, 8, num3);
+                    num5 = common.get_bits(9, 8, num3);
 
                     registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num3 & 0x0000ffff);
 
@@ -92,7 +92,7 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
                 }
                 else
                 {
-                    int8_t num1, num2;
+                    int16_t num1, num2;
                     int16_t num3;
                     uint8_t num4, num5;
 
@@ -102,7 +102,7 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
 
                     num3 = num1 * num2;
                     num4 = common.get_bits(1, 8, num3);
-                    num5 = common.get_bits(8, 8, num3);
+                    num5 = common.get_bits(9, 8, num3);
 
                     registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num3 & 0x0000ffff);
 
@@ -117,7 +117,7 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
                 {
                     if (index == 4)
                     {
-                        int16_t num1, num2;
+                        int num1, num2;
                         int num3;
                         uint16_t num4, num5;
 
@@ -127,7 +127,7 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
 
                         num3 = num1 * num2;
                         num4 = common.get_bits(1, 16, num3);
-                        num5 = common.get_bits(16, 16, num3);
+                        num5 = common.get_bits(17, 16, num3);
 
                         registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num4 & 0x0000ffff);
                         registers["EDX"] = ((registers["EDX"]) & 0xffff0000) | (num5 & 0x0000ffff);
@@ -138,7 +138,7 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
                     }
                     else
                     {
-                        int16_t num1, num2;
+                        int num1, num2;
                         int num3;
                         uint16_t num4, num5;
 
@@ -148,7 +148,7 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
 
                         num3 = num1 * num2;
                         num4 = common.get_bits(1, 16, num3);
-                        num5 = common.get_bits(16, 16, num3);
+                        num5 = common.get_bits(17, 16, num3);
 
                         registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num4 & 0x0000ffff);
                         registers["EDX"] = ((registers["EDX"]) & 0xffff0000) | (num5 & 0x0000ffff);
@@ -163,13 +163,13 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
                 {
                     if (index == 4)
                     {
-                        int num1 = memories32bit[st];
+                        long num1 = (unsigned int)memories32bit[st];
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + st);
 
-                        int num2 = registers["EAX"];
-                        long int num3 = num1 * num2;
+                        long num2 = (unsigned int)registers["EAX"];
+                        long num3 = num1 * num2;
                         unsigned int num4 = common.get_bits(1, 32, num3);
-                        unsigned int num5 = common.get_bits(32, 32, num3);
+                        unsigned int num5 = common.get_bits(33, 32, num3);
 
                         registers["EAX"] = num4;
                         registers["EDX"] = num5;
@@ -179,13 +179,13 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
                     else
                     {
 
-                        int num1 = memories32bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)];
+                        long num1 = (unsigned int)memories32bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[index]] * scale + disp, 0, 0));
 
-                        int num2 = registers["EAX"];
-                        long int num3 = num1 * num2;
+                        long num2 = (unsigned int)registers["EAX"];
+                        long num3 = num1 * num2;
                         unsigned int num4 = common.get_bits(1, 32, num3);
-                        unsigned int num5 = common.get_bits(32, 32, num3);
+                        unsigned int num5 = common.get_bits(33, 32, num3);
 
                         registers["EAX"] = num4;
                         registers["EDX"] = num5;
@@ -202,7 +202,7 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
                 if (index == 4)
                 {
 
-                    int8_t num1, num2;
+                    int16_t num1, num2;
                     int16_t num3;
                     uint8_t num4, num5;
 
@@ -212,7 +212,7 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
 
                     num3 = num1 * num2;
                     num4 = common.get_bits(1, 8, num3);
-                    num5 = common.get_bits(8, 8, num3);
+                    num5 = common.get_bits(9, 8, num3);
 
                     registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num3 & 0x0000ffff);
 
@@ -222,7 +222,7 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
                 }
                 else
                 {
-                    int8_t num1, num2;
+                    int16_t num1, num2;
                     int16_t num3;
                     uint8_t num4, num5;
 
@@ -232,7 +232,7 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
 
                     num3 = num1 * num2;
                     num4 = common.get_bits(1, 8, num3);
-                    num5 = common.get_bits(8, 8, num3);
+                    num5 = common.get_bits(9, 8, num3);
 
                     registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num3 & 0x0000ffff);
 
@@ -248,7 +248,7 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
                     if (index == 4)
                     {
 
-                        int16_t num1, num2;
+                        int num1, num2;
                         int num3;
                         uint16_t num4, num5;
 
@@ -258,7 +258,7 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
 
                         num3 = num1 * num2;
                         num4 = common.get_bits(1, 16, num3);
-                        num5 = common.get_bits(16, 16, num3);
+                        num5 = common.get_bits(17, 16, num3);
 
                         registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num4 & 0x0000ffff);
                         registers["EDX"] = ((registers["EDX"]) & 0xffff0000) | (num5 & 0x0000ffff);
@@ -270,7 +270,7 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
                     else
                     {
 
-                        int16_t num1, num2;
+                        int num1, num2;
                         int num3;
                         uint16_t num4, num5;
 
@@ -280,7 +280,7 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
 
                         num3 = num1 * num2;
                         num4 = common.get_bits(1, 16, num3);
-                        num5 = common.get_bits(16, 16, num3);
+                        num5 = common.get_bits(17, 16, num3);
 
                         registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num4 & 0x0000ffff);
                         registers["EDX"] = ((registers["EDX"]) & 0xffff0000) | (num5 & 0x0000ffff);
@@ -294,13 +294,13 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
                 {
                     if (index == 4)
                     {
-                        int num1 = memories32bit[common.getHex(registers[regs_32[base]], 0, 0)];
+                        long num1 = (unsigned int)memories32bit[common.getHex(registers[regs_32[base]], 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[base]], 0, 0));
 
-                        int num2 = registers["EAX"];
-                        long int num3 = num1 * num2;
+                        long num2 = (unsigned int)registers["EAX"];
+                        long num3 = num1 * num2;
                         unsigned int num4 = common.get_bits(1, 32, num3);
-                        unsigned int num5 = common.get_bits(32, 32, num3);
+                        unsigned int num5 = common.get_bits(33, 32, num3);
 
                         registers["EAX"] = num4;
                         registers["EDX"] = num5;
@@ -311,13 +311,13 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
                     }
                     else
                     {
-                        int num1 = memories32bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0)];
+                        long num1 = (unsigned int)memories32bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0));
 
-                        int num2 = registers["EAX"];
-                        long long num3 = num1 * num2;
+                        long num2 = (unsigned int)registers["EAX"];
+                        long num3 = num1 * num2;
                         unsigned int num4 = common.get_bits(1, 32, num3);
-                        unsigned int num5 = common.get_bits(32, 32, num3);
+                        unsigned int num5 = common.get_bits(33, 32, num3);
 
                         registers["EAX"] = num4;
                         registers["EDX"] = num5;
@@ -337,7 +337,7 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
         {
             if (index == 4)
             {
-                int8_t num1, num2;
+                int16_t num1, num2;
                 int16_t num3;
                 uint8_t num4, num5;
 
@@ -347,7 +347,7 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
 
                 num3 = num1 * num2;
                 num4 = common.get_bits(1, 8, num3);
-                num5 = common.get_bits(8, 8, num3);
+                num5 = common.get_bits(9, 8, num3);
 
                 registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num3 & 0x0000ffff);
 
@@ -357,7 +357,7 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
             }
             else
             {
-                int8_t num1, num2;
+                int16_t num1, num2;
                 int16_t num3;
                 uint8_t num4, num5;
 
@@ -367,7 +367,7 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
 
                 num3 = num1 * num2;
                 num4 = common.get_bits(1, 8, num3);
-                num5 = common.get_bits(8, 8, num3);
+                num5 = common.get_bits(9, 8, num3);
 
                 registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num3 & 0x0000ffff);
 
@@ -383,7 +383,7 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
 
                 if (index == 4)
                 {
-                    int16_t num1, num2;
+                    int num1, num2;
                     int num3;
                     uint16_t num4, num5;
 
@@ -393,7 +393,7 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
 
                     num3 = num1 * num2;
                     num4 = common.get_bits(1, 16, num3);
-                    num5 = common.get_bits(16, 16, num3);
+                    num5 = common.get_bits(17, 16, num3);
 
                     registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num4 & 0x0000ffff);
                     registers["EDX"] = ((registers["EDX"]) & 0xffff0000) | (num5 & 0x0000ffff);
@@ -404,7 +404,7 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
                 }
                 else
                 {
-                    int16_t num1, num2;
+                    int num1, num2;
                     int num3;
                     uint16_t num4, num5;
 
@@ -414,7 +414,7 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
 
                     num3 = num1 * num2;
                     num4 = common.get_bits(1, 16, num3);
-                    num5 = common.get_bits(16, 16, num3);
+                    num5 = common.get_bits(17, 16, num3);
 
                     registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num4 & 0x0000ffff);
                     registers["EDX"] = ((registers["EDX"]) & 0xffff0000) | (num5 & 0x0000ffff);
@@ -428,13 +428,13 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
             {
                 if (index == 4)
                 {
-                    int num1 = memories32bit[common.getHex(registers[regs_32[base]] + disp, 0, 0)];
+                    long num1 = (unsigned int)memories32bit[common.getHex(registers[regs_32[base]] + disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[base]] + disp, 0, 0));
 
-                    int num2 = registers["EAX"];
-                    long int num3 = num1 * num2;
+                    long num2 = (unsigned int)registers["EAX"];
+                    long num3 = num1 * num2;
                     unsigned int num4 = common.get_bits(1, 32, num3);
-                    unsigned int num5 = common.get_bits(32, 32, num3);
+                    unsigned int num5 = common.get_bits(33, 32, num3);
 
                     registers["EAX"] = num4;
                     registers["EDX"] = num5;
@@ -443,13 +443,13 @@ string Multiplier::decode_displacement_with_SIB(int w, int mod, int index, int s
                 }
                 else
                 {
-                    int num1 = memories32bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0)];
+                    long num1 = (unsigned int)memories32bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0));
 
-                    int num2 = registers["EAX"];
-                    long int num3 = num1 * num2;
+                    long num2 =(unsigned int) registers["EAX"];
+                    long num3 = num1 * num2;
                     unsigned int num4 = common.get_bits(1, 32, num3);
-                    unsigned int num5 = common.get_bits(32, 32, num3);
+                    unsigned int num5 = common.get_bits(33, 32, num3);
 
                     registers["EAX"] = num4;
                     registers["EDX"] = num5;
@@ -475,7 +475,7 @@ string Multiplier::decode_displacement_without_SIB(int w, int mod, int rm)
     {
         if (w == 0)
         {
-            int8_t num1, num2;
+            int16_t num1, num2;
             int16_t num3;
             uint8_t num4,num5;
 
@@ -486,7 +486,7 @@ string Multiplier::decode_displacement_without_SIB(int w, int mod, int rm)
 
                 num3 = num1 * num2;
                 num4 =common.get_bits(1,8,num3);
-                num5 =common.get_bits(8,8,num3);
+                num5 =common.get_bits(9,8,num3);
 
                 registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num3 & 0x0000ffff);
             
@@ -500,7 +500,7 @@ string Multiplier::decode_displacement_without_SIB(int w, int mod, int rm)
             if (opSize)
             {
 
-                int16_t num1, num2;
+                int num1, num2;
                 int num3;
                 uint16_t num4,num5;
 
@@ -510,7 +510,7 @@ string Multiplier::decode_displacement_without_SIB(int w, int mod, int rm)
 
                 num3 = num1 * num2;
                 num4 = common.get_bits(1,16,num3);
-                num5 = common.get_bits(16,16,num3);
+                num5 = common.get_bits(17,16,num3);
 
                 registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num4 & 0x0000ffff);
                 registers["EDX"] = ((registers["EDX"]) & 0xffff0000) | (num5 & 0x0000ffff);
@@ -521,13 +521,13 @@ string Multiplier::decode_displacement_without_SIB(int w, int mod, int rm)
             }
             else
             {
-                int num1 = memories32bit[st];
+                long num1 = (unsigned int)memories32bit[st];
                 memoryAccesses.push_back("Read " + to_string(num1) + " from " + st);
 
-                int num2 = registers["EAX"];
-                long int num3 = num1 * num2;
+                long num2 = (unsigned int)registers["EAX"];
+                long num3 = num1 * num2;
                 unsigned int num4 =common.get_bits(1,32,num3);
-                unsigned int num5 =common.get_bits(32,32,num3);
+                unsigned int num5 =common.get_bits(33,32,num3);
 
                 registers["EAX"] = num4;
                  registers["EDX"] = num5;
@@ -542,7 +542,7 @@ string Multiplier::decode_displacement_without_SIB(int w, int mod, int rm)
     {
         if (w == 0)
         {
-            int8_t num1, num2;
+            int16_t num1, num2;
             int16_t num3;
             uint8_t num4,num5;
 
@@ -553,7 +553,7 @@ string Multiplier::decode_displacement_without_SIB(int w, int mod, int rm)
 
                 num3 = num1 * num2;
                 num4 = common.get_bits(1,8,num3);
-                num5=common.get_bits(8,8,num3);
+                num5=common.get_bits(9,8,num3);
 
                 registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num3 & 0x0000ffff);
             
@@ -565,7 +565,7 @@ string Multiplier::decode_displacement_without_SIB(int w, int mod, int rm)
         {
             if (opSize)
             {
-                int16_t num1, num2;
+                int num1, num2;
                 int num3;
                 uint16_t num4,num5;
 
@@ -575,7 +575,7 @@ string Multiplier::decode_displacement_without_SIB(int w, int mod, int rm)
 
                 num3 = num1 * num2;
                 num4 = common.get_bits(1,16,num3);
-                num5 = common.get_bits(16,16,num3);
+                num5 = common.get_bits(17,16,num3);
 
                 registers["EDX"] = ((registers["EDX"]) & 0xffff0000) | (num5 & 0x0000ffff);
 
@@ -587,13 +587,13 @@ string Multiplier::decode_displacement_without_SIB(int w, int mod, int rm)
             }
             else
             {
-                int num1 = memories32bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)];
+                long num1 = (unsigned int)memories32bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)];
                 memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
 
-                int num2 = registers["EAX"];
-                long int num3 = num1 * num2;
+                long num2 = (unsigned int)registers["EAX"];
+                long num3 = num1 * num2;
                 unsigned int num4 = common.get_bits(1,32,num3);
-                unsigned int num5 = common.get_bits(32,32,num3);
+                unsigned int num5 = common.get_bits(33,32,num3);
 
 
                 registers["EAX"] = num4;
@@ -643,7 +643,7 @@ string Multiplier::decode_mod_00(int w, int rm)
         {
             string00 = "(%" + regs_32[rm] + ")" + "\n";
 
-            int8_t num1, num2;
+            int16_t num1, num2;
             int16_t num3;
             uint8_t num4, num5;
 
@@ -654,7 +654,7 @@ string Multiplier::decode_mod_00(int w, int rm)
 
             num3 = num1 * num2;
             num4 = common.get_bits(1, 8, num3);
-            num5 = common.get_bits(8, 8, num3);
+            num5 = common.get_bits(9, 8, num3);
 
             registers["EAX"] = registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num3 & 0x0000ffff);
 
@@ -666,7 +666,7 @@ string Multiplier::decode_mod_00(int w, int rm)
             {
                 string00 = "(%" + regs_32[rm] + ")" + "\n";
 
-                int16_t num1, num2;
+                int num1, num2;
                 int num3;
                 uint16_t num4, num5;
 
@@ -676,7 +676,7 @@ string Multiplier::decode_mod_00(int w, int rm)
 
                 num3 = num1 * num2;
                 num4 = common.get_bits(1, 16, num3);
-                num5 = common.get_bits(16, 16, num3);
+                num5 = common.get_bits(17, 16, num3);
 
                 registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num4 & 0x0000ffff);
                 registers["EDX"] = ((registers["EDX"]) & 0xffff0000) | (num5 & 0x0000ffff);
@@ -685,13 +685,13 @@ string Multiplier::decode_mod_00(int w, int rm)
             }
             else
             {
-                int num1 = memories32bit[common.getHex(registers[regs_32[rm]], 0, 0)];
+                long num1 = (unsigned int)memories32bit[common.getHex(registers[regs_32[rm]], 0, 0)];
                 memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[rm]], 0, 0));
 
-                int num2 = registers["EAX"]; // registers["ECX"]
-                long int num3 = num1 * num2;
+                long num2 = (unsigned int)registers["EAX"]; // registers["ECX"]
+                long num3 = num1 * num2;
                 unsigned int num4 = common.get_bits(1, 32, num3);
-                unsigned int num5 = common.get_bits(32, 32, num3);
+                unsigned int num5 = common.get_bits(33, 32, num3);
 
                 string00 = "(%" + regs_32[rm] + ")" + "\n";
                 registers["EAX"] = num4;
@@ -738,7 +738,7 @@ string Multiplier::decode_mod_11(int w, int rm)
     string string11 = "";
     if (w == 0)
     {
-        int8_t num1, num2;
+        int16_t num1, num2;
         int16_t num3;
         uint8_t num4;
 
@@ -748,7 +748,7 @@ string Multiplier::decode_mod_11(int w, int rm)
         {
             num2 = common.get_bits(1, 8, registers[regs_32[rm]]);
             num3 = num1 * num2;
-            num4 = common.get_bits(8, 8, num3);
+            num4 = common.get_bits(9, 8, num3);
             registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num3 & 0x0000ffff);
             
         }
@@ -756,10 +756,10 @@ string Multiplier::decode_mod_11(int w, int rm)
         {
             num2 = common.get_bits(9, 8, registers[regs_32[rm % 4]]);
             num3 = num1 * num2;
-            num4 = common.get_bits(8, 8, num3);
+            num4 = common.get_bits(9, 8, num3);
             registers[regs_32[rm]] = ((registers["EAX"]) & 0xffff0000) | (num3 & 0x0000ffff);
         }
-        cout << "Num1:"<<common.getHex(num1,0,0)<<" ; Num2:"<<common.getHex(num2,0,0) << " ; Num3:"<<common.getHex(num3,0,0)<<"\n";
+        //cout << "Num1:"<<common.getHex((uint16_t)num1,0,0)<<" ; Num2:"<<common.getHex((uint16_t)num2,0,0) << " ; Num3:"<<common.getHex((uint16_t)num3,0,0)<<"\n";
 
         setOverflowCarry8(num4);
 
@@ -769,7 +769,7 @@ string Multiplier::decode_mod_11(int w, int rm)
     {
         if (opSize)
         {
-            int16_t num1, num2;
+            int num1, num2;
             int num3;
             uint16_t num4, num5;
 
@@ -777,7 +777,7 @@ string Multiplier::decode_mod_11(int w, int rm)
             num2 = common.get_bits(1, 16, registers[regs_32[rm]]);
             num3 = num1 * num2;
             num4 = common.get_bits(1, 16, num3);
-            num5 = common.get_bits(16, 16, num3);
+            num5 = common.get_bits(17, 16, num3);
             registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num4 & 0x0000ffff);
             registers["EDX"] = ((registers["EDX"]) & 0xffff0000) | (num5 & 0x0000ffff);
 
@@ -787,19 +787,19 @@ string Multiplier::decode_mod_11(int w, int rm)
         }
         else
         {
-            int num1 = registers["EAX"];
-            int num2 = registers[regs_32[rm]];
+            long num1 =(unsigned int)registers["EAX"];
+            long num2 = (unsigned int)registers[regs_32[rm]];
 
-            cout << "EAX:" << common.getHex(num1,0,0) << " ; " << regs_32[rm] <<":"<<common.getHex(num2,0,0)<<"\n";
+            //cout << "EAX:" << common.getHex(num1,0,0) << " ; " << regs_32[rm] <<":"<<common.getHex((unsigned long int)num2,0,0)<<"\n";
             
             long int num3 = num1 * num2;
-            cout << "out:" << common.getHex(num3,0,0)<<"\n";
-            cout << sizeof(int) <<":"<<sizeof(long int)<<"\n";
+            //cout << "out:" << common.getHex((unsigned long int)num3,0,0)<<"\n";
+            //cout << sizeof(int) <<":"<<sizeof(long int)<<"\n";
 
             unsigned int num4 = common.get_bits(1, 32, num3);
-            unsigned int num5 = common.get_bits(32, 32, num3);
+            unsigned int num5 = common.get_bits(33, 32, num3);
 
-            cout << "num1:"<<common.getHex(num4,0,0)<<" ; num5:"<<common.getHex(num5,0,0)<<"\n";
+            //cout << "num4:"<<common.getHex(num4,0,0)<<" ; num5:"<<common.getHex(num5,0,0)<<"\n";
             registers["EAX"] = num4;
             registers["EDX"] = num5;
 

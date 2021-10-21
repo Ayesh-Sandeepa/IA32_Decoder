@@ -8,9 +8,10 @@
 
 #include "common.h"
 
-int Common::get_bits(int pos, int noOfBits, int number)
+int Common::get_bits(int pos, int noOfBits, long number)
 {
-    return (((1 << noOfBits) - 1) & (number >> (pos - 1)));
+    long one=1;
+    return (((one << noOfBits) - 1) & (number >> (pos - 1)));
 }
 
 int Common::assemble_bits(int bytes, queue<short> &instruction, map<string, int> &registers)
@@ -188,3 +189,23 @@ string Common::getHex(int num, int width = 0, char fill = '0')
         return rs;
     }
 }
+
+string Common::getHexLong(long num, int width = 0, char fill = '0')
+{
+
+    if (width == 0)
+    {
+        stringstream ms;
+        ms << "0x"<< hex << num;
+        string rs(ms.str());
+        return rs;
+    }
+    else
+    {
+        stringstream ms;
+        ms << "0x" << setw(width) << setfill(fill) << hex << num;
+        string rs(ms.str());
+        return rs;
+    }
+}
+

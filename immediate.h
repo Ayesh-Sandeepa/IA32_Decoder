@@ -1,3 +1,6 @@
+#ifndef IMMEDIATE_H
+#define IMMEDIATE_H
+
 #include <stdio.h>
 #include <string>
 #include <queue>
@@ -69,3 +72,5 @@ public:
     string decode_mod_10(int w, int s, int rm);
     string decode_mod_11(int w, int s, int rm);
 };
+
+#endif 

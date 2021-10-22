@@ -8,7 +8,7 @@
 
 using namespace std;
 
-string getHex(long int num, int width, char fill);
+string getHex(int num, int width);
 int get_bits(int pos, int noOfBits, long number);
 
 int main()
@@ -33,39 +33,86 @@ int main()
    printf("First 8 bits:%d\n", *num1);
    */
 
-  long num1=0x26a40cec23757d34;
-  int first=get_bits(33,32,num1);
+   int8_t num1 = 0x54;
 
+   //stringstream ms;
+    //ms << "0x"  << hex <<setw(4)<<setfill('0')<<  (int)num1;
+   //cout << "0x" << std::hex << std::setw(2) << std::setfill('0')<< static_cast<unsigned int>(num1) << '\n';
+   //string rs(ms.str());
+   //cout << rs << "\n";
 
-   cout << getHex((unsigned long)first,0,0)<<"\n";
+   //cout << getHex(num1, 8) << "\n";
+
+   string result="81db283b";
+
+   stringstream ss;
+   long number;
+
+   ss<<hex<<result;
+   ss>>number;
+
+   cout << hex<<number <<"\n";
 
    return 0;
 }
 
-string getHex(long int num, int width = 0, char fill = '0')
+string getHex(int num, int width = 0)
 {
 
-    if (width == 0)
-    {
-        stringstream ms;
-        ms << "0x"<< hex << num;
-        string rs(ms.str());
-        return rs;
-    }
-    else
-    {
-        stringstream ms;
-        ms << "0x" << setw(width) << setfill(fill) << hex << num;
-        string rs(ms.str());
-        return rs;
-    }
+   if (width == 0)
+   {
+      stringstream ms;
+      ms << "0x" << hex << num;
+      string rs(ms.str());
+      return rs;
+   }
+   else
+   {
+      stringstream ms;
+      if (width == 2)
+      {
+         int8_t numtemp = num;
+         if (numtemp > 0)
+         {
+            ms << "0x" << setw(width) << setfill('0') << hex << (int)numtemp;
+         }
+         else
+         {
+            ms << "0x" << setw(width) << setfill('f') << hex << (int)numtemp;
+         }
+      }
+      else if (width == 4)
+      {
+         int16_t numtemp = num;
+         if (numtemp > 0)
+         {
+            ms << "0x" << setw(width) << setfill('0') << hex << numtemp;
+         }
+         else
+         {
+            ms << "0x" << setw(width) << setfill('f') << hex << numtemp;
+         }
+      }
+      else if (width == 8)
+      {
+         if (num > 0)
+         {
+            ms << "0x" << setw(width) << setfill('0') << hex << num;
+         }
+         else
+         {
+            ms << "0x" << setw(width) << setfill('f') << hex << num;
+         }
+      }
+      string rs(ms.str());
+      return rs;
+   }
 }
 
 int get_bits(int pos, int noOfBits, long number)
 {
-      long one=1;
-      long num2=number >> (pos - 1) ;
-      cout << num2<< "\n";
-    return (((one << noOfBits) - 1) & (number >> (pos - 1)));
+   long one = 1;
+   long num2 = number >> (pos - 1);
+   cout << num2 << "\n";
+   return (((one << noOfBits) - 1) & (number >> (pos - 1)));
 }
-

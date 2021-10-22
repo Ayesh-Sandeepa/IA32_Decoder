@@ -1271,8 +1271,6 @@ string Immediate::decode_mod_11(int w, int s, int rm)
     if (w == 0)
     {
 
-        //printf("w:0 and d:0 test make \n");
-
         int8_t num1, num2, num3;
         uint8_t num4;
 
@@ -1353,7 +1351,6 @@ string Immediate::decode_mod_11(int w, int s, int rm)
         {
             if (s == 0)
             {
-                //printf("w:1 and d:0 \n");
                 int num1 = common.assemble_bits(4, instruction, registers);
                 int num2 = registers[regs_32[rm]];
                 int num3 = num1 + num2;

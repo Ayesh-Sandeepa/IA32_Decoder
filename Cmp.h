@@ -9,11 +9,11 @@
 #include <map>
 #include <list>
 
-
-#include "and_immediate.h"
+//#include "common.h"
+#include "cmp_immediate.h"
 
 using namespace std;
-class And
+class Cmp
 {
 private:
     bool opSize;
@@ -31,9 +31,9 @@ public:
     map<string, int8_t> &memories8bit;
     list<string> &memoryAccesses;
 
-    And(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses);
+    Cmp(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses);
 
-    string decode_and(short prefixes[4]);
+    string decode_cmp(short prefixes[4]);
     string decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int scale, int base);
     string decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm);
     string decode_SIB(int w, int d, int mod, int reg);
@@ -46,7 +46,7 @@ public:
     //int test();
 };
 
-class And_andOverride
+class Cmp_cmpOverride
 {
 private:
     bool opSize;
@@ -64,9 +64,9 @@ public:
     map<string, int8_t> &memories8bit;
     list<string> &memoryAccesses;
 
-    And_andOverride(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses);
+    Cmp_cmpOverride(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses);
 
-    string decode_and(short prefixes[4]);
+    string decode_cmp(short prefixes[4]);
     string decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int scale, int base);
     string decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm);
     string decode_SIB(int w, int d, int mod, int reg);

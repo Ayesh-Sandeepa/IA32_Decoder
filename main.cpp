@@ -12,10 +12,21 @@
 #include "mov.h"
 #include "And.h"
 #include "mul.h"
+#include "Cmp.h"
 
 using namespace std;
 
 void listQueue(queue<short> myQueue);
+
+queue<short> getTempQueue(queue<short> Q) {
+    queue<short>Q2;
+    for (int i = 0; i < Q.size(); i++) {
+        short ele = Q.front();
+        Q2.push(ele);
+        Q.pop();
+    }
+    return Q2;
+}
 
 int main()
 {
@@ -79,6 +90,7 @@ int main()
     Mov mov(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
     And and_(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
     Multiplier multiplier(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+    Cmp cmp(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
 
     stringstream sss;
     string test_data, word;
@@ -157,9 +169,17 @@ int main()
             else
             {
                 //printf("One byte opcode \n");
-                if (nextOpcode == 0x0 or nextOpcode == 0x1 or nextOpcode == 0x2 or nextOpcode == 0x3 or nextOpcode == 0x4 or nextOpcode == 0x5 or nextOpcode == 0x80 or nextOpcode == 0x81 or nextOpcode == 0x83)
+
+                queue<short> encoded_instructions_temp = getTempQueue(encoded_instructions);
+                encoded_instructions_temp.pop();
+                short modrm = encoded_instructions_temp.front();   
+                int reg = common.get_bits(4, 3, modrm);
+
+                if (nextOpcode == 0x0 or nextOpcode == 0x1 or nextOpcode == 0x2 or nextOpcode == 0x3 or nextOpcode == 0x4 or nextOpcode == 0x5 or ((nextOpcode == 0x80 or nextOpcode == 0x81 or nextOpcode == 0x83) and (reg == 0)))
                 {
+                   
                     adder.decode_add(prefixes);
+
                 }else if(nextOpcode==0xf6 or nextOpcode==0xf7){
                     multiplier.decode_mul(prefixes);
                 }
@@ -167,11 +187,14 @@ int main()
                 {
                     mov.decode_mov(prefixes);
                 }
-                else if (nextOpcode == 0x20 or nextOpcode == 0x21 or nextOpcode == 0x22 or nextOpcode == 0x23 or nextOpcode == 0x24 or nextOpcode == 0x25 or nextOpcode == 0x80 or nextOpcode == 0x81 or nextOpcode == 0x83)
+                else if (nextOpcode == 0x20 or nextOpcode == 0x21 or nextOpcode == 0x22 or nextOpcode == 0x23 or nextOpcode == 0x24 or nextOpcode == 0x25 or ((nextOpcode == 0x80 or nextOpcode == 0x81 or nextOpcode == 0x83) and (reg == 4)))
                 {
-                    // and_.decode_and(encoded_instructions, registers);
+                   
                     and_.decode_and(prefixes);
   
+                }
+                else if (nextOpcode == 0x38) {
+                    cmp.decode_cmp(prefixes);
                 }
                 else
                 {

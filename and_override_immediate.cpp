@@ -67,7 +67,7 @@ And_override_immediate::And_override_immediate(Common com, queue<short> &instruc
     list3[3] = (uint16_t *)&registers["EBX"];
 }
 
-string And_override_immediate::decode_displacement_without_SIB(int w, int mod, int rm)
+string And_override_immediate::decode_displacement_without_SIB(int w, int d, int mod, int rm)
 {
     string dispWithoutSIB = "";
     int disp_bytes[] = {2, 1, 2};
@@ -173,12 +173,12 @@ string And_override_immediate::decode_displacement_without_SIB(int w, int mod, i
     return dispWithoutSIB;
 };
 
-string And_override_immediate::decode_mod_00(int w, int rm)
+string And_override_immediate::decode_mod_00(int w, int d, int rm)
 {
     string string00 = "";
     if (rm == 6)
     {
-        string00 = decode_displacement_without_SIB(w, 0, 5);
+        string00 = decode_displacement_without_SIB(w, d, 0, 5);
     }
     else
     {
@@ -241,19 +241,19 @@ string And_override_immediate::decode_mod_00(int w, int rm)
     return string00;
 }
 
-string And_override_immediate::decode_mod_01(int w, int rm)
+string And_override_immediate::decode_mod_01(int w, int d, int rm)
 {
-    string string01 = decode_displacement_without_SIB(w, 1, rm);
+    string string01 = decode_displacement_without_SIB(w, d, 1, rm);
     return string01;
 }
 
-string And_override_immediate::decode_mod_10(int w, int rm)
+string And_override_immediate::decode_mod_10(int w, int d, int rm)
 {
-    string string10 = decode_displacement_without_SIB(w, 2, rm);
+    string string10 = decode_displacement_without_SIB(w, d, 2, rm);
     return string10;
 }
 
-string And_override_immediate::decode_mod_11(int w, int rm)
+string And_override_immediate::decode_mod_11(int w, int d, int rm)
 {
     string string11 = "";
     if (w == 0)
@@ -296,7 +296,7 @@ string And_override_immediate::decode_mod_11(int w, int rm)
     return string11;
 }
 
-string And_override_immediate::decode_imm(short prefixes[4], int w, int mod, int rm)
+string And_override_immediate::decode_imm(short prefixes[4], int w, int d, int mod, int rm)
 {
     string decoded_bytes;
 
@@ -311,19 +311,19 @@ string And_override_immediate::decode_imm(short prefixes[4], int w, int mod, int
 
     if (mod == 0)
     {
-        decoded_bytes = decode_mod_00(w, rm);
+        decoded_bytes = decode_mod_00(w,d, rm);
     }
     else if (mod == 1)
     {
-        decoded_bytes = decode_mod_01(w, rm); 
+        decoded_bytes = decode_mod_01(w,d ,rm); 
     }
     else if (mod == 2)
     {
-        decoded_bytes = decode_mod_10(w, rm);
+        decoded_bytes = decode_mod_10(w,d ,rm);
     }
     else
     {
-        decoded_bytes = decode_mod_11(w, rm);
+        decoded_bytes = decode_mod_11(w,d, rm);
     }
     return decoded_bytes;
 }

@@ -9,11 +9,12 @@
 #include <map>
 #include <list>
 
-#include "And.h"
+#include "Cmp.h"
 
 using namespace std;
 
-And::And(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
+
+Cmp::Cmp(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
     : common(com), instruction(instruction), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses)
 {
     regs_32[0] = "EAX";
@@ -44,8 +45,7 @@ And::And(Common com, queue<short> &instruction, map<string, int> &registers, map
     regs_8[7] = "BH";
 }
 
-
-string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int scale, int base)
+string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int scale, int base)
 {
     string dispWithSIB = "";
 
@@ -74,7 +74,7 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                 {
                     if (index == 4)
                     {
-                        memoryAccesses.push_back("and %" + regs_8[reg] + "," + st);
+                        memoryAccesses.push_back("add %" + regs_8[reg] + "," + st);
 
                         int8_t num1, num2, num3;
                         uint8_t num4;
@@ -90,8 +90,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         num2 = memories8bit[st];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + st);
 
-                        num3 = num1 & num2;
+                        num3 = num1 - num2;
                         num4 = unsigned(num3);
+                        cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                         memories8bit[st] = num3;
 
@@ -106,7 +107,7 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                     }
                     else
                     {
-                        memoryAccesses.push_back("and %" + regs_8[reg] + "," + st + "(,%" + regs_32[index] + "," + to_string(scale) + ")");
+                        memoryAccesses.push_back("add %" + regs_8[reg] + "," + st + "(,%" + regs_32[index] + "," + to_string(scale) + ")");
 
                         int8_t num1, num2, num3;
                         uint8_t num4;
@@ -122,8 +123,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         num2 = memories8bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[index]] * scale + disp, 0, 0));
 
-                        num3 = num1 & num2;
+                        num3 = num1 - num2;
                         num4 = unsigned(num3);
+                        cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                         memories8bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)] = num3;
                         memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[index]] * scale + disp, 0, 0));
@@ -149,8 +151,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories8bit[st];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + st);
 
-                            num3 = num1 & num2;
+                            num3 = num1 - num2;
                             num4 = unsigned(num3);
+                            cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                             registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
                         }
@@ -160,8 +163,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories8bit[st];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + st);
 
-                            num3 = num1 & num2;
+                            num3 = num1 - num2;
                             num4 = unsigned(num3);
+                            cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                             registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
                         }
@@ -184,8 +188,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories8bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[index]] * scale + disp, 0, 0));
 
-                            num3 = num1 & num2;
+                            num3 = num1 - num2;
                             num4 = unsigned(num3);
+                            cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                             registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
                         }
@@ -195,8 +200,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories8bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[index]] * scale + disp, 0, 0));
 
-                            num3 = num1 & num2;
+                            num3 = num1 - num2;
                             num4 = unsigned(num3);
+                            cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                             registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
                         }
@@ -218,7 +224,7 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                     {
                         if (index == 4)
                         {
-                            memoryAccesses.push_back("and "+st + ",%" + regs_16[reg]);
+                            memoryAccesses.push_back("add "+st + ",%" + regs_16[reg]);
 
                             int16_t num1, num2, num3;
                             uint16_t num4;
@@ -228,8 +234,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories16bit[st];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + st);
 
-                            num3 = num1 & num2;
+                            num3 = num1 - num2;
                             num4 = unsigned(num3);
+                            cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                             memories16bit[st] = num3;
                             memoryAccesses.push_back("write " + to_string(num3) + " to " + st);
@@ -243,7 +250,7 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         }
                         else
                         {
-                            memoryAccesses.push_back("and "+st + "(,%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_16[reg]);
+                            memoryAccesses.push_back("add "+st + "(,%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_16[reg]);
 
                             int16_t num1, num2, num3;
                             uint16_t num4;
@@ -253,8 +260,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories16bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[index]] * scale + disp, 0, 0));
 
-                            num3 = num1 & num2;
+                            num3 = num1 - num2;
                             num4 = unsigned(num3);
+                            cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                             memories16bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)] = num3;
                             memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[index]] * scale + disp, 0, 0));
@@ -278,7 +286,7 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories16bit[st];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + st);
 
-                            num3 = num1 & num2;
+                            num3 = num1 - num2;
                             num4 = unsigned(num3);
 
                             registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
@@ -299,8 +307,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories16bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[index]] * scale + disp, 0, 0));
 
-                            num3 = num1 & num2;
+                            num3 = num1 - num2;
                             num4 = unsigned(num3);
+                            cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                             registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
 
@@ -319,14 +328,15 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                     {
                         if (index == 4)
                         {
-                            memoryAccesses.push_back("and "+st + ",%" + regs_32[reg]);
+                            memoryAccesses.push_back("add "+st + ",%" + regs_32[reg]);
 
                             int num1 = memories32bit[st];
                             memoryAccesses.push_back("Read " + to_string(num1) + " from " + st);
 
                             int num2 = registers[regs_32[reg]];
-                            int num3 = num1 & num2;
+                            int num3 = num1 - num2;
                             unsigned int num4 = unsigned(num3);
+                            cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                             common.setOverflow32bit(num1, num2, num3, registers);
                             common.setCarry32bit(num1, num4, registers);
@@ -340,14 +350,15 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         }
                         else
                         {
-                            memoryAccesses.push_back("and " + st + "(,%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg] );
+                            memoryAccesses.push_back("add " + st + "(,%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg] );
 
                             int num1 = memories32bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[index]] * scale + disp, 0, 0));
 
                             int num2 = registers[regs_32[reg]];
-                            int num3 = num1 & num2;
+                            int num3 = num1 - num2;
                             unsigned int num4 = unsigned(num3);
+                            cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                             common.setOverflow32bit(num1, num2, num3, registers);
                             common.setCarry32bit(num1, num4, registers);
@@ -368,8 +379,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             memoryAccesses.push_back("Read " + to_string(num1) + " from " + st);
 
                             int num2 = registers[regs_32[reg]];
-                            int num3 = num1 & num2;
+                            int num3 = num1 - num2;
                             unsigned int num4 = unsigned(num3);
+                            cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                             common.setOverflow32bit(num1, num2, num3, registers);
                             common.setCarry32bit(num1, num4, registers);
@@ -387,8 +399,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[index]] * scale + disp, 0, 0));
 
                             int num2 = registers[regs_32[reg]];
-                            int num3 = num1 & num2;
+                            int num3 = num1 - num2;
                             unsigned int num4 = unsigned(num3);
+                            cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                             common.setOverflow32bit(num1, num2, num3, registers);
                             common.setCarry32bit(num1, num4, registers);
@@ -411,7 +424,7 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                 {
                     if (index == 4)
                     {
-                        memoryAccesses.push_back("and "  "(%" + regs_32[base] + "),%" + regs_8[reg]);
+                        memoryAccesses.push_back("add "  "(%" + regs_32[base] + "),%" + regs_8[reg]);
 
                         int8_t num1, num2, num3;
                         uint8_t num4;
@@ -427,8 +440,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         num2 = memories8bit[common.getHex(registers[regs_32[base]], 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]], 0, 0));
 
-                        num3 = num1 & num2;
+                        num3 = num1 - num2;
                         num4 = unsigned(num3);
+                        cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                         memories8bit[common.getHex(registers[regs_32[base]], 0, 0)] = num3;
                         memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[base]], 0, 0));
@@ -442,7 +456,7 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                     }
                     else
                     {
-                        memoryAccesses.push_back("and (%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_8[reg]);
+                        memoryAccesses.push_back("add (%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_8[reg]);
 
                         int8_t num1, num2, num3;
                         uint8_t num4;
@@ -457,8 +471,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         num2 = memories8bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2, 0, 0));
 
-                        num3 = num1 & num2;
+                        num3 = num1 - num2;
                         num4 = unsigned(num3);
+                        cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                         memories8bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2, 0, 0)] = num3;
                         memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2, 0, 0));
@@ -485,8 +500,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories8bit[common.getHex(registers[regs_32[base]], 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]], 0, 0));
 
-                            num3 = num1 & num2;
+                            num3 = num1 - num2;
                             num4 = unsigned(num3);
+                            cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                             registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
                         }
@@ -496,8 +512,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories8bit[common.getHex(registers[regs_32[base]], 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]], 0, 0));
 
-                            num3 = num1 & num2;
+                            num3 = num1 - num2;
                             num4 = unsigned(num3);
+                            cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                             registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
                         }
@@ -520,8 +537,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories8bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale , 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale , 0, 0));
 
-                            num3 = num1 & num2;
+                            num3 = num1 - num2;
                             num4 = unsigned(num3);
+                            cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                             registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
                         }
@@ -531,8 +549,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories8bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale , 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale , 0, 0));
 
-                            num3 = num1 & num2;
+                            num3 = num1 - num2;
                             num4 = unsigned(num3);
+                            cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                             registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
                         }
@@ -554,7 +573,7 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                     {
                         if (index == 4)
                         {
-                            memoryAccesses.push_back("and (%" + regs_32[base] + "),%" + regs_16[reg]);
+                            memoryAccesses.push_back("add (%" + regs_32[base] + "),%" + regs_16[reg]);
 
                             int16_t num1, num2, num3;
                             uint16_t num4;
@@ -564,8 +583,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories16bit[common.getHex(registers[regs_32[base]], 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]], 0, 0));
 
-                            num3 = num1 & num2;
+                            num3 = num1 - num2;
                             num4 = unsigned(num3);
+                            cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                             memories16bit[common.getHex(registers[regs_32[base]], 0, 0)] = num3;
                             memoryAccesses.push_back("write " + to_string(num3) + " to " + to_string((unsigned)registers[regs_32[base]]));
@@ -579,7 +599,7 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         }
                         else
                         {
-                            memoryAccesses.push_back("and (%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_16[reg]);
+                            memoryAccesses.push_back("add (%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_16[reg]);
 
                             int16_t num1, num2, num3;
                             uint16_t num4;
@@ -589,8 +609,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories16bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp, 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp, 0, 0));
 
-                            num3 = num1 & num2;
+                            num3 = num1 - num2;
                             num4 = unsigned(num3);
+                            cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                             memories16bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp, 0, 0)] = num3;
                             memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp, 0, 0));
@@ -615,8 +636,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories16bit[common.getHex(registers[regs_32[base]], 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]], 0, 0));
 
-                            num3 = num1 & num2;
+                            num3 = num1 - num2;
                             num4 = unsigned(num3);
+                            cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                             registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
 
@@ -637,8 +659,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories16bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0));
 
-                            num3 = num1 & num2;
+                            num3 = num1 - num2;
                             num4 = unsigned(num3);
+                            cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                             registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
 
@@ -657,14 +680,15 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                     {
                         if (index == 4)
                         {
-                            memoryAccesses.push_back("and (%" + regs_32[base] + ")" + ",%" + regs_32[reg]);
+                            memoryAccesses.push_back("add (%" + regs_32[base] + ")" + ",%" + regs_32[reg]);
 
                             int num1 = memories32bit[common.getHex(registers[regs_32[base]], 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[base]], 0, 0));
 
                             int num2 = registers[regs_32[reg]];
-                            int num3 = num1 & num2;
+                            int num3 = num1 - num2;
                             unsigned int num4 = unsigned(num3);
+                            cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                             common.setOverflow32bit(num1, num2, num3, registers);
                             common.setCarry32bit(num1, num4, registers);
@@ -678,14 +702,15 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         }
                         else
                         {
-                            memoryAccesses.push_back("and (%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg]);
+                            memoryAccesses.push_back("add (%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg]);
 
                             int num1 = memories32bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0));
 
                             int num2 = registers[regs_32[reg]];
-                            int num3 = num1 & num2;
+                            int num3 = num1 - num2;
                             unsigned int num4 = unsigned(num3);
+                            cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                             common.setOverflow32bit(num1, num2, num3, registers);
                             common.setCarry32bit(num1, num4, registers);
@@ -706,8 +731,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[base]], 0, 0));
 
                             int num2 = registers[regs_32[reg]];
-                            int num3 = num1 & num2;
+                            int num3 = num1 - num2;
                             unsigned int num4 = unsigned(num3);
+                            cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                             common.setOverflow32bit(num1, num2, num3, registers);
                             common.setCarry32bit(num1, num4, registers);
@@ -725,8 +751,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0));
 
                             int num2 = registers[regs_32[reg]];
-                            int num3 = num1 & num2;
+                            int num3 = num1 - num2;
                             unsigned int num4 = unsigned(num3);
+                            cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                             common.setOverflow32bit(num1, num2, num3, registers);
                             common.setCarry32bit(num1, num4, registers);
@@ -753,7 +780,7 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
             {
                 if (index == 4)
                 {
-                    memoryAccesses.push_back("and " +st + "(%" + regs_32[base] + "),%" + regs_8[reg] );
+                    memoryAccesses.push_back("add " +st + "(%" + regs_32[base] + "),%" + regs_8[reg] );
 
                     int8_t num1, num2, num3;
                     uint8_t num4;
@@ -769,8 +796,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                     num2 = memories8bit[common.getHex(registers[regs_32[base]] + disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + disp, 0, 0));
 
-                    num3 = num1 & num2;
+                    num3 = num1 - num2;
                     num4 = unsigned(num3);
+                    cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                     memories8bit[common.getHex(registers[regs_32[base]] + disp, 0, 0)] = num3;
                     memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[base]] + disp, 0, 0));
@@ -784,7 +812,7 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                 }
                 else
                 {
-                    memoryAccesses.push_back("and " + st + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_8[reg]);
+                    memoryAccesses.push_back("add " + st + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_8[reg]);
 
                     int8_t num1, num2, num3;
                     uint8_t num4;
@@ -800,8 +828,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                     num2 = memories8bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp, 0, 0));
 
-                    num3 = num1 & num2;
+                    num3 = num1 - num2;
                     num4 = unsigned(num3);
+                    cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                     memories8bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp, 0, 0)] = num3;
                     memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp, 0, 0));
@@ -827,8 +856,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         num2 = memories8bit[common.getHex(registers[regs_32[base]] + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + disp, 0, 0));
 
-                        num3 = num1 & num2;
+                        num3 = num1 - num2;
                         num4 = unsigned(num3);
+                        cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                         registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
                     }
@@ -838,8 +868,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         num2 = memories8bit[common.getHex(registers[regs_32[base]] + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + disp, 0, 0));
 
-                        num3 = num1 & num2;
+                        num3 = num1 - num2;
                         num4 = unsigned(num3);
+                        cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                         registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
                     }
@@ -862,8 +893,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         num2 = memories8bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0));
 
-                        num3 = num1 & num2;
+                        num3 = num1 - num2;
                         num4 = unsigned(num3);
+                        cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                         registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
                     }
@@ -873,8 +905,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         num2 = memories8bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0));
 
-                        num3 = num1 & num2;
+                        num3 = num1 - num2;
                         num4 = unsigned(num3);
+                        cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                         registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
                     }
@@ -896,7 +929,7 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                 {
                     if (index == 4)
                     {
-                        memoryAccesses.push_back("and " + st + "(%" + regs_32[base] + "),%" + regs_16[reg]);
+                        memoryAccesses.push_back("add " + st + "(%" + regs_32[base] + "),%" + regs_16[reg]);
 
                         int16_t num1, num2, num3;
                         uint16_t num4;
@@ -906,8 +939,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         num2 = memories16bit[common.getHex(registers[regs_32[base]] + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + disp, 0, 0));
 
-                        num3 = num1 & num2;
+                        num3 = num1 - num2;
                         num4 = unsigned(num3);
+                        cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                         memories16bit[common.getHex(registers[regs_32[base]] + disp, 0, 0)] = num3;
                         memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[base]] + disp, 0, 0));
@@ -921,7 +955,7 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                     }
                     else
                     {
-                        memoryAccesses.push_back("and " + st + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_16[reg]);
+                        memoryAccesses.push_back("add " + st + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_16[reg]);
 
                         int16_t num1, num2, num3;
                         uint16_t num4;
@@ -931,8 +965,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         num2 = memories16bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp, 0, 0));
 
-                        num3 = num1 & num2;
+                        num3 = num1 - num2;
                         num4 = unsigned(num3);
+                        cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                         memories16bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp, 0, 0)] = num3;
                         memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp, 0, 0));
@@ -956,8 +991,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         num2 = memories16bit[common.getHex(registers[regs_32[base]] + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + disp, 0, 0));
 
-                        num3 = num1 & num2;
+                        num3 = num1 - num2;
                         num4 = unsigned(num3);
+                        cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                         registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
 
@@ -977,8 +1013,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         num2 = memories16bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0));
 
-                        num3 = num1 & num2;
+                        num3 = num1 - num2;
                         num4 = unsigned(num3);
+                        cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                         registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
 
@@ -997,14 +1034,15 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                 {
                     if (index == 4)
                     {
-                        memoryAccesses.push_back("and " + st + "(%" + regs_32[base] + ")" + ",%" + regs_32[reg]);
+                        memoryAccesses.push_back("add " + st + "(%" + regs_32[base] + ")" + ",%" + regs_32[reg]);
 
                         int num1 = memories32bit[common.getHex(registers[regs_32[base]] + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[base]] + disp, 0, 0));
 
                         int num2 = registers[regs_32[reg]];
-                        int num3 = num1 & num2;
+                        int num3 = num1 - num2;
                         unsigned int num4 = unsigned(num3);
+                        cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                         common.setOverflow32bit(num1, num2, num3, registers);
                         common.setCarry32bit(num1, num4, registers);
@@ -1018,14 +1056,15 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                     }
                     else
                     {
-                        memoryAccesses.push_back("and " +st + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg]);
+                        memoryAccesses.push_back("add " +st + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg]);
 
                         int num1 = memories32bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0));
 
                         int num2 = registers[regs_32[reg]];
-                        int num3 = num1 & num2;
+                        int num3 = num1 - num2;
                         unsigned int num4 = unsigned(num3);
+                        cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                         common.setOverflow32bit(num1, num2, num3, registers);
                         common.setCarry32bit(num1, num4, registers);
@@ -1046,8 +1085,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[base]] + disp, 0, 0));
 
                         int num2 = registers[regs_32[reg]];
-                        int num3 = num1 & num2;
+                        int num3 = num1 - num2;
                         unsigned int num4 = unsigned(num3);
+                        cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                         common.setOverflow32bit(num1, num2, num3, registers);
                         common.setCarry32bit(num1, num4, registers);
@@ -1064,8 +1104,9 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0));
 
                         int num2 = registers[regs_32[reg]];
-                        int num3 = num1 & num2;
+                        int num3 = num1 - num2;
                         unsigned int num4 = unsigned(num3);
+                        cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                         common.setOverflow32bit(num1, num2, num3, registers);
                         common.setCarry32bit(num1, num4, registers);
@@ -1083,7 +1124,7 @@ string And::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
     return dispWithSIB;
 }
 
-string And::decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm)
+string Cmp::decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm)
 {
     string dispWithoutSIB = "";
     int disp_bytes[] = {4, 1, 4};
@@ -1098,7 +1139,7 @@ string And::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
         {
             if (d == 0)
             {
-                memoryAccesses.push_back("and " + st + ",%" + regs_8[reg]);
+                memoryAccesses.push_back("add " + st + ",%" + regs_8[reg]);
 
                 int8_t num1, num2, num3;
                 uint8_t num4;
@@ -1114,7 +1155,8 @@ string And::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                 num2 = memories8bit[st];
                 memoryAccesses.push_back("Read " + to_string(num2) + " from " + st);
 
-                num3 = num1 & num2;
+                num3 = num1 - num2;
+                cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
                 num4 = unsigned(num3);
 
                 memories8bit[st] = num3;
@@ -1138,7 +1180,8 @@ string And::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                     num2 = memories8bit[st];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + st);
 
-                    num3 = num1 & num2;
+                    num3 = num1 - num2;
+                    cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
                     num4 = unsigned(num3);
 
                     registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
@@ -1149,7 +1192,8 @@ string And::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                     num2 = memories8bit[st];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + st);
 
-                    num3 = num1 + num2;
+                    num3 = num1 - num2;
+                    cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
                     num4 = unsigned(num3);
 
                     registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
@@ -1169,7 +1213,7 @@ string And::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
             {
                 if (d == 0)
                 {
-                    memoryAccesses.push_back("and " + st + ",%" + regs_16[reg]);
+                    memoryAccesses.push_back("add " + st + ",%" + regs_16[reg]);
 
                     int16_t num1, num2, num3;
                     uint16_t num4;
@@ -1179,8 +1223,9 @@ string And::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                     num2 = memories16bit[st];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + st);
 
-                    num3 = num1 & num2;
+                    num3 = num1 - num2;
                     num4 = unsigned(num3);
+                    cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                     memories16bit[st] = num3;
                     memoryAccesses.push_back("write " + to_string(num3) + " to " + st);
@@ -1201,8 +1246,9 @@ string And::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                     num2 = memories16bit[st];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + st);
 
-                    num3 = num1 & num2;
+                    num3 = num1 - num2;
                     num4 = unsigned(num3);
+                    cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                     registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
 
@@ -1218,13 +1264,14 @@ string And::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
             {
                 if (d == 0)
                 {
-                    memoryAccesses.push_back("and " + st + ",%" + regs_32[reg]);
+                    memoryAccesses.push_back("add " + st + ",%" + regs_32[reg]);
 
                     int num1 = memories32bit[st];
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + st);
 
                     int num2 = registers[regs_32[reg]];
-                    int num3 = num1 & num2;
+                    int num3 = num1 - num2;
+                    cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
                     unsigned int num4 = unsigned(num3);
 
                     common.setOverflow32bit(num1, num2, num3, registers);
@@ -1243,7 +1290,8 @@ string And::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + st);
 
                     int num2 = registers[regs_32[reg]];
-                    int num3 = num1 & num2;
+                    int num3 = num1 - num2;
+                    cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
                     unsigned int num4 = unsigned(num3);
 
                     common.setOverflow32bit(num1, num2, num3, registers);
@@ -1264,7 +1312,7 @@ string And::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
         {
             if (d == 0)
             {
-                memoryAccesses.push_back("and " + st + "(%" + regs_32[rm] + "),%" + regs_8[reg]);
+                memoryAccesses.push_back("add " + st + "(%" + regs_32[rm] + "),%" + regs_8[reg]);
 
                 int8_t num1, num2, num3;
                 uint8_t num4;
@@ -1280,7 +1328,8 @@ string And::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                 num2 = memories8bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)];
                 memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
 
-                num3 = num1 & num2;
+                num3 = num1 - num2;
+                cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
                 num4 = unsigned(num3);
 
                 memories8bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)] = num3;
@@ -1304,7 +1353,8 @@ string And::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                     num2 = memories8bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
 
-                    num3 = num1 & num2;
+                    num3 = num1 - num2;
+                    cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
                     num4 = unsigned(num3);
 
                     registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
@@ -1315,7 +1365,8 @@ string And::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                     num2 = memories8bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
 
-                    num3 = num1 & num2;
+                    num3 = num1 - num2;
+                    cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
                     num4 = unsigned(num3);
 
                     registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
@@ -1335,7 +1386,7 @@ string And::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
             {
                 if (d == 0)
                 {
-                    memoryAccesses.push_back("and " + st + "(%" + regs_32[rm] + "),%" + regs_16[reg]);
+                    memoryAccesses.push_back("add " + st + "(%" + regs_32[rm] + "),%" + regs_16[reg]);
 
                     int16_t num1, num2, num3;
                     uint16_t num4;
@@ -1344,8 +1395,9 @@ string And::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                     num2 = memories16bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
 
-                    num3 = num1 & num2;
+                    num3 = num1 - num2;
                     num4 = unsigned(num3);
+                    cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                     memories16bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)] = num3;
                     memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
@@ -1366,8 +1418,9 @@ string And::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                     num2 = memories16bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
 
-                    num3 = num1 & num2;
+                    num3 = num1 - num2;
                     num4 = unsigned(num3);
+                    cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                     registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
 
@@ -1387,8 +1440,9 @@ string And::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
 
                     int num2 = registers[regs_32[reg]];
-                    int num3 = num1 & num2;
+                    int num3 = num1 - num2;
                     unsigned int num4 = unsigned(num3);
+                    cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
 
                     common.setOverflow32bit(num1, num2, num3, registers);
                     common.setCarry32bit(num1, num4, registers);
@@ -1406,9 +1460,9 @@ string And::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
 
                     int num2 = registers[regs_32[reg]];
-                    int num3 = num1 & num2;
+                    int num3 = num1 - num2;
                     unsigned int num4 = unsigned(num3);
-
+                    cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
                     common.setOverflow32bit(num1, num2, num3, registers);
                     common.setCarry32bit(num1, num4, registers);
                     common.setSign(num3, registers);
@@ -1425,7 +1479,7 @@ string And::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
     return dispWithoutSIB;
 };
 
-string And::decode_SIB(int w, int d, int mod, int reg)
+string Cmp::decode_SIB(int w, int d, int mod, int reg)
 {
     string stringSib = "";
 
@@ -1446,7 +1500,7 @@ string And::decode_SIB(int w, int d, int mod, int reg)
     return stringSib;
 }
 
-string And::decode_mod_00(int w, int d, int reg, int rm)
+string Cmp::decode_mod_00(int w, int d, int reg, int rm)
 {
     string string00 = "";
     if (rm == 4)
@@ -1463,7 +1517,7 @@ string And::decode_mod_00(int w, int d, int reg, int rm)
         {
             if (d == 0)
             {
-                memoryAccesses.push_back("and (%" + regs_32[rm] + "),%"+regs_8[reg]);
+                memoryAccesses.push_back("add (%" + regs_32[rm] + "),%"+regs_8[reg]);
                 string00 = "(%" + regs_32[rm] + "),%"+regs_8[reg]+"\n";
 
                 int8_t num1, num2, num3;
@@ -1480,9 +1534,9 @@ string And::decode_mod_00(int w, int d, int reg, int rm)
                 num2 = memories8bit[common.getHex(registers[regs_32[rm]], 0, 0)];
                 memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[rm]], 0, 0));
 
-                num3 = num1 & num2;
+                num3 = num1 - num2;
                 num4 = unsigned(num3);
-
+                cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
                 memories8bit[common.getHex(registers[regs_32[rm]], 0, 0)] = num3;
                 memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[rm]], 0, 0));
 
@@ -1504,9 +1558,9 @@ string And::decode_mod_00(int w, int d, int reg, int rm)
                     num2 = memories8bit[common.getHex(registers[regs_32[rm]], 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[rm]], 0, 0));
 
-                    num3 = num1 & num2;
+                    num3 = num1 - num2;
                     num4 = unsigned(num3);
-
+                    cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
                     registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
                 }
                 else
@@ -1515,9 +1569,9 @@ string And::decode_mod_00(int w, int d, int reg, int rm)
                     num2 = memories8bit[common.getHex(registers[regs_32[rm]], 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[rm]], 0, 0));
 
-                    num3 = num1 & num2;
+                    num3 = num1 - num2;
                     num4 = unsigned(num3);
-
+                    cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
                     registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
                 }
 
@@ -1533,7 +1587,7 @@ string And::decode_mod_00(int w, int d, int reg, int rm)
             {
                 if (d == 0)
                 {
-                    memoryAccesses.push_back("and (%" + regs_32[rm] + "),%" + regs_16[reg]);
+                    memoryAccesses.push_back("add (%" + regs_32[rm] + "),%" + regs_16[reg]);
 
                     string00 = "(%" + regs_32[rm] + "),%" + regs_16[reg] + "\n";
 
@@ -1545,7 +1599,8 @@ string And::decode_mod_00(int w, int d, int reg, int rm)
                     num2 = memories16bit[common.getHex(registers[regs_32[rm]], 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[rm]], 0, 0));
 
-                    num3 = num1 & num2;
+                    num3 = num1 - num2;
+                    cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
                     num4 = unsigned(num3);
 
                     memories16bit[common.getHex(registers[regs_32[rm]], 0, 0)] = num3;
@@ -1568,7 +1623,8 @@ string And::decode_mod_00(int w, int d, int reg, int rm)
                     num2 = memories16bit[common.getHex(registers[regs_32[rm]], 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[rm]], 0, 0));
 
-                    num3 = num1 & num2;
+                    num3 = num1 - num2;
+                    cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
                     num4 = unsigned(num3);
 
                     registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
@@ -1583,13 +1639,14 @@ string And::decode_mod_00(int w, int d, int reg, int rm)
             {
                 if (d == 0)
                 {
-                    memoryAccesses.push_back("and (%" + regs_32[rm] + "),%" + regs_32[reg]);
+                    memoryAccesses.push_back("add (%" + regs_32[rm] + "),%" + regs_32[reg]);
 
                     int num1 = memories32bit[common.getHex(registers[regs_32[rm]], 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[rm]], 0, 0));
 
                     int num2 = registers[regs_32[reg]]; //registers["ECX"]
-                    int num3 = num1 & num2;
+                    int num3 = num1 - num2;
+                    cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
                     unsigned int num4 = unsigned(num3);
 
                     common.setOverflow32bit(num1, num2, num3, registers);
@@ -1607,7 +1664,8 @@ string And::decode_mod_00(int w, int d, int reg, int rm)
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[rm]], 0, 0));
 
                     int num2 = registers[regs_32[reg]];
-                    int num3 = num1 & num2;
+                    int num3 = num1 - num2;
+                    cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
                     unsigned int num4 = unsigned(num3);
 
                     common.setOverflow32bit(num1, num2, num3, registers);
@@ -1625,7 +1683,7 @@ string And::decode_mod_00(int w, int d, int reg, int rm)
     return string00;
 }
 
-string And::decode_mod_01(int w, int d, int reg, int rm)
+string Cmp::decode_mod_01(int w, int d, int reg, int rm)
 {
     string string01 = "";
     if (rm == 4)
@@ -1639,7 +1697,7 @@ string And::decode_mod_01(int w, int d, int reg, int rm)
     return string01;
 }
 
-string And::decode_mod_10(int w, int d, int reg, int rm)
+string Cmp::decode_mod_10(int w, int d, int reg, int rm)
 {
     string string10 = "";
     if (rm == 4)
@@ -1653,7 +1711,7 @@ string And::decode_mod_10(int w, int d, int reg, int rm)
     return string10;
 }
 
-string And::decode_mod_11(int w, int d, int reg, int rm)
+string Cmp::decode_mod_11(int w, int d, int reg, int rm)
 {
     string string11 = "";
     if (w == 0)
@@ -1677,14 +1735,16 @@ string And::decode_mod_11(int w, int d, int reg, int rm)
             if (rm < 4)
             {
                 num2 = common.get_bits(1, 8, registers[regs_32[rm]]);
-                num3 = num1 & num2;
+                num3 = num1 - num2;
+                cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
                 num4 = unsigned(num3);
                 registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffffff00) | (num3 & 0x000000ff);
             }
             else
             {
                 num2 = common.get_bits(9, 8, registers[regs_32[rm % 4]]);
-                num3 = num1 & num2;
+                num3 = num1 - num2;
+                cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
                 num4 = unsigned(num3);
                 registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffff00ff) | ((num3 << 8) & 0x0000ff00);
             }
@@ -1717,15 +1777,17 @@ string And::decode_mod_11(int w, int d, int reg, int rm)
             if (reg < 4)
             {
                 num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
-                num3 = num1 & num2;
+                num3 = num1 - num2;
                 num4 = unsigned(num3);
+                cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
                 registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
             }
             else
             {
                 num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
-                num3 = num1 & num2;
+                num3 = num1 - num2;
                 num4 = unsigned(num3);
+                cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
                 registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((num3 << 8) & 0x0000ff00);
             }
             //cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
@@ -1751,12 +1813,12 @@ string And::decode_mod_11(int w, int d, int reg, int rm)
 
                 num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
                 num2 = common.get_bits(1, 16, registers[regs_32[rm]]);
-                num3 = num1 & num2;
+                num3 = num1 - num2;
                 num4 = unsigned(num3);
                 registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffff0000) | (num3 & 0x0000ffff);
 
                 //cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
-
+                cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
                 common.setOverflow16bit(num1, num2, num3, registers);
                 common.setCarry16bit(num1, num4, registers);
                 common.setSign(num3, registers);
@@ -1773,7 +1835,8 @@ string And::decode_mod_11(int w, int d, int reg, int rm)
 
                 num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
                 num2 = common.get_bits(1, 16, registers[regs_32[rm]]);
-                num3 = num1 & num2;
+                num3 = num1 - num2;
+                cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
                 num4 = unsigned(num3);
                 registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
 
@@ -1794,12 +1857,12 @@ string And::decode_mod_11(int w, int d, int reg, int rm)
                 //printf("w:1 and d:0 \n");
                 int num1 = registers[regs_32[reg]];
                 int num2 = registers[regs_32[rm]];
-                int num3 = num1 & num2;
+                int num3 = num1 - num2;
                 unsigned int num4 = unsigned(num3);
                 registers[regs_32[rm]] = num3;
 
                 //cout << "num1: " << num1 << ", num2: " << num2 << ", num3: " << num3 << ", num4: " << num4 << "\n";
-
+                cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
                 common.setOverflow32bit(num1, num2, num3, registers);
                 common.setCarry32bit(num1, num4, registers);
                 common.setSign(num3, registers);
@@ -1812,12 +1875,12 @@ string And::decode_mod_11(int w, int d, int reg, int rm)
                 //printf("w:1 and d:1 \n");
                 int num1 = registers[regs_32[reg]];
                 int num2 = registers[regs_32[rm]];
-                int num3 = num1 & num2;
+                int num3 = num1 - num2;
                 unsigned int num4 = unsigned(num3);
                 registers[regs_32[reg]] = num3;
 
                 //cout << "num1: " << dec << num1 << ", num2: " << dec << num2 << ", num3: " << dec << num3 << "\n";
-
+                cout << "Difference from cmp: " << static_cast<int16_t>(num3) << endl;
                 common.setOverflow32bit(num1, num2, num3, registers);
                 common.setCarry32bit(num1, num4, registers);
                 common.setSign(num3, registers);
@@ -1831,7 +1894,7 @@ string And::decode_mod_11(int w, int d, int reg, int rm)
     return string11;
 }
 
-string And::decode_imm(int opCode, int w, int d)
+string Cmp::decode_imm(int opCode, int w, int d)
 {
     string dec_imm;
     int imm;
@@ -1847,7 +1910,7 @@ string And::decode_imm(int opCode, int w, int d)
         dec_imm = "%%AL, $"+st;
 
         num1 = common.get_bits(1, 8, registers["EAX"]);
-        num2 = imm & num1;
+        num2 = num1 - imm;
 
         num3 = unsigned(num2);
 
@@ -1871,7 +1934,7 @@ string And::decode_imm(int opCode, int w, int d)
             dec_imm = "%%AX, $"+st;
 
             num1 = common.get_bits(1, 16, registers["EAX"]);
-            num2 = imm & num1;
+            num2 = num1 - imm;
 
             num3 = unsigned(num2);
 
@@ -1893,7 +1956,7 @@ string And::decode_imm(int opCode, int w, int d)
             dec_imm = "%%EAX, $"+st;
 
             num1 = registers["EAX"];
-            num2 = imm & num1;
+            num2 = num1 - imm;
 
             num3 = unsigned(num2);
 
@@ -1957,14 +2020,14 @@ int main()
 // Decode instructions with prefixes
 // Add other opcodes 0x81 etc
 // Use of SS in using reference addresses of ESP and EBP registers
-string And::decode_and(short prefixes[4])
+string Cmp::decode_cmp(short prefixes[4])
 {
     string decoded_bytes;
 
     if (prefixes[3] == 0x67)
     {
-        And_andOverride And_andOverride(common, instruction, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-        decoded_bytes = And_andOverride.decode_and(prefixes);
+        Cmp_cmpOverride cmp_cmpOverride(common, instruction, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+        decoded_bytes = cmp_cmpOverride.decode_cmp(prefixes);
     }
     else
     {
@@ -1997,7 +2060,6 @@ string And::decode_and(short prefixes[4])
         else
         {
             short modrm = instruction.front();
-
             int mod = modrm >> 6;
             int reg = common.get_bits(4, 3, modrm);
             int rm = common.get_bits(1, 3, modrm);
@@ -2009,8 +2071,8 @@ string And::decode_and(short prefixes[4])
 
             if (immediate)
             {
-                And_immediate and_immediate(common, instruction, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-                decoded_bytes = and_immediate.decode_imm(prefixes, w, d, mod, rm);
+                Cmp_immediate cmp_immediate(common, instruction, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+                decoded_bytes = cmp_immediate.decode_imm(prefixes, w, d, mod, rm);
             }
             else
             {
@@ -2034,7 +2096,7 @@ string And::decode_and(short prefixes[4])
         }
     }
 
-    cout << "AND " << decoded_bytes;
+    cout << "CMP " << decoded_bytes;
 
     cout << "EAX: " << hex << registers["EAX"] << "\n";
     cout << "ECX: " << hex << registers["ECX"] << "\n";
@@ -2046,5 +2108,5 @@ string And::decode_and(short prefixes[4])
     cout << "EDI: " << hex << registers["EDI"] << "\n";
     cout << "EFLAGS: " << hex << registers["EFLAGS"] << "\n \n";
 
-    return "And instantiated and done";
+    return "Compare instantiated and done";
 }

@@ -9,11 +9,11 @@
 #include <map>
 #include <list>
 
-#include "mul.h"
+#include "divider.h"
 
 using namespace std;
 
-Multiplier_addOverride::Multiplier_addOverride(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
+Divider_addOverride::Divider_addOverride(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
     : common(com), instruction(instruction), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses)
 {
     regs_32[0] = "EAX";
@@ -64,7 +64,7 @@ Multiplier_addOverride::Multiplier_addOverride(Common com, queue<short> &instruc
     list3[3] = (uint16_t *)&registers["EBX"];
 }
 
-string Multiplier_addOverride::decode_displacement_without_SIB(int w, int mod, int rm)
+string Divider_addOverride::decode_displacement_without_SIB(int w, int mod, int rm)
 {
     string dispWithoutSIB = "";
     int disp_bytes[] = {2, 1, 2};
@@ -79,17 +79,17 @@ string Multiplier_addOverride::decode_displacement_without_SIB(int w, int mod, i
             int16_t num1, num2, num3;
             uint8_t num4, num5;
 
-            num1 = common.get_bits(1, 8, registers["EAX"]);
+            num1 = common.get_bits(1, 16, registers["EAX"]);
             num2 = memories8bit[common.getHex(disp, 0, 0)];
             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(disp, 0, 0));
 
-            num3 = num1 * num2;
+            num3 = num1 / num2;
             num4 = common.get_bits(1, 8, num3);
-            num5 = common.get_bits(9, 8, num3);
+            num5 = num1%num2;
 
-            registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num3 & 0x0000ffff);
-
-            setOverflowCarry8(num5);
+            registers["EAX"] = ((registers["EAX"]) & 0xffffff00) | (num4 & 0x000000ff);
+            registers["EAX"] = ((registers["EAX"]) & 0xffff00ff) | ((num5<<8) & 0x0000ff00);
+            
 
             dispWithoutSIB = common.getHex(disp, 0, 0) + "\n";
         }
@@ -97,35 +97,41 @@ string Multiplier_addOverride::decode_displacement_without_SIB(int w, int mod, i
         {
             if (opSize)
             {
+                uint16_t temp1,temp2;
+                temp1=common.get_bits(1, 16, registers["EAX"]);
+                temp2=common.get_bits(1, 16, registers["EDX"]);
                 int num1, num2, num3;
                 uint16_t num4, num5;
 
-                num1 = common.get_bits(1, 16, registers["EAX"]);
+                num1 = (temp2<<16)|temp1;
                 num2 = memories16bit[common.getHex(disp, 0, 0)];
                 memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(disp, 0, 0));
 
-                num3 = num1 * num2;
+                num3 = num1 / num2;
                 num4 = common.get_bits(1, 16, num3);
-                num5 = common.get_bits(17, 16, num3);
+                num5 = num1%num2;
 
                 registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num4 & 0x0000ffff);
                 registers["EDX"] = ((registers["EDX"]) & 0xffff0000) | (num5 & 0x0000ffff);
 
-                setOverflowCarry16(num5);
+                
 
                 dispWithoutSIB = common.getHex(disp, 0, 0) + "\n";
             }
             else
             {
+                unsigned int temp1,temp2;
+                temp1=registers["EAX"];
+                temp2=registers["EDX"];
                 long num1 = (unsigned int)memories32bit[common.getHex(disp, 0, 0)];
                 memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(disp, 0, 0));
 
-                long num2 = (unsigned int)registers["EAX"];
-                long num3 = num1 * num2;
+                long num2 = (temp2<<32)|temp1;
+                long num3 = num2 / num1;
                 unsigned int num4 = common.get_bits(1, 32, num3);
-                unsigned int num5 = common.get_bits(33, 32, num3);
+                unsigned int num5 = num2%num1;
 
-                setOverflowCarry32(num5);
+                
                 registers["EAX"] = num4;
                 registers["EDX"] = num5;
 
@@ -151,14 +157,14 @@ string Multiplier_addOverride::decode_displacement_without_SIB(int w, int mod, i
                 memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(*list3[rm % 4] + disp, 0, 0));
             }
 
-            num1 = common.get_bits(1, 8, registers["EAX"]);
-            num3 = num1 * num2;
+            num1 = common.get_bits(1, 16, registers["EAX"]);
+            num3 = num1 / num2;
             num4 = common.get_bits(1, 8, num3);
-            num4 = common.get_bits(9, 8, num3);
+            num4 = num1%num2;
 
-            registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num3 & 0x0000ffff);
-
-            setOverflowCarry8(num5);
+            registers["EAX"] = ((registers["EAX"]) & 0xffffff00) | (num4 & 0x000000ff);
+            registers["EAX"] = ((registers["EAX"]) & 0xffff00ff) | ((num5<<8) & 0x0000ff00);
+            
 
             dispWithoutSIB = common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ") \n";
         }
@@ -166,6 +172,10 @@ string Multiplier_addOverride::decode_displacement_without_SIB(int w, int mod, i
         {
             if (opSize)
             {
+                uint16_t temp1,temp2;
+                temp1=common.get_bits(1, 16, registers["EAX"]);
+                temp2=common.get_bits(1, 16, registers["EDX"]);
+
                 int num1, num2, num3;
                 uint16_t num4, num5;
 
@@ -180,20 +190,23 @@ string Multiplier_addOverride::decode_displacement_without_SIB(int w, int mod, i
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(*list3[rm % 4] + disp, 0, 0));
                 }
 
-                num1 = common.get_bits(1, 16, registers["EAX"]);
-                num3 = num1 * num2;
+                num1 = (temp2<<16)|temp1;
+                num3 = num1 / num2;
                 num4 = common.get_bits(1, 16, num3);
-                num5 = common.get_bits(17, 16, num3);
+                num5 = num1%num2;
 
                 registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num4 & 0x0000ffff);
                 registers["EDX"] = ((registers["EDX"]) & 0xffff0000) | (num5 & 0x0000ffff);
 
-                setOverflowCarry16(num5);
+                
 
                 dispWithoutSIB = common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ") \n";
             }
             else
             {
+                unsigned int temp1,temp2;
+                temp1=registers["EAX"];
+                temp2=registers["EDX"];
                 long num1, num2, num3;
                 unsigned int num4, num5;
                 if (rm < 4)
@@ -206,12 +219,12 @@ string Multiplier_addOverride::decode_displacement_without_SIB(int w, int mod, i
                     num1 = (unsigned int)memories32bit[common.getHex(*list3[rm % 4] + disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(*list3[rm % 4] + disp, 0, 0));
                 }
-                num2 = (unsigned)registers["EAX"];
-                num3 = num1 * num2;
+                num2 = (temp2<<32)|temp1;
+                num3 = num2/ num1;
                 num4 = common.get_bits(1, 32, num3);
-                num5 = common.get_bits(33, 32, num3);
+                num5 = num2%num1;
 
-                setOverflowCarry32(num5);
+                
 
                 registers["EAX"] = num4;
                 registers["EDX"] = num5;
@@ -224,7 +237,7 @@ string Multiplier_addOverride::decode_displacement_without_SIB(int w, int mod, i
     return dispWithoutSIB;
 };
 
-string Multiplier_addOverride::decode_mod_00(int w, int rm)
+string Divider_addOverride::decode_mod_00(int w, int rm)
 {
     string string00 = "";
     if (rm == 6)
@@ -251,26 +264,30 @@ string Multiplier_addOverride::decode_mod_00(int w, int rm)
                 memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(*list3[rm % 4], 0, 0));
             }
 
-            num1 = common.get_bits(1, 8, registers["EAX"]);
-            num3 = num1 * num2;
+            num1 = common.get_bits(1, 16, registers["EAX"]);
+            num3 = num1 / num2;
             num4 = common.get_bits(1, 8, num3);
-            num5 = common.get_bits(9, 8, num3);
+            num5 = num1%num2;
 
-            registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num3 & 0x0000ffff);
+            registers["EAX"] = ((registers["EAX"]) & 0xffffff00) | (num4 & 0x000000ff);
+            registers["EAX"] = ((registers["EAX"]) & 0xffff00ff) | ((num5<<8) & 0x0000ff00); 
 
-            setOverflowCarry8(num5);
+            
         }
         else if (w == 1)
         {
             if (opSize)
             {
+                uint16_t temp1,temp2;
+                temp1=common.get_bits(1, 16, registers["EAX"]);
+                temp2=common.get_bits(1, 16, registers["EDX"]);
 
                 string00 = "(%" + regs_16bitmode[rm] + ")\n";
 
                 int num1, num2, num3;
                 uint16_t num4, num5;
 
-                num1 = common.get_bits(1, 16, registers["EAX"]);
+                num1 = (temp2<<16)|temp1;
 
                 if (rm < 4)
                 {
@@ -283,17 +300,20 @@ string Multiplier_addOverride::decode_mod_00(int w, int rm)
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(*list3[rm % 4], 0, 0));
                 }
 
-                num3 = num1 * num2;
+                num3 = num1 / num2;
                 num4 = common.get_bits(1, 16, num3);
-                num5 = common.get_bits(17, 16, num3);
+                num5 = num1%num2;
 
                 registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num4 & 0x0000ffff);
                 registers["EDX"] = ((registers["EDX"]) & 0xffff0000) | (num5 & 0x0000ffff);
 
-                setOverflowCarry16(num5);
             }
             else
             {
+                unsigned int temp1,temp2;
+                temp1=registers["EAX"];
+                temp2=registers["EDX"];
+
                 long num1, num2, num3;
                 unsigned int num4, num5;
 
@@ -308,10 +328,10 @@ string Multiplier_addOverride::decode_mod_00(int w, int rm)
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(*list3[rm % 4], 0, 0));
                 }
 
-                num2 = (unsigned int)registers["EAX"];
-                num3 = num1 * num2;
+                num2 = (temp2<<32)|temp1;
+                num3 = num2 / num1;
                 num4 = common.get_bits(1, 32, num3);
-                num5 = common.get_bits(33, 32, num3);
+                num5 = num2%num1;
 
                 string00 = "(%" + regs_16bitmode[rm] + ")\n";
                 registers["EAX"] = num4;
@@ -323,46 +343,43 @@ string Multiplier_addOverride::decode_mod_00(int w, int rm)
     return string00;
 }
 
-string Multiplier_addOverride::decode_mod_01(int w, int rm)
+string Divider_addOverride::decode_mod_01(int w, int rm)
 {
     string string01 = decode_displacement_without_SIB(w, 1, rm);
     return string01;
 }
 
-string Multiplier_addOverride::decode_mod_10(int w, int rm)
+string Divider_addOverride::decode_mod_10(int w, int rm)
 {
     string string10 = decode_displacement_without_SIB(w, 2, rm);
     return string10;
 }
 
-string Multiplier_addOverride::decode_mod_11(int w, int rm)
+string Divider_addOverride::decode_mod_11(int w, int rm)
 {
     string string11 = "";
     if (w == 0)
     {
-        int16_t num1, num2, num3;
+        int16_t num1, num2;
+        int16_t num3;
         uint8_t num4, num5;
 
-        num1 = common.get_bits(1, 8, registers["EAX"]);
+        num1 = common.get_bits(1, 16, registers["EAX"]);
 
         if (rm < 4)
         {
             num2 = common.get_bits(1, 8, registers[regs_32[rm]]);
-            num3 = num1 * num2;
-            num4 = common.get_bits(1, 8, num3);
-            num5 = common.get_bits(9, 8, num3);
-            registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num3 & 0x0000ffff);
         }
         else
         {
             num2 = common.get_bits(9, 8, registers[regs_32[rm % 4]]);
-            num3 = num1 * num2;
-            num4 = common.get_bits(1, 8, num3);
-            num5 = common.get_bits(9, 8, num3);
-            registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num3 & 0x0000ffff);
         }
 
-        setOverflowCarry8(num5);
+        num3 = num1 / num2;
+        num4 = common.get_bits(1, 8, num3);
+        num5 = num1 % num2;
+        registers["EAX"] = ((registers["EAX"]) & 0xffffff00) | (num4 & 0x000000ff);
+        registers["EAX"] = ((registers["EAX"]) & 0xffffff00) | ((num5 << 8) & 0x0000ff00);
 
         string11 = "%" + regs_8[rm] + "\n";
     }
@@ -370,46 +387,56 @@ string Multiplier_addOverride::decode_mod_11(int w, int rm)
     {
         if (opSize)
         {
-            // printf("w:0 and d:0 \n");
-
-            int num1, num2, num3;
+            uint16_t temp1, temp2;
+            int num1, num2;
+            int num3;
             uint16_t num4, num5;
 
-            num1 = common.get_bits(1, 16, registers["EAX"]);
+            temp1 = common.get_bits(1, 16, registers["EAX"]);
+            temp2 = common.get_bits(1, 16, registers["EDX"]);
+            num1 = (temp2 << 16) | temp1;
             num2 = common.get_bits(1, 16, registers[regs_32[rm]]);
-            num3 = num1 * num2;
+            num3 = num1 / num2;
             num4 = common.get_bits(1, 16, num3);
-            num5 = common.get_bits(17, 16, num3);
+            num5 = num1 % num2;
             registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num4 & 0x0000ffff);
             registers["EDX"] = ((registers["EDX"]) & 0xffff0000) | (num5 & 0x0000ffff);
-
-            setOverflowCarry16(num5);
 
             string11 = "%" + regs_16[rm] + "\n";
         }
         else
         {
-            // printf("w:1 and d:0 \n");
-            long num1 = (unsigned int)registers["EAX"];
+            unsigned int temp1, temp2;
+            temp1 = registers["EAX"];
+            temp2 = registers["EDX"];
+
+            long num1 = (temp2 << 32) | temp1;
             long num2 = (unsigned int)registers[regs_32[rm]];
-            long num3 = num1 + num2;
+
+            // cout << "EAX:" << common.getHex(num1,0,0) << " ; " << regs_32[rm] <<":"<<common.getHex((unsigned long int)num2,0,0)<<"\n";
+
+            long int num3 = num1 / num2;
+            // cout << "out:" << common.getHex((unsigned long int)num3,0,0)<<"\n";
+            // cout << sizeof(int) <<":"<<sizeof(long int)<<"\n";
+
             unsigned int num4 = common.get_bits(1, 32, num3);
-            unsigned int num5 = common.get_bits(33, 32, num3);
+            unsigned int num5 = num1 % num2;
+
+            // cout << "num4:"<<common.getHex(num4,0,0)<<" ; num5:"<<common.getHex(num5,0,0)<<"\n";
             registers["EAX"] = num4;
             registers["EDX"] = num5;
-
-            setOverflowCarry32(num5);
 
             string11 = "%" + regs_32[rm] + "\n";
         }
     }
+    return string11;
 
     return string11;
 }
 
-string Multiplier_addOverride::decode_mul(short prefixes[4])
+string Divider_addOverride::decode_div(short prefixes[4])
 {
-    printf("Multiplier when address override is present\n");
+    printf("Divider when address override is present\n");
 
     short opCode = instruction.front();
     bool w = common.get_bits(1, 1, opCode);
@@ -454,38 +481,3 @@ string Multiplier_addOverride::decode_mul(short prefixes[4])
     return decoded_bytes;
 }
 
-void Multiplier_addOverride::setOverflowCarry8(uint8_t num)
-{
-    if (num > 0)
-    {
-        registers["EFLAGS"] = registers["EFLAGS"] | 0x801;
-    }
-    else
-    {
-        registers["EFLAGS"] = registers["EFLAGS"] & 0xfffff7fe;
-    }
-}
-
-void Multiplier_addOverride::setOverflowCarry16(uint16_t num)
-{
-    if (num > 0)
-    {
-        registers["EFLAGS"] = registers["EFLAGS"] | 0x801;
-    }
-    else
-    {
-        registers["EFLAGS"] = registers["EFLAGS"] & 0xfffff7fe;
-    }
-}
-
-void Multiplier_addOverride::setOverflowCarry32(unsigned int num)
-{
-    if (num > 0)
-    {
-        registers["EFLAGS"] = registers["EFLAGS"] | 0x801;
-    }
-    else
-    {
-        registers["EFLAGS"] = registers["EFLAGS"] & 0xfffff7fe;
-    }
-}

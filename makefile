@@ -1,13 +1,14 @@
 CC=gcc
 CXX=g++
 CFLAGS=-I
-DEPS=adder.h immediate.h common.h bitset.h mov.h mov_immediate.h
+DEPS=adder.h immediate.h common.h bitset.h mov.h mov_immediate.h mul.h
 
 %.o:%.cpp $(DEPS)
 	$(CXX) -c -o $@ $< 
 	
-main: main.o common.o adder.o adder_addOverride.o immediate.o immediate_addOverride.o bitset.o bitset_addOverride.o mov.o mov_immediate.o mov_override.o mov_override_immediate.o And.o andOverride.o
-	$(CXX) -o main main.o common.o adder.o adder_addOverride.o immediate.o immediate_addOverride.o bitset.o bitset_addOverride.o mov.o mov_immediate.o mov_override.o mov_override_immediate.o And.o andOverride.o
+main: main.o common.o adder.o adder_addOverride.o immediate.o immediate_addOverride.o bitset.o bitset_addOverride.o mov.o mov_immediate.o mov_override.o mov_override_immediate.o And.o andOverride.o mul.o
+	$(CXX) -o main main.o common.o adder.o adder_addOverride.o immediate.o immediate_addOverride.o bitset.o bitset_addOverride.o mov.o mov_immediate.o mov_override.o mov_override_immediate.o And.o andOverride.o mul.o
+
 	
 #adder.o:adder.cpp adder.h 
 #	$(CXX) -c -o $@ $^

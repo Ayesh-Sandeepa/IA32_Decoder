@@ -11,6 +11,7 @@
 #include "bitset.h"
 #include "mov.h"
 #include "And.h"
+#include "mul.h"
 
 using namespace std;
 
@@ -77,6 +78,7 @@ int main()
     Bitset bitset(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
     Mov mov(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
     And and_(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+    Multiplier multiplier(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
 
     stringstream sss;
     string test_data, word;
@@ -158,6 +160,8 @@ int main()
                 if (nextOpcode == 0x0 or nextOpcode == 0x1 or nextOpcode == 0x2 or nextOpcode == 0x3 or nextOpcode == 0x4 or nextOpcode == 0x5 or nextOpcode == 0x80 or nextOpcode == 0x81 or nextOpcode == 0x83)
                 {
                     adder.decode_add(prefixes);
+                }else if(nextOpcode==0xf6 or nextOpcode==0xf7){
+                    multiplier.decode_mul(prefixes);
                 }
                 else if (nextOpcode == 0x88 or nextOpcode == 0x89 or nextOpcode == 0x8a or nextOpcode == 0x8b or nextOpcode == 0xb0 or nextOpcode == 0xb8 or nextOpcode == 0xc6 or nextOpcode == 0xc7)
                 {

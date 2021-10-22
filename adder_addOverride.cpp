@@ -132,7 +132,7 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
                     num3 = num1 + num2;
                     num4 = unsigned(num3);
 
-                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
+                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((num3<<8) & 0x0000ff00);
                 }
 
                 common.setOverflow8bit(num1, num2, num3, registers);
@@ -318,7 +318,7 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
                     num3 = num1 + num2;
                     num4 = unsigned(num3);
 
-                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
+                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((num3<<8) & 0x0000ff00);
                 }
 
                 common.setOverflow8bit(num1, num2, num3, registers);
@@ -565,7 +565,7 @@ string Adder_addOverride::decode_mod_00(int w, int d, int reg, int rm)
                     num3 = num1 + num2;
                     num4 = unsigned(num3);
 
-                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
+                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((num3<<8) & 0x0000ff00);
                 }
 
                 common.setOverflow8bit(num1, num2, num3, registers);

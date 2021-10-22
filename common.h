@@ -13,7 +13,7 @@ class Common{
     private:
 
     public:
-        int get_bits(int pos, int noOfBits, int number);
+        int get_bits(int pos, int noOfBits, long number);
         int assemble_bits(int bytes, queue<short> &instruction, map<string, int> &registers);
         void setZero(int number, map<string, int> &registers);
         void setSign(int number, map<string, int> &registers);
@@ -26,6 +26,7 @@ class Common{
 
         void listQueue(queue<short> myQueue);
         string getHex(int num, int width, char fill);
+        string getHexLong(long num, int width, char fill);
 };
 
 #endif 

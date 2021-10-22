@@ -392,8 +392,6 @@ string Inc_override::decode_mod_11(int w, int rm)
 
 string Inc_override::decode_inc(short prefixes[4])
 {
-    printf ("Inc when address override is present\n");
-
     short opCode = instruction.front();
     bool w = common.get_bits(1, 1, opCode);
 
@@ -423,6 +421,7 @@ string Inc_override::decode_inc(short prefixes[4])
     }
     else
     {
+        printf ("Inc when address override is present\n");
         instruction.pop();
         registers["EIP"] = registers["EIP"] + 1;
         if (mod == 0)
@@ -441,6 +440,7 @@ string Inc_override::decode_inc(short prefixes[4])
         {
             decoded_bytes = decode_mod_11(w, rm);
         }
+        return "inc " + decoded_bytes;
     }    
-    return "inc " + decoded_bytes;
+    return decoded_bytes;
 }

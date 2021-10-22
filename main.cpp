@@ -10,6 +10,7 @@
 #include "adder.h"
 #include "bitset.h"
 #include "mov.h"
+#include "inc_dec.h"
 
 using namespace std;
 
@@ -75,6 +76,8 @@ int main()
     Adder adder(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
     Bitset bitset(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
     Mov mov(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+    Inc inc(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+    Dec dec(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
 
     stringstream sss;
     string test_data, word;
@@ -160,6 +163,10 @@ int main()
                 else if (nextOpcode == 0x88 or nextOpcode == 0x89 or nextOpcode == 0x8a or nextOpcode == 0x8b or nextOpcode == 0xb0 or nextOpcode == 0xb8 or nextOpcode == 0xc6 or nextOpcode == 0xc7)
                 {
                     mov.decode_mov(prefixes);
+                }
+                else if (nextOpcode == 0xfe or nextOpcode == 0xff or nextOpcode == 0x40 or nextOpcode == 0x48)
+                {
+                    inc.decode_inc(prefixes);
                 }
                 else
                 {

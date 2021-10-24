@@ -11,6 +11,7 @@
 #include "bitset.h"
 #include "mov.h"
 #include "inc_dec.h"
+#include "left_right_shift.h"
 
 using namespace std;
 
@@ -76,8 +77,8 @@ int main()
     Adder adder(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
     Bitset bitset(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
     Mov mov(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-    Inc inc(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-    Dec dec(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+    Inc incDec(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+    Left_shift LeftRightShift(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
 
     stringstream sss;
     string test_data, word;
@@ -166,7 +167,13 @@ int main()
                 }
                 else if (nextOpcode == 0xfe or nextOpcode == 0xff or nextOpcode == 0x40 or nextOpcode == 0x48)
                 {
-                    inc.decode_inc(prefixes);
+                    // for both Increment and Decrement
+                    incDec.decode_inc(prefixes);
+                }
+                else if (nextOpcode == 0xc0 or nextOpcode == 0xc1 or nextOpcode == 0xd0 or nextOpcode == 0xd1 or nextOpcode == 0xd2 or nextOpcode == 0xd3)
+                {
+                    //for both Left shift and Right shift
+                    LeftRightShift.decode_shl(prefixes);
                 }
                 else
                 {

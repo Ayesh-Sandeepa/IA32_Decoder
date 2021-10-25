@@ -1,0 +1,168 @@
+add %ECX,%EAX
+EAX: bf8db144
+ECX: 4853813f
+EDX: 1
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: a07
+ 
+mul %CX
+EAX: bf8de3bc
+ECX: 4853813f
+EDX: 597e
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: a07
+ 
+div %CL
+EAX: bf8d199d
+ECX: 4853813f
+EDX: 597e
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: a07
+ 
+not %CH
+EAX: bf8d199d
+ECX: 48537e3f
+EDX: 597e
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: a07
+ 
+neg %EBP
+EAX: bf8d199d
+ECX: 48537e3f
+EDX: 597e
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: 40724ee8
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: a07
+ 
+xor %ESP,%EBX
+EAX: bf8d199d
+ECX: 48537e3f
+EDX: 597e
+EBX: ae5ff4
+ESP: bf23ef48
+EBP: 40724ee8
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 286
+ 
+or %CX,%BX
+EAX: bf8d199d
+ECX: 48537fff
+EDX: 597e
+EBX: ae5ff4
+ESP: bf23ef48
+EBP: 40724ee8
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 206
+ 
+CMP %EAX,$0xad1b3268
+EAX: bf8d199d
+ECX: 48537fff
+EDX: 597e
+EBX: ae5ff4
+ESP: bf23ef48
+EBP: 40724ee8
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: a07
+ 
+AND %CX,$0x5634
+EAX: bf8d199d
+ECX: 4853d633
+EDX: 597e
+EBX: ae5ff4
+ESP: bf23ef48
+EBP: 40724ee8
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: a86
+ 
+mov 0x2(%(BP+DI)),%EAX
+EAX: bf8d199d
+ECX: 4853d633
+EDX: 597e
+EBX: ae5ff4
+ESP: bf23ef48
+EBP: 40724ee8
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: a86
+ 
+shl %DL
+EAX: bf8d199d
+ECX: 4853d633
+EDX: 59fc
+EBX: ae5ff4
+ESP: bf23ef48
+EBP: 40724ee8
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: a06
+ 
+inc %EAX
+EAX: bf8d199d
+ECX: 4853d633
+EDX: 59fc
+EBX: ae5ff4
+ESP: bf23ef48
+EBP: 40724ee8
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 286
+ 
+bt 0x4(%EDI),%EDX 
+EAX: bf8d199d
+ECX: 4853d633
+EDX: 59fc
+EBX: ae5ff4
+ESP: bf23ef48
+EBP: 40724ee8
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 286
+ 
+shr %ECX
+EAX: bf8d199d
+ECX: 4853d633
+EDX: 59fc
+EBX: ae5ff4
+ESP: bf23ef48
+EBP: 40724ee8
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 207
+ 
+dec %AL
+EAX: bf8d199c
+ECX: 4853d633
+EDX: 59fc
+EBX: ae5ff4
+ESP: bf23ef48
+EBP: 40724ee8
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 287
+ 
+mov 0x2(%(BP+DI)),%EAX
+Write -1081271907 to 0x4eea
+Read 28 from 0x4

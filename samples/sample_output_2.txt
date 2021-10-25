@@ -1,0 +1,179 @@
+add %EAX,0x80(,%ECX,2)
+EAX: bf8db144
+ECX: 88c5cffb
+EDX: 1
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 286
+ 
+mul (%EBX)
+EAX: 0
+ECX: 88c5cffb
+EDX: 0
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 286
+ 
+div (%EDX,%EBX,2)
+EAX: 0
+ECX: 88c5cffb
+EDX: 0
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 286
+ 
+not 0x80(,%ECX,2)
+EAX: 0
+ECX: 88c5cffb
+EDX: 0
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 286
+ 
+neg %BL
+EAX: 0
+ECX: 88c5cffb
+EDX: 0
+EBX: ae5f0c
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 286
+ 
+or %AL,%CL
+EAX: fb
+ECX: 88c5cffb
+EDX: 0
+EBX: ae5f0c
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 286
+ 
+CMP %AX,$0x0042
+EAX: fb
+ECX: 88c5cffb
+EDX: 0
+EBX: ae5f0c
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 206
+ 
+AND %ECX,$0x453d5634
+EAX: fb
+ECX: ce03262f
+EDX: 0
+EBX: ae5f0c
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 286
+ 
+mov %AX,
+EAX: 0
+ECX: ce03262f
+EDX: 0
+EBX: ae5f0c
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 286
+ 
+shl %DX
+EAX: 0
+ECX: ce03262f
+EDX: 0
+EBX: ae5f0c
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 206
+ 
+shr (%EAX)
+EAX: 0
+ECX: ce03262f
+EDX: 0
+EBX: ae5f0c
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 206
+ 
+dec %AL
+EAX: ff
+ECX: ce03262f
+EDX: 0
+EBX: ae5f0c
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 286
+ 
+dec (%EAX)
+EAX: ff
+ECX: ce03262f
+EDX: 0
+EBX: ae5f0c
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 286
+ 
+xor %EDX,%EBX
+EAX: ff
+ECX: ce03262f
+EDX: ae5f0c
+EBX: ae5f0c
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 206
+ 
+bt %ECX,%EDX
+EAX: ff
+ECX: ce03262f
+EDX: ae5f0c
+EBX: ae5f0c
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 206
+ 
+Read 0 from 0x118ba076
+Read 0x0 from 0xae5ff4
+Read 0 from 0x15d3faa
+not 0x80(,%ECX,2)
+Read 0 from 0x118ba076
+write -1 to 0x118ba076
+mov %AX,
+Read 0 from 
+shr (%EAX)
+Read 0 from 0x0
+write 0 to 0x0
+dec (%EAX)
+Read 0 from 0xff
+write -1 to 0xff

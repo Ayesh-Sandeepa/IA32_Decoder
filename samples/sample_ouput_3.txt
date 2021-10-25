@@ -1,0 +1,169 @@
+add %EBX,$0xffffff80
+EAX: bf8db144
+ECX: 88c5cffb
+EDX: 1
+EBX: ae5f74
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 207
+ 
+mul 0x80(,%ECX,2)
+EAX: 0
+ECX: 88c5cffb
+EDX: 0
+EBX: ae5f74
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 207
+ 
+div 0x80(,%ECX,2)
+EAX: 0
+ECX: 88c5cffb
+EDX: 0
+EBX: ae5f74
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 207
+ 
+not (%EDX,%EBX,2)
+EAX: 0
+ECX: 88c5cffb
+EDX: 0
+EBX: ae5f74
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 207
+ 
+xor %ESP,$0x2d3c2b3d
+EAX: 0
+ECX: 88c5cffb
+EDX: 0
+EBX: ae5f74
+ESP: 92b19b81
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 286
+ 
+or %EDI,$0xe3392d6c
+EAX: 0
+ECX: 88c5cffb
+EDX: 0
+EBX: ae5f74
+ESP: 92b19b81
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: e3392d6c
+EFLAGS: 286
+ 
+AND (%EAX), $0xffffff8a
+EAX: 0
+ECX: 88c5cffb
+EDX: 0
+EBX: ae5f74
+ESP: 92b19b81
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: e3392d6c
+EFLAGS: 206
+ 
+mov %EDX,0x2(%EAX) 
+EAX: 0
+ECX: 88c5cffb
+EDX: 0
+EBX: ae5f74
+ESP: 92b19b81
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: e3392d6c
+EFLAGS: 206
+ 
+shl %EAX
+EAX: 0
+ECX: 88c5cffb
+EDX: 0
+EBX: ae5f74
+ESP: 92b19b81
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: e3392d6c
+EFLAGS: 206
+ 
+neg %ESI
+EAX: 0
+ECX: 88c5cffb
+EDX: 0
+EBX: ae5f74
+ESP: 92b19b81
+EBP: bf8db118
+ESI: ff65f360
+EDI: e3392d6c
+EFLAGS: 206
+ 
+shl (%(BP+SI))
+EAX: 0
+ECX: 88c5cffb
+EDX: 0
+EBX: ae5f74
+ESP: 92b19b81
+EBP: bf8db118
+ESI: ff65f360
+EDI: e3392d6c
+EFLAGS: 206
+ 
+inc %AX
+EAX: 1
+ECX: 88c5cffb
+EDX: 0
+EBX: ae5f74
+ESP: 92b19b81
+EBP: bf8db118
+ESI: ff65f360
+EDI: e3392d6c
+EFLAGS: 206
+ 
+dec (%ESI)
+EAX: 1
+ECX: 88c5cffb
+EDX: 0
+EBX: ae5f74
+ESP: 92b19b81
+EBP: bf8db118
+ESI: ff65f360
+EDI: e3392d6c
+EFLAGS: 286
+ 
+bt %CX,%AX
+EAX: 1
+ECX: 88c5cffb
+EDX: 0
+EBX: ae5f74
+ESP: 92b19b81
+EBP: bf8db118
+ESI: ff65f360
+EDI: e3392d6c
+EFLAGS: 287
+ 
+Read 0 from 0x118ba076
+Read 0 from 0x118ba076
+not (%EDX,%EBX,2)
+Read 0 from 0x15d3df7
+write -1 to 0x15d3df7
+Read 0 from 0x0
+write 7 to 0x0
+mov %EDX,0x2(%EAX)
+Read 0 from 0x2
+shl (%(BP+SI)),%
+Read 0 form 0x1a478
+Write 0 to 0x1a478
+dec (%ESI)
+Read 0 from 0xff65f360
+write -1 to 0xff65f360

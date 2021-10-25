@@ -17,15 +17,18 @@
 #include "Cmp.h"
 #include "Or.h"
 #include "Xor.h"
-
+#include "divider.h"
+#include "not.h"
 
 using namespace std;
 
 void listQueue(queue<short> myQueue);
 
-queue<short> getTempQueue(queue<short> Q) {
-    queue<short>Q2;
-    for (int i = 0; i < Q.size(); i++) {
+queue<short> getTempQueue(queue<short> Q)
+{
+    queue<short> Q2;
+    for (int i = 0; i < Q.size(); i++)
+    {
         short ele = Q.front();
         Q2.push(ele);
         Q.pop();
@@ -92,6 +95,7 @@ int main()
     Common common;
     Adder adder(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
     Bitset bitset(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+
     Mov mov(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
     Inc incDec(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
     Left_shift LeftRightShift(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
@@ -100,6 +104,8 @@ int main()
     Cmp cmp(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
     Or or_(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
     Xor xor_(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+    Divider divider(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+    Not notobject(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
 
 
     stringstream sss;
@@ -121,77 +127,84 @@ int main()
 
         nextOpcode = encoded_instructions.front();
 
-        //cout << "Next opcode : " << nextOpcode << "\n";
+        // cout << "Next opcode : " << nextOpcode << "\n";
 
-        //common.listQueue(encoded_instructions);
-        //cout << "Next opcode:" << common.getHex(nextOpcode, 0, 0) << "\n";
+        // common.listQueue(encoded_instructions);
+        // cout << "Next opcode:" << common.getHex(nextOpcode, 0, 0) << "\n";
         if (nextOpcode == 0xf0 or nextOpcode == 0xf2 or nextOpcode == 0xf3)
         {
-            //printf("Prefix 1 set\n");
+            // printf("Prefix 1 set\n");
             prefixes[0] = nextOpcode;
             encoded_instructions.pop();
         }
         else if (nextOpcode == 0x2e or nextOpcode == 0x36 or nextOpcode == 0x3e or nextOpcode == 0x26 or nextOpcode == 0x64 or nextOpcode == 0x65)
         {
-            //printf("Prefix 2 set\n");
+            // printf("Prefix 2 set\n");
             prefixes[1] = nextOpcode;
             encoded_instructions.pop();
         }
         else if (nextOpcode == 0x66)
         {
-            //printf("Prefix 3 set\n");
+            // printf("Prefix 3 set\n");
             prefixes[2] = nextOpcode;
             encoded_instructions.pop();
         }
         else if (nextOpcode == 0x67)
         {
-            //printf("Prefix 4 set\n");
+            // printf("Prefix 4 set\n");
             prefixes[3] = nextOpcode;
             encoded_instructions.pop();
         }
         else if (nextOpcode == 0x0f)
         {
             twoBytesOpcode = true;
-            //printf("Two byte opcode enables\n");
+            // printf("Two byte opcode enables\n");
             encoded_instructions.pop();
         }
         else if (twoBytesOpcode == true and nextOpcode == 0x38)
         {
             threeBytesOpcode = true;
-            //printf("Three byte opcode enables\n");
+            // printf("Three byte opcode enables\n");
             encoded_instructions.pop();
         }
         else
         {
             if (threeBytesOpcode)
             {
-                //printf("Three bytes opcode \n");
+                // printf("Three bytes opcode \n");
             }
             else if (twoBytesOpcode)
             {
-                //printf("Two bytes opcode \n");
+                // printf("Two bytes opcode \n");
                 if (nextOpcode == 0xa3 or nextOpcode == 0xba)
                 {
-                    //printf("Opcode a3 or ba \n");
+                    // printf("Opcode a3 or ba \n");
                     bitset.decode_bt(prefixes);
                 }
             }
             else
             {
-                //printf("One byte opcode \n");
-
                 queue<short> encoded_instructions_temp = getTempQueue(encoded_instructions);
                 encoded_instructions_temp.pop();
-                short modrm = encoded_instructions_temp.front();   
+                short modrm = encoded_instructions_temp.front();
                 int reg = common.get_bits(4, 3, modrm);
 
-                if (nextOpcode == 0x0 or nextOpcode == 0x1 or nextOpcode == 0x2 or nextOpcode == 0x3 or nextOpcode == 0x4 or nextOpcode == 0x5 or ((nextOpcode == 0x80 or nextOpcode == 0x81 or nextOpcode == 0x83) and (reg == 0)))
+                // printf("One byte opcode \n");
+                if (nextOpcode == 0x0 or nextOpcode == 0x1 or nextOpcode == 0x2 or nextOpcode == 0x3 or nextOpcode == 0x4 or nextOpcode == 0x5 or ((nextOpcode == 0x80 or nextOpcode == 0x81 or nextOpcode == 0x83) and reg==0))
                 {
                     adder.decode_add(prefixes);
-                   
-                }else if(nextOpcode==0xf6 or nextOpcode==0xf7){
-
+                }
+                else if ((nextOpcode == 0xf6 or nextOpcode == 0xf7) and reg==4)
+                {
                     multiplier.decode_mul(prefixes);
+                }
+                else if ((nextOpcode == 0xf6 or nextOpcode == 0xf7) and reg==6)
+                {
+                    divider.decode_div(prefixes);
+                }
+                else if ((nextOpcode == 0xf6 or nextOpcode == 0xf7) and reg==2)
+                {
+                    notobject.decode_not(prefixes);
                 }
                 else if (nextOpcode == 0x88 or nextOpcode == 0x89 or nextOpcode == 0x8a or nextOpcode == 0x8b or nextOpcode == 0xb0 or nextOpcode == 0xb8 or nextOpcode == 0xc6 or nextOpcode == 0xc7)
                 {

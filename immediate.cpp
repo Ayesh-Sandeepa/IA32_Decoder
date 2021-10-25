@@ -1214,10 +1214,10 @@ string Immediate::decode_mod_00(int w, int s, int rm)
                 else
                 {
                     int8_t num = common.assemble_bits(1, instruction, registers);
-                    int num1 = memories32bit[common.getHex(registers[regs_32[rm]], 0, 0)];
-                    memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[rm]], 0, 0));
+                    int num1 = memories32bit[common.getHex((unsigned int)registers[regs_32[rm]], 0, 0)];
+                    memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex((unsigned int)registers[regs_32[rm]], 0, 0));
 
-                    int num2 = num2;
+                    int num2 = num;
                     int num3 = num1 + num2;
                     unsigned int num4 = unsigned(num3);
 
@@ -1227,8 +1227,8 @@ string Immediate::decode_mod_00(int w, int s, int rm)
                     common.setZero(num3, registers);
 
                     string00 = "(%" + regs_32[rm] + "), $" + common.getHex(num, 8, 'f') + "\n";
-                    memories32bit[common.getHex(registers[regs_32[rm]], 0, 0)] = num3;
-                    memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[rm]], 0, 0));
+                    memories32bit[common.getHex((unsigned int)registers[regs_32[rm]], 0, 0)] = num3;
+                    memoryAccesses.push_back("write " + common.getHex((unsigned int)num3,0,0) + " to " + common.getHex(registers[regs_32[rm]], 0, 0));
                 }
             }
         }

@@ -15,47 +15,23 @@ int main()
 {
    map<string, int> memories32bit;
 
-   /*
-   int x = 0xBFEE19; // 0xBFEE19
-   for (size_t i = 0; i < sizeof(x); ++i)
-   {
-      // Convert to unsigned char* because a char is 1 byte in size.
-      // That is guaranteed by the standard.
-      // Note that is it NOT required to be 8 bits in size.
-      unsigned char byte = *((unsigned char *)&x + i);
-      printf("Byte %d = %u\n", i, (unsigned)byte);
-   }
+   unsigned long temp1 = 0xa8be2345;
+   unsigned int temp2 = 0xbf8d0002;
 
-   uint16_t *num=(uint16_t *)&x;
-   uint8_t *num1=(uint8_t *)&x;
+   long long num1 = (temp1 << 32) | temp2;
+   cout << hex << num1 << "\n";
 
-   printf("First 16 bits:%d\n", *num);
-   printf("First 8 bits:%d\n", *num1);
-   */
+   long num2 = 0xbf8db0bc;
 
-   int8_t num1 = 0x54;
+   long long q = num1 / num2;
+   long r = num1 % num2;
 
-   //stringstream ms;
-    //ms << "0x"  << hex <<setw(4)<<setfill('0')<<  (int)num1;
-   //cout << "0x" << std::hex << std::setw(2) << std::setfill('0')<< static_cast<unsigned int>(num1) << '\n';
-   //string rs(ms.str());
-   //cout << rs << "\n";
-
-   //cout << getHex(num1, 8) << "\n";
-
-   string result="81db283b";
-
-   stringstream ss;
-   long number;
-
-   ss<<hex<<result;
-   ss>>number;
-
-   cout << hex<<number <<"\n";
+   cout << hex << q << " ; " << hex << r << "\n";
 
    return 0;
 }
 
+/*
 string getHex(int num, int width = 0)
 {
 
@@ -116,3 +92,4 @@ int get_bits(int pos, int noOfBits, long number)
    cout << num2 << "\n";
    return (((one << noOfBits) - 1) & (number >> (pos - 1)));
 }
+*/

@@ -1487,13 +1487,17 @@ string Adder::decode_mod_00(int w, int d, int reg, int rm)
                     num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
                 }
                 num2 = memories8bit[common.getHex(registers[regs_32[rm]], 0, 0)];
-                memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[rm]], 0, 0));
+                memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex((unsigned int)registers[regs_32[rm]], 0, 0));
 
                 num3 = num1 + num2;
                 num4 = unsigned(num3);
 
-                memories8bit[common.getHex(registers[regs_32[rm]], 0, 0)] = num3;
-                memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[rm]], 0, 0));
+                cout <<"num3:"<<(int)(uint8_t)num3<<"\n";
+
+                memories8bit[common.getHex((unsigned int)registers[regs_32[rm]], 0, 0)] = (unsigned int)num3;
+                memoryAccesses.push_back("write " + common.getHex((uint8_t)num3,0,0) + " to " + common.getHex(registers[regs_32[rm]], 0, 0));
+
+                cout<< "memories8bit["<<common.getHex((unsigned int)registers[regs_32[rm]], 0, 0)<<"]:" << (int)(uint8_t)memories8bit[common.getHex((unsigned int)registers[regs_32[rm]], 0, 0)] << "\n";
 
                 common.setOverflow8bit(num1, num2, num3, registers);
                 common.setCarry8bit(num1, num4, registers);

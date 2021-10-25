@@ -685,11 +685,17 @@ string Multiplier::decode_mod_00(int w, int rm)
             }
             else
             {
-                long num1 = (unsigned int)memories32bit[common.getHex(registers[regs_32[rm]], 0, 0)];
-                memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[rm]], 0, 0));
+                long num1 = (unsigned int)memories32bit[common.getHex((unsigned int)registers[regs_32[rm]], 0, 0)];
+                memoryAccesses.push_back("Read " + common.getHex((unsigned int)num1,0,0) + " from " + common.getHex(registers[regs_32[rm]], 0, 0));
 
-                long num2 = (unsigned int)registers["EAX"]; // registers["ECX"]
+
+                long num2 = (unsigned int)registers["EAX"];
+
+                //cout << "num1:" << common.getHex((unsigned int)num1,0,0)<<" : num2:" << common.getHex((unsigned int)num2,0,0) << "\n";
+
                 long num3 = num1 * num2;
+
+                //cout << "num3:"<<common.getHexLong((unsigned long)num3,0,0)<<"\n";
                 unsigned int num4 = common.get_bits(1, 32, num3);
                 unsigned int num5 = common.get_bits(33, 32, num3);
 
@@ -817,8 +823,8 @@ string Multiplier::decode_mul(short prefixes[4])
 
     if (prefixes[3] == 0x67)
     {
-        // Adder_addOverride adder_addOverride(common, instruction, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-        // decoded_bytes = adder_addOverride.decode_add(prefixes);
+        Multiplier_addOverride multiplier_addOverride(common, instruction, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+        decoded_bytes = multiplier_addOverride.decode_mul(prefixes);
     }
     else
     {

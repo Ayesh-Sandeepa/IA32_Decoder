@@ -1492,12 +1492,12 @@ string Adder::decode_mod_00(int w, int d, int reg, int rm)
                 num3 = num1 + num2;
                 num4 = unsigned(num3);
 
-                cout <<"num3:"<<(int)(uint8_t)num3<<"\n";
+                //cout <<"num3:"<<(int)(uint8_t)num3<<"\n";
 
                 memories8bit[common.getHex((unsigned int)registers[regs_32[rm]], 0, 0)] = (unsigned int)num3;
                 memoryAccesses.push_back("write " + common.getHex((uint8_t)num3,0,0) + " to " + common.getHex(registers[regs_32[rm]], 0, 0));
 
-                cout<< "memories8bit["<<common.getHex((unsigned int)registers[regs_32[rm]], 0, 0)<<"]:" << (int)(uint8_t)memories8bit[common.getHex((unsigned int)registers[regs_32[rm]], 0, 0)] << "\n";
+                //cout<< "memories8bit["<<common.getHex((unsigned int)registers[regs_32[rm]], 0, 0)<<"]:" << (int)(uint8_t)memories8bit[common.getHex((unsigned int)registers[regs_32[rm]], 0, 0)] << "\n";
 
                 common.setOverflow8bit(num1, num2, num3, registers);
                 common.setCarry8bit(num1, num4, registers);
@@ -1702,7 +1702,7 @@ string Adder::decode_mod_11(int w, int d, int reg, int rm)
                 registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffff00ff) | ((num3 << 8) & 0x0000ff00);
             }
 
-             cout << "Num1:"<<common.getHex(num1,0,0)<<" ; Num2:"<<common.getHex(num2,0,0) << " ; Num3:"<<common.getHex(num3,0,0)<<"\n";
+             //cout << "Num1:"<<common.getHex(num1,0,0)<<" ; Num2:"<<common.getHex(num2,0,0) << " ; Num3:"<<common.getHex(num3,0,0)<<"\n";
 
             //cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
 

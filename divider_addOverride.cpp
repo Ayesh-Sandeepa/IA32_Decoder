@@ -76,20 +76,26 @@ string Divider_addOverride::decode_displacement_without_SIB(int w, int mod, int 
     {
         if (w == 0)
         {
-            int16_t num1, num2, num3;
-            uint8_t num4, num5;
+            int num1, num3;
+            int16_t num2, num5;
+            uint8_t num4;
 
             num1 = common.get_bits(1, 16, registers["EAX"]);
             num2 = memories8bit[common.getHex(disp, 0, 0)];
             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(disp, 0, 0));
 
-            num3 = num1 / num2;
-            num4 = common.get_bits(1, 8, num3);
-            num5 = num1%num2;
+            if (num2 == 0)
+            {
+            }
+            else
+            {
+                num3 = num1 / num2;
+                num4 = common.get_bits(1, 8, num3);
+                num5 = num1 % num2;
 
-            registers["EAX"] = ((registers["EAX"]) & 0xffffff00) | (num4 & 0x000000ff);
-            registers["EAX"] = ((registers["EAX"]) & 0xffff00ff) | ((num5<<8) & 0x0000ff00);
-            
+                registers["EAX"] = ((registers["EAX"]) & 0xffffff00) | (num4 & 0x000000ff);
+                registers["EAX"] = ((registers["EAX"]) & 0xffff00ff) | ((num5 << 8) & 0x0000ff00);
+            }
 
             dispWithoutSIB = common.getHex(disp, 0, 0) + "\n";
         }
@@ -97,43 +103,54 @@ string Divider_addOverride::decode_displacement_without_SIB(int w, int mod, int 
         {
             if (opSize)
             {
-                uint16_t temp1,temp2;
-                temp1=common.get_bits(1, 16, registers["EAX"]);
-                temp2=common.get_bits(1, 16, registers["EDX"]);
-                int num1, num2, num3;
-                uint16_t num4, num5;
+                uint16_t temp1, temp2;
+                int num2, num5;
+                long num1, num3;
+                uint16_t num4;
+                temp1 = common.get_bits(1, 16, registers["EAX"]);
+                temp2 = common.get_bits(1, 16, registers["EDX"]);
 
-                num1 = (temp2<<16)|temp1;
+                num1 = (temp2 << 16) | temp1;
                 num2 = memories16bit[common.getHex(disp, 0, 0)];
                 memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(disp, 0, 0));
 
-                num3 = num1 / num2;
-                num4 = common.get_bits(1, 16, num3);
-                num5 = num1%num2;
+                if (num2 == 0)
+                {
+                }
+                else
+                {
+                    num3 = num1 / num2;
+                    num4 = common.get_bits(1, 16, num3);
+                    num5 = num1 % num2;
 
-                registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num4 & 0x0000ffff);
-                registers["EDX"] = ((registers["EDX"]) & 0xffff0000) | (num5 & 0x0000ffff);
-
-                
+                    registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num4 & 0x0000ffff);
+                    registers["EDX"] = ((registers["EDX"]) & 0xffff0000) | (num5 & 0x0000ffff);
+                }
 
                 dispWithoutSIB = common.getHex(disp, 0, 0) + "\n";
             }
             else
             {
-                unsigned int temp1,temp2;
-                temp1=registers["EAX"];
-                temp2=registers["EDX"];
+                unsigned long temp1, temp2;
+                temp1 = registers["EAX"];
+                temp2 = registers["EDX"];
                 long num1 = (unsigned int)memories32bit[common.getHex(disp, 0, 0)];
                 memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(disp, 0, 0));
 
-                long num2 = (temp2<<32)|temp1;
-                long num3 = num2 / num1;
-                unsigned int num4 = common.get_bits(1, 32, num3);
-                unsigned int num5 = num2%num1;
+                long long num2 = (temp2 << 32) | temp1;
 
-                
-                registers["EAX"] = num4;
-                registers["EDX"] = num5;
+                if (num2 == 0)
+                {
+                }
+                else
+                {
+                    long long num3 = num2 / num1;
+                    unsigned int num4 = common.get_bits(1, 32, num3);
+                    unsigned long num5 = num2 % num1;
+
+                    registers["EAX"] = num4;
+                    registers["EDX"] = num5;
+                }
 
                 dispWithoutSIB = common.getHex(disp, 0, 0) + "\n";
             }
@@ -143,8 +160,9 @@ string Divider_addOverride::decode_displacement_without_SIB(int w, int mod, int 
     {
         if (w == 0)
         {
-            int16_t num1, num2, num3;
-            uint8_t num4, num5;
+            int num1, num3;
+            int16_t num2, num5;
+            uint8_t num4;
 
             if (rm < 4)
             {
@@ -158,13 +176,18 @@ string Divider_addOverride::decode_displacement_without_SIB(int w, int mod, int 
             }
 
             num1 = common.get_bits(1, 16, registers["EAX"]);
-            num3 = num1 / num2;
-            num4 = common.get_bits(1, 8, num3);
-            num4 = num1%num2;
+            if (num2 == 0)
+            {
+            }
+            else
+            {
+                num3 = num1 / num2;
+                num4 = common.get_bits(1, 8, num3);
+                num4 = num1 % num2;
 
-            registers["EAX"] = ((registers["EAX"]) & 0xffffff00) | (num4 & 0x000000ff);
-            registers["EAX"] = ((registers["EAX"]) & 0xffff00ff) | ((num5<<8) & 0x0000ff00);
-            
+                registers["EAX"] = ((registers["EAX"]) & 0xffffff00) | (num4 & 0x000000ff);
+                registers["EAX"] = ((registers["EAX"]) & 0xffff00ff) | ((num5 << 8) & 0x0000ff00);
+            }
 
             dispWithoutSIB = common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ") \n";
         }
@@ -172,12 +195,12 @@ string Divider_addOverride::decode_displacement_without_SIB(int w, int mod, int 
         {
             if (opSize)
             {
-                uint16_t temp1,temp2;
-                temp1=common.get_bits(1, 16, registers["EAX"]);
-                temp2=common.get_bits(1, 16, registers["EDX"]);
-
-                int num1, num2, num3;
-                uint16_t num4, num5;
+                uint16_t temp1, temp2;
+                int num2, num5;
+                long num1, num3;
+                uint16_t num4;
+                temp1 = common.get_bits(1, 16, registers["EAX"]);
+                temp2 = common.get_bits(1, 16, registers["EDX"]);
 
                 if (rm < 4)
                 {
@@ -190,25 +213,31 @@ string Divider_addOverride::decode_displacement_without_SIB(int w, int mod, int 
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(*list3[rm % 4] + disp, 0, 0));
                 }
 
-                num1 = (temp2<<16)|temp1;
-                num3 = num1 / num2;
-                num4 = common.get_bits(1, 16, num3);
-                num5 = num1%num2;
+                num1 = (temp2 << 16) | temp1;
+                if (num2 == 0)
+                {
+                }
+                else
+                {
+                    num3 = num1 / num2;
+                    num4 = common.get_bits(1, 16, num3);
+                    num5 = num1 % num2;
 
-                registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num4 & 0x0000ffff);
-                registers["EDX"] = ((registers["EDX"]) & 0xffff0000) | (num5 & 0x0000ffff);
-
-                
+                    registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num4 & 0x0000ffff);
+                    registers["EDX"] = ((registers["EDX"]) & 0xffff0000) | (num5 & 0x0000ffff);
+                }
 
                 dispWithoutSIB = common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ") \n";
             }
             else
             {
-                unsigned int temp1,temp2;
-                temp1=registers["EAX"];
-                temp2=registers["EDX"];
-                long num1, num2, num3;
-                unsigned int num4, num5;
+                unsigned long temp1, temp2;
+                temp1 = registers["EAX"];
+                temp2 = registers["EDX"];
+                long num1;
+                long long num2, num3;
+                unsigned int num4;
+                unsigned long num5;
                 if (rm < 4)
                 {
                     num1 = (unsigned int)memories32bit[common.getHex(*list1[rm / 2] + *list2[rm % 2] + disp, 0, 0)];
@@ -219,15 +248,20 @@ string Divider_addOverride::decode_displacement_without_SIB(int w, int mod, int 
                     num1 = (unsigned int)memories32bit[common.getHex(*list3[rm % 4] + disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(*list3[rm % 4] + disp, 0, 0));
                 }
-                num2 = (temp2<<32)|temp1;
-                num3 = num2/ num1;
-                num4 = common.get_bits(1, 32, num3);
-                num5 = num2%num1;
+                num2 = (temp2 << 32) | temp1;
 
-                
+                if (num2 == 0)
+                {
+                }
+                else
+                {
+                    num3 = num2 / num1;
+                    num4 = common.get_bits(1, 32, num3);
+                    num5 = num2 % num1;
 
-                registers["EAX"] = num4;
-                registers["EDX"] = num5;
+                    registers["EAX"] = num4;
+                    registers["EDX"] = num5;
+                }
 
                 dispWithoutSIB = common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ") \n";
             }
@@ -250,8 +284,9 @@ string Divider_addOverride::decode_mod_00(int w, int rm)
         {
             string00 = "(%" + regs_16bitmode[rm] + ")\n";
 
-            int16_t num1, num2, num3;
-            uint8_t num4, num5;
+            int num1, num3;
+            int16_t num2, num5;
+            uint8_t num4;
 
             if (rm < 4)
             {
@@ -265,29 +300,33 @@ string Divider_addOverride::decode_mod_00(int w, int rm)
             }
 
             num1 = common.get_bits(1, 16, registers["EAX"]);
-            num3 = num1 / num2;
-            num4 = common.get_bits(1, 8, num3);
-            num5 = num1%num2;
+            if (num2 == 0)
+            {
+            }
+            else
+            {
+                num3 = num1 / num2;
+                num4 = common.get_bits(1, 8, num3);
+                num5 = num1 % num2;
 
-            registers["EAX"] = ((registers["EAX"]) & 0xffffff00) | (num4 & 0x000000ff);
-            registers["EAX"] = ((registers["EAX"]) & 0xffff00ff) | ((num5<<8) & 0x0000ff00); 
-
-            
+                registers["EAX"] = ((registers["EAX"]) & 0xffffff00) | (num4 & 0x000000ff);
+                registers["EAX"] = ((registers["EAX"]) & 0xffff00ff) | ((num5 << 8) & 0x0000ff00);
+            }
         }
         else if (w == 1)
         {
             if (opSize)
             {
-                uint16_t temp1,temp2;
-                temp1=common.get_bits(1, 16, registers["EAX"]);
-                temp2=common.get_bits(1, 16, registers["EDX"]);
+                uint16_t temp1, temp2;
+                int num2, num5;
+                long num1, num3;
+                uint16_t num4;
+                temp1 = common.get_bits(1, 16, registers["EAX"]);
+                temp2 = common.get_bits(1, 16, registers["EDX"]);
 
                 string00 = "(%" + regs_16bitmode[rm] + ")\n";
 
-                int num1, num2, num3;
-                uint16_t num4, num5;
-
-                num1 = (temp2<<16)|temp1;
+                num1 = (temp2 << 16) | temp1;
 
                 if (rm < 4)
                 {
@@ -300,22 +339,29 @@ string Divider_addOverride::decode_mod_00(int w, int rm)
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(*list3[rm % 4], 0, 0));
                 }
 
-                num3 = num1 / num2;
-                num4 = common.get_bits(1, 16, num3);
-                num5 = num1%num2;
+                if (num2 == 0)
+                {
+                }
+                else
+                {
+                    num3 = num1 / num2;
+                    num4 = common.get_bits(1, 16, num3);
+                    num5 = num1 % num2;
 
-                registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num4 & 0x0000ffff);
-                registers["EDX"] = ((registers["EDX"]) & 0xffff0000) | (num5 & 0x0000ffff);
-
+                    registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num4 & 0x0000ffff);
+                    registers["EDX"] = ((registers["EDX"]) & 0xffff0000) | (num5 & 0x0000ffff);
+                }
             }
             else
             {
-                unsigned int temp1,temp2;
-                temp1=registers["EAX"];
-                temp2=registers["EDX"];
+                unsigned long temp1, temp2;
+                temp1 = registers["EAX"];
+                temp2 = registers["EDX"];
 
-                long num1, num2, num3;
-                unsigned int num4, num5;
+                long num1;
+                long long num2, num3;
+                unsigned int num4;
+                unsigned long num5;
 
                 if (rm < 4)
                 {
@@ -328,14 +374,21 @@ string Divider_addOverride::decode_mod_00(int w, int rm)
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(*list3[rm % 4], 0, 0));
                 }
 
-                num2 = (temp2<<32)|temp1;
-                num3 = num2 / num1;
-                num4 = common.get_bits(1, 32, num3);
-                num5 = num2%num1;
+                num2 = (temp2 << 32) | temp1;
+
+                if (num2 == 0)
+                {
+                }
+                else
+                {
+                    num3 = num2 / num1;
+                    num4 = common.get_bits(1, 32, num3);
+                    num5 = num2 % num1;
+                    registers["EAX"] = num4;
+                    registers["EDX"] = num5;
+                }
 
                 string00 = "(%" + regs_16bitmode[rm] + ")\n";
-                registers["EAX"] = num4;
-                registers["EDX"] = num5;
             }
         }
     }
@@ -360,9 +413,9 @@ string Divider_addOverride::decode_mod_11(int w, int rm)
     string string11 = "";
     if (w == 0)
     {
-        int16_t num1, num2;
-        int16_t num3;
-        uint8_t num4, num5;
+        int num1, num3;
+        int16_t num2, num5;
+        uint8_t num4;
 
         num1 = common.get_bits(1, 16, registers["EAX"]);
 
@@ -375,11 +428,17 @@ string Divider_addOverride::decode_mod_11(int w, int rm)
             num2 = common.get_bits(9, 8, registers[regs_32[rm % 4]]);
         }
 
-        num3 = num1 / num2;
-        num4 = common.get_bits(1, 8, num3);
-        num5 = num1 % num2;
-        registers["EAX"] = ((registers["EAX"]) & 0xffffff00) | (num4 & 0x000000ff);
-        registers["EAX"] = ((registers["EAX"]) & 0xffffff00) | ((num5 << 8) & 0x0000ff00);
+        if (num2 == 0)
+        {
+        }
+        else
+        {
+            num3 = num1 / num2;
+            num4 = common.get_bits(1, 8, num3);
+            num5 = num1 % num2;
+            registers["EAX"] = ((registers["EAX"]) & 0xffffff00) | (num4 & 0x000000ff);
+            registers["EAX"] = ((registers["EAX"]) & 0xffffff00) | ((num5 << 8) & 0x0000ff00);
+        }
 
         string11 = "%" + regs_8[rm] + "\n";
     }
@@ -388,43 +447,56 @@ string Divider_addOverride::decode_mod_11(int w, int rm)
         if (opSize)
         {
             uint16_t temp1, temp2;
-            int num1, num2;
-            int num3;
-            uint16_t num4, num5;
+            int num2, num5;
+            long num1, num3;
+            uint16_t num4;
 
             temp1 = common.get_bits(1, 16, registers["EAX"]);
             temp2 = common.get_bits(1, 16, registers["EDX"]);
             num1 = (temp2 << 16) | temp1;
             num2 = common.get_bits(1, 16, registers[regs_32[rm]]);
-            num3 = num1 / num2;
-            num4 = common.get_bits(1, 16, num3);
-            num5 = num1 % num2;
-            registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num4 & 0x0000ffff);
-            registers["EDX"] = ((registers["EDX"]) & 0xffff0000) | (num5 & 0x0000ffff);
+            if (num2 == 0)
+            {
+            }
+            else
+            {
+                num3 = num1 / num2;
+                num4 = common.get_bits(1, 16, num3);
+                num5 = num1 % num2;
+                registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num4 & 0x0000ffff);
+                registers["EDX"] = ((registers["EDX"]) & 0xffff0000) | (num5 & 0x0000ffff);
+            }
 
             string11 = "%" + regs_16[rm] + "\n";
         }
         else
         {
-            unsigned int temp1, temp2;
+            unsigned long temp1, temp2;
             temp1 = registers["EAX"];
             temp2 = registers["EDX"];
 
-            long num1 = (temp2 << 32) | temp1;
+            long long num1 = (temp2 << 32) | temp1;
             long num2 = (unsigned int)registers[regs_32[rm]];
 
             // cout << "EAX:" << common.getHex(num1,0,0) << " ; " << regs_32[rm] <<":"<<common.getHex((unsigned long int)num2,0,0)<<"\n";
 
-            long int num3 = num1 / num2;
+            long long num3;
+            if (num2 == 0)
+            {
+            }
+            else
+            {
+                num3 = num1 / num2;
+                unsigned int num4 = common.get_bits(1, 32, num3);
+                unsigned long num5 = num1 % num2;
+                registers["EAX"] = num4;
+                registers["EDX"] = num5;
+            }
+
             // cout << "out:" << common.getHex((unsigned long int)num3,0,0)<<"\n";
             // cout << sizeof(int) <<":"<<sizeof(long int)<<"\n";
 
-            unsigned int num4 = common.get_bits(1, 32, num3);
-            unsigned int num5 = num1 % num2;
-
             // cout << "num4:"<<common.getHex(num4,0,0)<<" ; num5:"<<common.getHex(num5,0,0)<<"\n";
-            registers["EAX"] = num4;
-            registers["EDX"] = num5;
 
             string11 = "%" + regs_32[rm] + "\n";
         }
@@ -480,4 +552,3 @@ string Divider_addOverride::decode_div(short prefixes[4])
 
     return decoded_bytes;
 }
-

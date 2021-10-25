@@ -8,8 +8,11 @@ DEPS=adder.h immediate.h common.h bitset.h mov.h mov_immediate.h mul.h
 	
 main: main.o common.o adder.o adder_addOverride.o immediate.o immediate_addOverride.o bitset.o bitset_addOverride.o mov.o mov_immediate.o mov_override.o mov_override_immediate.o And.o andOverride.o mul.o mul_addOverride.o divider.o divider_addOverride.o not.o not_addOverride.o
 	$(CXX) -o main main.o common.o adder.o adder_addOverride.o immediate.o immediate_addOverride.o bitset.o bitset_addOverride.o mov.o mov_immediate.o mov_override.o mov_override_immediate.o And.o andOverride.o mul.o mul_addOverride.o not.o divider.o divider_addOverride.o not_addOverride.o
+	$(MAKE) clean
 
-	
+clean:
+	rm -f main.o common.o adder.o adder_addOverride.o immediate.o immediate_addOverride.o bitset.o bitset_addOverride.o mov.o mov_immediate.o mov_override.o mov_override_immediate.o And.o andOverride.o mul.o mul_addOverride.o divider.o divider_addOverride.o not.o not_addOverride.o	
+
 #adder.o:adder.cpp adder.h 
 #	$(CXX) -c -o $@ $^
 

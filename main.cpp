@@ -19,6 +19,7 @@
 #include "Xor.h"
 #include "divider.h"
 #include "not.h"
+#include "Neg.h"
 
 using namespace std;
 
@@ -106,6 +107,7 @@ int main()
     Xor xor_(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
     Divider divider(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
     Not notobject(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+    Neg negObject(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
 
 
     stringstream sss;
@@ -235,6 +237,9 @@ int main()
                 }
                 else if (nextOpcode == 0x34 or nextOpcode == 0x35 or nextOpcode == 0x30 or nextOpcode == 0x31 or nextOpcode == 0x32 or nextOpcode == 0x33 or (nextOpcode == 0x80 or nextOpcode == 0x81 or nextOpcode == 0x83) and (reg == 6)) {
                     xor_.decode_xor(prefixes);
+                }
+                else if (nextOpcode == 0xf6 or nextOpcode == 0xf7) {
+                    negObject.decode_neg(prefixes);
                 }
                 else
                 {

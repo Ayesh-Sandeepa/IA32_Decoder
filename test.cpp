@@ -15,16 +15,23 @@ int main()
 {
    map<string, int> memories32bit;
 
-  int8_t num1=0x53;
-  int8_t num2=0x34;
+   unsigned long temp1 = 0xa8be2345;
+   unsigned int temp2 = 0xbf8d0002;
 
-  int16_t num=(num1<<8) | (uint8_t)num2;
+   long long num1 = (temp1 << 32) | temp2;
+   cout << hex << num1 << "\n";
 
-  cout << getHex((uint16_t)num,0)<<"\n";
+   long num2 = 0xbf8db0bc;
+
+   long long q = num1 / num2;
+   long r = num1 % num2;
+
+   cout << hex << q << " ; " << hex << r << "\n";
 
    return 0;
 }
 
+/*
 string getHex(int num, int width = 0)
 {
 
@@ -85,3 +92,4 @@ int get_bits(int pos, int noOfBits, long number)
    cout << num2 << "\n";
    return (((one << noOfBits) - 1) & (number >> (pos - 1)));
 }
+*/

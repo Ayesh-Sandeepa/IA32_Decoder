@@ -13,8 +13,8 @@
 
 using namespace std;
 
-Divider::Divider(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
-    : common(com), instruction(instruction), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses)
+Divider::Divider(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses, ofstream &myoutput)
+    : common(com), instruction(instruction), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses), myoutput(myoutput)
 {
     regs_32[0] = "EAX";
     regs_32[1] = "ECX";
@@ -1029,7 +1029,7 @@ string Divider::decode_mod_11(int w, int rm)
             long long num1 = (temp2 << 32) | temp1;
             long num2 = (unsigned int)registers[regs_32[rm]];
 
-            //cout << hex << num1 << " ; " << hex << num2 << " ; " << sizeof(long long) << "\n";
+            // cout << hex << num1 << " ; " << hex << num2 << " ; " << sizeof(long long) << "\n";
 
             // cout << "EAX:" << common.getHex(num1,0,0) << " ; " << regs_32[rm] <<":"<<common.getHex((unsigned long int)num2,0,0)<<"\n";
 
@@ -1047,7 +1047,7 @@ string Divider::decode_mod_11(int w, int rm)
                 registers["EAX"] = num4;
                 registers["EDX"] = num5;
 
-                //cout << hex << num3 << " ; " << hex << num5 << "\n";
+                // cout << hex << num3 << " ; " << hex << num5 << "\n";
             }
 
             string11 = "%" + regs_32[rm] + "\n";
@@ -1118,6 +1118,18 @@ string Divider::decode_div(short prefixes[4])
     cout << "ESI: " << hex << registers["ESI"] << "\n";
     cout << "EDI: " << hex << registers["EDI"] << "\n";
     cout << "EFLAGS: " << hex << registers["EFLAGS"] << "\n \n";
+
+    myoutput << "div " << decoded_bytes;
+
+    myoutput << "EAX: " << hex << registers["EAX"] << "\n";
+    myoutput << "ECX: " << hex << registers["ECX"] << "\n";
+    myoutput << "EDX: " << hex << registers["EDX"] << "\n";
+    myoutput << "EBX: " << hex << registers["EBX"] << "\n";
+    myoutput << "ESP: " << hex << registers["ESP"] << "\n";
+    myoutput << "EBP: " << hex << registers["EBP"] << "\n";
+    myoutput << "ESI: " << hex << registers["ESI"] << "\n";
+    myoutput << "EDI: " << hex << registers["EDI"] << "\n";
+    myoutput << "EFLAGS: " << hex << registers["EFLAGS"] << "\n \n";
 
     return "Divider instantiated and done";
 }

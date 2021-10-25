@@ -14,7 +14,8 @@
 #include "common.h"
 
 using namespace std;
-class Multiplier
+
+class Neg
 {
 private:
     bool opSize;
@@ -32,9 +33,9 @@ ofstream& myoutput;
     map<string, int8_t> &memories8bit;
     list<string> &memoryAccesses;
 
-    Multiplier(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses,ofstream& myoutput);
+    Neg(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses,ofstream& myoutput);
 
-    string decode_mul(short prefixes[4]);
+    string decode_neg(short prefixes[4]);
     string decode_displacement_with_SIB(int w, int mod, int index, int scale, int base);
     string decode_displacement_without_SIB(int w, int mod, int rm);
     string decode_SIB(int w, int mod);
@@ -47,7 +48,7 @@ ofstream& myoutput;
     void setOverflowCarry32(unsigned int num);
 };
 
-class Multiplier_addOverride
+class Neg_addOverride
 {
 private:
     bool opSize;
@@ -66,9 +67,9 @@ public:
     map<string, int8_t> &memories8bit;
     list<string> &memoryAccesses;
 
-    Multiplier_addOverride(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses);
+    Neg_addOverride(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses);
 
-    string decode_mul(short prefixes[4]);
+    string decode_neg(short prefixes[4]);
     string decode_displacement_with_SIB(int w, int mod, int index, int scale, int base);
     string decode_displacement_without_SIB(int w, int mod, int rm);
     string decode_SIB(int w, int mod);
@@ -76,7 +77,5 @@ public:
     string decode_mod_01(int w, int rm);
     string decode_mod_10(int w, int rm);
     string decode_mod_11(int w, int rm);
-    void setOverflowCarry8(uint8_t num);
-    void setOverflowCarry16(uint16_t num);
-    void setOverflowCarry32(unsigned int num);
+    string decode_imm(int opCode, int w);
 };

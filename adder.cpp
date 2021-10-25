@@ -23,8 +23,8 @@ void convert_binary(short *encodings)
 }
 */
 
-Adder::Adder(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
-    : common(com), instruction(instruction), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses)
+Adder::Adder(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses,ofstream& myoutput)
+    : common(com), instruction(instruction), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses), myoutput(myoutput)
 {
     regs_32[0] = "EAX";
     regs_32[1] = "ECX";
@@ -2061,6 +2061,18 @@ string Adder::decode_add(short prefixes[4])
     cout << "ESI: " << hex << registers["ESI"] << "\n";
     cout << "EDI: " << hex << registers["EDI"] << "\n";
     cout << "EFLAGS: " << hex << registers["EFLAGS"] << "\n \n";
+
+    myoutput << "add " << decoded_bytes;
+
+    myoutput << "EAX: " << hex << registers["EAX"] << "\n";
+    myoutput << "ECX: " << hex << registers["ECX"] << "\n";
+    myoutput << "EDX: " << hex << registers["EDX"] << "\n";
+    myoutput<< "EBX: " << hex << registers["EBX"] << "\n";
+    myoutput << "ESP: " << hex << registers["ESP"] << "\n";
+    myoutput << "EBP: " << hex << registers["EBP"] << "\n";
+    myoutput << "ESI: " << hex << registers["ESI"] << "\n";
+    myoutput << "EDI: " << hex << registers["EDI"] << "\n";
+    myoutput << "EFLAGS: " << hex << registers["EFLAGS"] << "\n \n";
 
     return "Adder instantiated and done";
 }

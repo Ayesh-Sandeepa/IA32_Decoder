@@ -13,8 +13,8 @@
 
 using namespace std;
 
-Bitset::Bitset(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
-    : common(com), instruction(instruction), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses)
+Bitset::Bitset(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses, ofstream &myoutput)
+    : common(com), instruction(instruction), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses), myoutput(myoutput)
 {
     regs_32[0] = "EAX";
     regs_32[1] = "ECX";
@@ -235,7 +235,7 @@ string Bitset::decode_displacement_with_SIB(int mod, int reg, int index, int sca
                     }
                 }
             }
-            //printf("mod equals 0");
+            // printf("mod equals 0");
         }
         else
         {
@@ -510,7 +510,7 @@ string Bitset::decode_displacement_with_SIB(int mod, int reg, int index, int sca
                     }
                 }
             }
-            //printf("mod equals 0");
+            // printf("mod equals 0");
         }
         else
         {
@@ -800,9 +800,9 @@ string Bitset::decode_SIB(int mod, int reg)
     instruction.pop();
     registers["EIP"] = registers["EIP"] + 1;
 
-    //printf("scale:%d \n", scale);
-    //printf("index:%d \n", index);
-    //printf("base:%d \n", base);
+    // printf("scale:%d \n", scale);
+    // printf("index:%d \n", index);
+    // printf("base:%d \n", base);
 
     scale = pow(2, scale);
 
@@ -1092,6 +1092,18 @@ string Bitset::decode_bt(short prefixes[4])
     cout << "ESI: " << hex << registers["ESI"] << "\n";
     cout << "EDI: " << hex << registers["EDI"] << "\n";
     cout << "EFLAGS: " << hex << registers["EFLAGS"] << "\n \n";
+
+    myoutput << decoded_bytes;
+
+    myoutput << "EAX: " << hex << registers["EAX"] << "\n";
+    myoutput << "ECX: " << hex << registers["ECX"] << "\n";
+    myoutput << "EDX: " << hex << registers["EDX"] << "\n";
+    myoutput << "EBX: " << hex << registers["EBX"] << "\n";
+    myoutput << "ESP: " << hex << registers["ESP"] << "\n";
+    myoutput << "EBP: " << hex << registers["EBP"] << "\n";
+    myoutput << "ESI: " << hex << registers["ESI"] << "\n";
+    myoutput << "EDI: " << hex << registers["EDI"] << "\n";
+    myoutput << "EFLAGS: " << hex << registers["EFLAGS"] << "\n \n";
 
     return "Adder instantiated and done";
 }

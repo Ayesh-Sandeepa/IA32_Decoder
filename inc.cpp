@@ -13,8 +13,8 @@
 
 using namespace std;
 
-Inc::Inc(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
-    : common(com), instruction(instruction), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses)
+Inc::Inc(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses, ofstream &myoutput)
+    : common(com), instruction(instruction), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses), myoutput(myoutput)
 {
     regs_32[0] = "EAX";
     regs_32[1] = "ECX";
@@ -108,8 +108,8 @@ string Inc::decode_displacement_with_SIB(int w, int mod, int index, int scale, i
                     common.setSign(num2, registers);
                     common.setZero(num2, registers);
 
-                    dispWithSIB =  st + "(,%" + regs_32[index] + "," + to_string(scale) + ")\n";
-                    }
+                    dispWithSIB = st + "(,%" + regs_32[index] + "," + to_string(scale) + ")\n";
+                }
             }
             else if (w == 1)
             {
@@ -117,7 +117,7 @@ string Inc::decode_displacement_with_SIB(int w, int mod, int index, int scale, i
                 {
                     if (index == 4)
                     {
-                        memoryAccesses.push_back("inc "+st );
+                        memoryAccesses.push_back("inc " + st);
 
                         int16_t num1, num2;
 
@@ -137,7 +137,7 @@ string Inc::decode_displacement_with_SIB(int w, int mod, int index, int scale, i
                     }
                     else
                     {
-                        memoryAccesses.push_back("inc "+st + "(,%" + regs_32[index] + "," + to_string(scale) + ")");
+                        memoryAccesses.push_back("inc " + st + "(,%" + regs_32[index] + "," + to_string(scale) + ")");
 
                         int16_t num1, num2;
 
@@ -154,13 +154,13 @@ string Inc::decode_displacement_with_SIB(int w, int mod, int index, int scale, i
                         common.setZero(num2, registers);
 
                         dispWithSIB = st + "(,%" + regs_32[index] + "," + to_string(scale) + ")\n";
-                        }
+                    }
                 }
                 else
                 {
                     if (index == 4)
                     {
-                        memoryAccesses.push_back("inc "+st );
+                        memoryAccesses.push_back("inc " + st);
 
                         int num1 = memories32bit[st];
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + st);
@@ -178,7 +178,7 @@ string Inc::decode_displacement_with_SIB(int w, int mod, int index, int scale, i
                     }
                     else
                     {
-                        memoryAccesses.push_back("inc " + st + "(,%" + regs_32[index] + "," + to_string(scale) + ")" );
+                        memoryAccesses.push_back("inc " + st + "(,%" + regs_32[index] + "," + to_string(scale) + ")");
 
                         int num1 = memories32bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[index]] * scale + disp, 0, 0));
@@ -203,7 +203,9 @@ string Inc::decode_displacement_with_SIB(int w, int mod, int index, int scale, i
             {
                 if (index == 4)
                 {
-                    memoryAccesses.push_back("inc "  "(%" + regs_32[base] + ")");
+                    memoryAccesses.push_back("inc "
+                                             "(%" +
+                                             regs_32[base] + ")");
 
                     int8_t num1, num2;
 
@@ -219,7 +221,7 @@ string Inc::decode_displacement_with_SIB(int w, int mod, int index, int scale, i
                     common.setSign(num2, registers);
                     common.setZero(num2, registers);
 
-                    dispWithSIB =  "(%" + regs_32[base] + ")\n";
+                    dispWithSIB = "(%" + regs_32[base] + ")\n";
                 }
                 else
                 {
@@ -335,7 +337,7 @@ string Inc::decode_displacement_with_SIB(int w, int mod, int index, int scale, i
         {
             if (index == 4)
             {
-                memoryAccesses.push_back("inc " +st + "(%" + regs_32[base] + ")" );
+                memoryAccesses.push_back("inc " + st + "(%" + regs_32[base] + ")");
 
                 int8_t num1, num2;
 
@@ -396,7 +398,7 @@ string Inc::decode_displacement_with_SIB(int w, int mod, int index, int scale, i
                     common.setSign(num2, registers);
                     common.setZero(num2, registers);
 
-                    dispWithSIB =  st + "(%" + regs_32[base] + ")\n";
+                    dispWithSIB = st + "(%" + regs_32[base] + ")\n";
                 }
                 else
                 {
@@ -441,7 +443,7 @@ string Inc::decode_displacement_with_SIB(int w, int mod, int index, int scale, i
                 }
                 else
                 {
-                    memoryAccesses.push_back("inc " +st + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")");
+                    memoryAccesses.push_back("inc " + st + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")");
 
                     int num1 = memories32bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0));
@@ -498,7 +500,7 @@ string Inc::decode_displacement_without_SIB(int w, int mod, int rm)
         {
             if (opSize)
             {
-                memoryAccesses.push_back("inc " + st );
+                memoryAccesses.push_back("inc " + st);
 
                 int16_t num1, num2;
                 num1 = memories16bit[st];
@@ -514,11 +516,10 @@ string Inc::decode_displacement_without_SIB(int w, int mod, int rm)
                 common.setZero(num2, registers);
 
                 dispWithoutSIB = st + "\n";
-
             }
             else
             {
-                memoryAccesses.push_back("inc " + st );
+                memoryAccesses.push_back("inc " + st);
 
                 int num1 = memories32bit[st];
                 memoryAccesses.push_back("Read " + to_string(num1) + " from " + st);
@@ -540,44 +541,44 @@ string Inc::decode_displacement_without_SIB(int w, int mod, int rm)
     {
         if (w == 0)
         {
-        memoryAccesses.push_back("inc " + st + "(%" + regs_32[rm] + ")");
-
-        int8_t num1, num2;
-
-        num1 = memories8bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)];
-        memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
-
-        num2 = num1 + 1;
-
-        memories8bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)] = num2;
-        memoryAccesses.push_back("write " + to_string(num2) + " to " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
-
-        common.setOverflow8bit(num1, 1, num2, registers);
-        common.setSign(num2, registers);
-        common.setZero(num2, registers);
-
-        dispWithoutSIB = st + "(%" + regs_32[rm] + ")\n";
-        }
-        else if (w == 1)
-        {
-            if (opSize)
-            {                   
             memoryAccesses.push_back("inc " + st + "(%" + regs_32[rm] + ")");
 
-            int16_t num1, num2;
-            num1 = memories16bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)];
+            int8_t num1, num2;
+
+            num1 = memories8bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)];
             memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
 
             num2 = num1 + 1;
 
-            memories16bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)] = num2;
+            memories8bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)] = num2;
             memoryAccesses.push_back("write " + to_string(num2) + " to " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
 
-            common.setOverflow16bit(num1, 1, num2, registers);
+            common.setOverflow8bit(num1, 1, num2, registers);
             common.setSign(num2, registers);
             common.setZero(num2, registers);
 
             dispWithoutSIB = st + "(%" + regs_32[rm] + ")\n";
+        }
+        else if (w == 1)
+        {
+            if (opSize)
+            {
+                memoryAccesses.push_back("inc " + st + "(%" + regs_32[rm] + ")");
+
+                int16_t num1, num2;
+                num1 = memories16bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)];
+                memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
+
+                num2 = num1 + 1;
+
+                memories16bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)] = num2;
+                memoryAccesses.push_back("write " + to_string(num2) + " to " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
+
+                common.setOverflow16bit(num1, 1, num2, registers);
+                common.setSign(num2, registers);
+                common.setZero(num2, registers);
+
+                dispWithoutSIB = st + "(%" + regs_32[rm] + ")\n";
             }
             else
             {
@@ -594,7 +595,6 @@ string Inc::decode_displacement_without_SIB(int w, int mod, int rm)
                 memoryAccesses.push_back("write " + to_string(num2) + " to " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
 
                 dispWithoutSIB = st + "(%" + regs_32[rm] + ")\n";
-
             }
         }
     }
@@ -738,11 +738,11 @@ string Inc::decode_mod_11(int w, int rm)
             registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffff00ff) | ((num2 << 8) & 0x0000ff00);
         }
 
-        common.setOverflow8bit(num1, 1 , num2, registers);
+        common.setOverflow8bit(num1, 1, num2, registers);
         common.setSign(num2, registers);
         common.setZero(num2, registers);
 
-        string11 = "%" + regs_8[rm] +  "\n";
+        string11 = "%" + regs_8[rm] + "\n";
     }
     else if (w == 1)
     {
@@ -750,11 +750,12 @@ string Inc::decode_mod_11(int w, int rm)
         {
             int16_t num1, num2;
             num1 = common.get_bits(1, 16, registers[regs_32[rm]]);
-            num2 = num1 + 1;;
+            num2 = num1 + 1;
+            ;
 
             registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffff0000) | (num2 & 0x0000ffff);
 
-            common.setOverflow16bit(num1, 1 , num2, registers);
+            common.setOverflow16bit(num1, 1, num2, registers);
             common.setSign(num2, registers);
             common.setZero(num2, registers);
 
@@ -767,7 +768,7 @@ string Inc::decode_mod_11(int w, int rm)
             num2 = num1 + 1;
             registers[regs_32[rm]] = num1;
 
-            common.setOverflow32bit(num1, 1 , num2, registers);
+            common.setOverflow32bit(num1, 1, num2, registers);
             common.setSign(num2, registers);
             common.setZero(num2, registers);
 
@@ -776,7 +777,6 @@ string Inc::decode_mod_11(int w, int rm)
     }
     return string11;
 }
-
 
 // parity and auxiliary flag should be used .......................................................//
 // Exception handling when memory address is not there, normally the addressest that are not initiailized are set to zero
@@ -804,6 +804,18 @@ string Inc::decode_inc(short prefixes[4])
         cout << "ESI: " << hex << registers["ESI"] << "\n";
         cout << "EDI: " << hex << registers["EDI"] << "\n";
         cout << "EFLAGS: " << hex << registers["EFLAGS"] << "\n \n";
+
+        myoutput << decoded_bytes;
+
+        myoutput << "EAX: " << hex << registers["EAX"] << "\n";
+        myoutput << "ECX: " << hex << registers["ECX"] << "\n";
+        myoutput << "EDX: " << hex << registers["EDX"] << "\n";
+        myoutput << "EBX: " << hex << registers["EBX"] << "\n";
+        myoutput << "ESP: " << hex << registers["ESP"] << "\n";
+        myoutput << "EBP: " << hex << registers["EBP"] << "\n";
+        myoutput << "ESI: " << hex << registers["ESI"] << "\n";
+        myoutput << "EDI: " << hex << registers["EDI"] << "\n";
+        myoutput << "EFLAGS: " << hex << registers["EFLAGS"] << "\n \n";
     }
     else
     {
@@ -827,8 +839,9 @@ string Inc::decode_inc(short prefixes[4])
         int reg = common.get_bits(4, 3, modrm);
         int rm = common.get_bits(1, 3, modrm);
 
-        if(reg == 1){
-            Dec Dec(common, instruction, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+        if (reg == 1)
+        {
+            Dec Dec(common, instruction, registers, memories32bit, memories16bit, memories8bit, memoryAccesses, myoutput);
             decoded_bytes = Dec.decode_dec(prefixes, w);
 
             cout << "dec " << decoded_bytes;
@@ -842,6 +855,18 @@ string Inc::decode_inc(short prefixes[4])
             cout << "ESI: " << hex << registers["ESI"] << "\n";
             cout << "EDI: " << hex << registers["EDI"] << "\n";
             cout << "EFLAGS: " << hex << registers["EFLAGS"] << "\n \n";
+
+            myoutput << "dec " << decoded_bytes;
+
+            myoutput << "EAX: " << hex << registers["EAX"] << "\n";
+            myoutput << "ECX: " << hex << registers["ECX"] << "\n";
+            myoutput << "EDX: " << hex << registers["EDX"] << "\n";
+            myoutput << "EBX: " << hex << registers["EBX"] << "\n";
+            myoutput << "ESP: " << hex << registers["ESP"] << "\n";
+            myoutput << "EBP: " << hex << registers["EBP"] << "\n";
+            myoutput << "ESI: " << hex << registers["ESI"] << "\n";
+            myoutput << "EDI: " << hex << registers["EDI"] << "\n";
+            myoutput << "EFLAGS: " << hex << registers["EFLAGS"] << "\n \n";
         }
         else
         {
@@ -875,6 +900,18 @@ string Inc::decode_inc(short prefixes[4])
             cout << "ESI: " << hex << registers["ESI"] << "\n";
             cout << "EDI: " << hex << registers["EDI"] << "\n";
             cout << "EFLAGS: " << hex << registers["EFLAGS"] << "\n \n";
+
+            myoutput << "inc " << decoded_bytes;
+
+            myoutput << "EAX: " << hex << registers["EAX"] << "\n";
+            myoutput << "ECX: " << hex << registers["ECX"] << "\n";
+            myoutput << "EDX: " << hex << registers["EDX"] << "\n";
+            myoutput << "EBX: " << hex << registers["EBX"] << "\n";
+            myoutput << "ESP: " << hex << registers["ESP"] << "\n";
+            myoutput << "EBP: " << hex << registers["EBP"] << "\n";
+            myoutput << "ESI: " << hex << registers["ESI"] << "\n";
+            myoutput << "EDI: " << hex << registers["EDI"] << "\n";
+            myoutput << "EFLAGS: " << hex << registers["EFLAGS"] << "\n \n";
         }
     }
 

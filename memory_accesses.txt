@@ -1,0 +1,203 @@
+add (%EDI),%AL
+EAX: bf8db144
+ECX: 88c5cffb
+EDX: 1
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 206
+ 
+add %CX,%AX
+EAX: bf8db144
+ECX: 88c5813f
+EDX: 1
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 287
+ 
+add %CL,%AL
+EAX: bf8db144
+ECX: 88c58183
+EDX: 1
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: a86
+ 
+add %EAX,%ECX
+EAX: 485332c7
+ECX: 88c58183
+EDX: 1
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: a07
+ 
+add %AL,%CL
+EAX: 4853324a
+ECX: 88c58183
+EDX: 1
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: a07
+ 
+add %ECX,(%EAX)
+EAX: 4853324a
+ECX: 88c58183
+EDX: 1
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 286
+ 
+add %ECX,(%(BX+SI))
+EAX: 4853324a
+ECX: 88c58183
+EDX: 1
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 286
+ 
+add (%EDX,%EBX,2),%AL
+EAX: 4853324a
+ECX: 88c58183
+EDX: 1
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 206
+ 
+add %AL,(%EDX,%EBX,2)
+EAX: 48533294
+ECX: 88c58183
+EDX: 1
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: a86
+ 
+add %EAX,0x80(%EBX,%ECX,2)
+EAX: 48533294
+ECX: 88c58183
+EDX: 1
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 206
+ 
+add 0x80(,%ECX,2),%EAX
+EAX: 48533294
+ECX: 88c58183
+EDX: 1
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 206
+ 
+add %ECX,0x80(%EBP,%EDX,2)
+EAX: 48533294
+ECX: 88c58183
+EDX: 1
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 286
+ 
+add %EBX,$0xffffff80
+EAX: 48533294
+ECX: 88c58183
+EDX: 1
+EBX: ae5f74
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 207
+ 
+add %EBX,$0x80
+EAX: 48533294
+ECX: 88c58183
+EDX: 1
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 206
+ 
+add %BX,$0x80
+EAX: 48533294
+ECX: 88c58183
+EDX: 1
+EBX: ae6074
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 206
+ 
+add %ECX,$0xc1db283b
+EAX: 0
+ECX: 8fdd5626
+EDX: 0
+EBX: ae6074
+ESP: bf8d0018
+EBP: bf8d0018
+ESI: 0
+EDI: 0
+EFLAGS: 287
+ 
+add (%EDI),%AL
+Read 0 from 0x0
+write 0x44 to 0x0
+Read 0 from 0x4853324a
+Read 0 from 0x6c94
+add (%EDX,%EBX,2),%AL
+Read 0 from 0x15cbfe9
+write 74 to 0x15cbfe9
+Read 74 from 0x15cbfe9
+Read 0 from 0x1239637a
+add 0x80(,%ECX,2),%EAX
+Read 0 from 0x118b0386
+write 1213411988 to 0x118b0386
+Read 0 from 0xbf8db19a
+Read 1 from 0x4
+mov 0x2(%(BP+DI)),%BH
+Write -108 to 0xb11a
+mov (%(BX+DI)),%EAX
+Write 2 to 0x6074
+mov (%(BX+SI)), $0x2
+Write 2 to 0x6d14
+Read 0 from 0xc3efbe9f
+and (%EDI),%AL
+Read 68 from 0x0
+write 0 to 0x0
+Read 0 from 0x0
+write 0 to 0x0

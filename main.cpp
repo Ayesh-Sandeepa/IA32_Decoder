@@ -19,6 +19,7 @@
 #include "Xor.h"
 #include "divider.h"
 #include "not.h"
+#include "Neg.h"
 
 using namespace std;
 
@@ -63,49 +64,29 @@ int main()
     registers["FS"] = 0x0;
     registers["GS"] = 0x33;
 
-    /*
-    memories32bit[to_string(0xbf8db144)]=0;
-    memories32bit[to_string(0x88c5cffb)]=0;
-    memories32bit[to_string(0x1)]=0;
-    memories32bit[to_string(0xae5ff4)]=0;
-    memories32bit[to_string(0xbf8db118)]=0;
-    memories32bit[to_string(0x9a0ca0)]=0;
-    memories32bit[to_string(0x0)]=0;
-
-    memories16bit[to_string(0xbf8db144)]=0;
-    memories16bit[to_string(0x88c5cffb)]=0;
-    memories16bit[to_string(0x1)]=0;
-    memories16bit[to_string(0xae5ff4)]=0;
-    memories16bit[to_string(0xbf8db118)]=0;
-    memories16bit[to_string(0x9a0ca0)]=0;
-    memories16bit[to_string(0x0)]=0;
-
-    memories8bit[to_string(0xbf8db144)]=0;
-    memories8bit[to_string(0x88c5cffb)]=0;
-    memories8bit[to_string(0x1)]=0;
-    memories8bit[to_string(0xae5ff4)]=0;
-    memories8bit[to_string(0xbf8db118)]=0;
-    memories8bit[to_string(0x9a0ca0)]=0;
-    memories8bit[to_string(0x0)]=0;
-*/
+  
 
     ifstream myfile;
     myfile.open("test.txt");
 
-    Common common;
-    Adder adder(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-    Bitset bitset(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+    ofstream myoutput;
+    myoutput.open("ouput.txt");
 
-    Mov mov(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-    Inc incDec(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-    Left_shift LeftRightShift(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-    And and_(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-    Multiplier multiplier(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-    Cmp cmp(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-    Or or_(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-    Xor xor_(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-    Divider divider(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-    Not notobject(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+    Common common;
+    Adder adder(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses,myoutput);
+    Bitset bitset(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses,myoutput);
+
+    Mov mov(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses,myoutput);
+    Inc incDec(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses,myoutput);
+    Left_shift LeftRightShift(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses,myoutput);
+    And and_(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses,myoutput);
+    Multiplier multiplier(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses,myoutput);
+    Cmp cmp(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses,myoutput);
+    Or or_(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses,myoutput);
+    Xor xor_(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses,myoutput);
+    Divider divider(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses,myoutput);
+    Not notobject(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses,myoutput);
+    Neg negObject(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses,myoutput);
 
 
     stringstream sss;
@@ -236,6 +217,9 @@ int main()
                 else if (nextOpcode == 0x34 or nextOpcode == 0x35 or nextOpcode == 0x30 or nextOpcode == 0x31 or nextOpcode == 0x32 or nextOpcode == 0x33 or (nextOpcode == 0x80 or nextOpcode == 0x81 or nextOpcode == 0x83) and (reg == 6)) {
                     xor_.decode_xor(prefixes);
                 }
+                else if (nextOpcode == 0xf6 or nextOpcode == 0xf7) {
+                    negObject.decode_neg(prefixes);
+                }
                 else
                 {
                     encoded_instructions.pop();
@@ -253,9 +237,10 @@ int main()
     for (auto it = memoryAccesses.begin(); it != memoryAccesses.end(); ++it)
     {
         cout << *it << "\n";
+        myoutput << *it <<endl;
     }
 
     myfile.close();
-
+    myoutput.close();
     return 0;
 }

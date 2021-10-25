@@ -10,11 +10,14 @@
 #include "adder.h"
 #include "bitset.h"
 #include "mov.h"
+#include "inc_dec.h"
+#include "left_right_shift.h"
 #include "And.h"
 #include "mul.h"
 #include "Cmp.h"
 #include "Or.h"
 #include "Xor.h"
+
 
 using namespace std;
 
@@ -90,11 +93,14 @@ int main()
     Adder adder(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
     Bitset bitset(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
     Mov mov(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+    Inc incDec(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+    Left_shift LeftRightShift(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
     And and_(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
     Multiplier multiplier(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
     Cmp cmp(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
     Or or_(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
     Xor xor_(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+
 
     stringstream sss;
     string test_data, word;
@@ -191,6 +197,17 @@ int main()
                 {
                     mov.decode_mov(prefixes);
                 }
+
+                else if (nextOpcode == 0xfe or nextOpcode == 0xff or nextOpcode == 0x40 or nextOpcode == 0x48)
+                {
+                    // for both Increment and Decrement
+                    incDec.decode_inc(prefixes);
+                }
+                else if (nextOpcode == 0xc0 or nextOpcode == 0xc1 or nextOpcode == 0xd0 or nextOpcode == 0xd1 or nextOpcode == 0xd2 or nextOpcode == 0xd3)
+                {
+                    //for both Left shift and Right shift
+                    LeftRightShift.decode_shl(prefixes);
+                }
                 else if (nextOpcode == 0x20 or nextOpcode == 0x21 or nextOpcode == 0x22 or nextOpcode == 0x23 or nextOpcode == 0x24 or nextOpcode == 0x25 or ((nextOpcode == 0x80 or nextOpcode == 0x81 or nextOpcode == 0x83) and (reg == 4)))
                 {
                    
@@ -198,6 +215,7 @@ int main()
                 }
                 else if (nextOpcode == 0x3c or nextOpcode == 0x3d or nextOpcode == 0x38 or nextOpcode == 0x39 or nextOpcode == 0x3a or nextOpcode == 0x3b or ((nextOpcode == 0x80 or nextOpcode == 0x81 or nextOpcode == 0x83) and (reg == 7))) {
                     cmp.decode_cmp(prefixes);
+
                 }
                 else if (nextOpcode == 0x0c or nextOpcode == 0x0d or nextOpcode == 0x08 or nextOpcode == 0x09 or nextOpcode == 0x0a or nextOpcode == 0x0b or (nextOpcode == 0x80 or nextOpcode == 0x81 or nextOpcode == 0x83) and (reg == 1)) {
                     or_.decode_or(prefixes);

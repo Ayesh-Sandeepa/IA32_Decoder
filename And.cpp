@@ -1149,7 +1149,7 @@ string And::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                     num2 = memories8bit[st];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + st);
 
-                    num3 = num1 + num2;
+                    num3 = num1 ^ num2;
                     num4 = unsigned(num3);
 
                     registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);

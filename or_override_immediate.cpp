@@ -12,11 +12,11 @@
 #include <map>
 #include <list>
 
-#include "and_immediate.h"
+#include "or_immediate.h"
 
 using namespace std;
 
-And_override_immediate::And_override_immediate(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
+Or_override_immediate::Or_override_immediate(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
     : common(com), instruction(instruction), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses)
 {
     regs_32[0] = "EAX";
@@ -67,7 +67,7 @@ And_override_immediate::And_override_immediate(Common com, queue<short> &instruc
     list3[3] = (uint16_t *)&registers["EBX"];
 }
 
-string And_override_immediate::decode_displacement_without_SIB(int w, int d, int mod, int rm)
+string Or_override_immediate::decode_displacement_without_SIB(int w, int d, int mod, int rm)
 {
     string dispWithoutSIB = "";
     int disp_bytes[] = {2, 1, 2};
@@ -80,7 +80,7 @@ string And_override_immediate::decode_displacement_without_SIB(int w, int d, int
         if (w == 0)
         {
             int8_t imm = common.assemble_bits(1, instruction, registers);
-            memoryAccesses.push_back("and " + common.getHex(disp, 0, 0) + ", $" + common.getHex(imm, 0, 0));
+            memoryAccesses.push_back("or " + common.getHex(disp, 0, 0) + ", $" + common.getHex(imm, 0, 0));
 
             memories8bit[common.getHex(disp, 0, 0)] = imm;
             memoryAccesses.push_back("Write " + to_string(imm) + " to " + common.getHex(disp, 0, 0));
@@ -92,7 +92,7 @@ string And_override_immediate::decode_displacement_without_SIB(int w, int d, int
             if (opSize)
             {
                 int16_t imm = common.assemble_bits(2, instruction, registers);
-                memoryAccesses.push_back("and " + common.getHex(disp, 0, 0) + ", $" + common.getHex(imm, 0, 0));
+                memoryAccesses.push_back("or " + common.getHex(disp, 0, 0) + ", $" + common.getHex(imm, 0, 0));
 
                 memories16bit[common.getHex(disp, 0, 0)] = imm;
                 memoryAccesses.push_back("Write " + to_string(imm) + " to " + common.getHex(disp, 0, 0));
@@ -102,7 +102,7 @@ string And_override_immediate::decode_displacement_without_SIB(int w, int d, int
             else
             {
                 int imm = common.assemble_bits(4, instruction, registers);
-                memoryAccesses.push_back("and " + common.getHex(disp, 0, 0) + ", $" + common.getHex(imm, 0, 0));
+                memoryAccesses.push_back("or " + common.getHex(disp, 0, 0) + ", $" + common.getHex(imm, 0, 0));
 
                 memories32bit[common.getHex(disp, 0, 0)] = imm;
                 memoryAccesses.push_back("Write " + to_string(imm) + " to " + common.getHex(disp, 0, 0));
@@ -116,7 +116,7 @@ string And_override_immediate::decode_displacement_without_SIB(int w, int d, int
         if (w == 0)
         {
             int8_t imm = common.assemble_bits(1, instruction, registers);
-            memoryAccesses.push_back("and " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")" + ", $" + common.getHex(imm, 0, 0));
+            memoryAccesses.push_back("or " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")" + ", $" + common.getHex(imm, 0, 0));
 
             if (rm < 4)
             {
@@ -136,7 +136,7 @@ string And_override_immediate::decode_displacement_without_SIB(int w, int d, int
             if (opSize)
             {
                 int16_t imm = common.assemble_bits(2, instruction, registers);
-                memoryAccesses.push_back("and " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")" + ", $" + common.getHex(imm, 0, 0));
+                memoryAccesses.push_back("or " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")" + ", $" + common.getHex(imm, 0, 0));
 
                 if (rm < 4)
                 {
@@ -154,7 +154,7 @@ string And_override_immediate::decode_displacement_without_SIB(int w, int d, int
             else
             {
                     int imm = common.assemble_bits(4, instruction, registers);
-                    memoryAccesses.push_back("and " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")" + ", $" + common.getHex(imm, 0, 0));
+                    memoryAccesses.push_back("or " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + ")" + ", $" + common.getHex(imm, 0, 0));
 
                     if (rm < 4)
                     {
@@ -173,7 +173,7 @@ string And_override_immediate::decode_displacement_without_SIB(int w, int d, int
     return dispWithoutSIB;
 };
 
-string And_override_immediate::decode_mod_00(int w, int d, int rm)
+string Or_override_immediate::decode_mod_00(int w, int d, int rm)
 {
     string string00 = "";
     if (rm == 6)
@@ -185,7 +185,7 @@ string And_override_immediate::decode_mod_00(int w, int d, int rm)
         if (w == 0)
         {
             int8_t imm = common.assemble_bits(1, instruction, registers);
-            memoryAccesses.push_back("and (%" + regs_16bitmode[rm] + ")"+", $" + common.getHex(imm, 0, 0));
+            memoryAccesses.push_back("or (%" + regs_16bitmode[rm] + ")"+", $" + common.getHex(imm, 0, 0));
             string00 =  "(%" + regs_16bitmode[rm] + ")"+", $" + common.getHex(imm, 0, 0) +"\n";
 
             if (rm < 4)
@@ -204,7 +204,7 @@ string And_override_immediate::decode_mod_00(int w, int d, int rm)
             if (opSize)
             {
                 int16_t imm = common.assemble_bits(2, instruction, registers);
-                memoryAccesses.push_back("and (%" + regs_16bitmode[rm] + ")"+", $" + common.getHex(imm, 0, 0));
+                memoryAccesses.push_back("or (%" + regs_16bitmode[rm] + ")"+", $" + common.getHex(imm, 0, 0));
                 string00 =  "(%" + regs_16bitmode[rm] + ")"+", $" + common.getHex(imm, 0, 0) +"\n";
 
                 if (rm < 4)
@@ -221,7 +221,7 @@ string And_override_immediate::decode_mod_00(int w, int d, int rm)
             else
             {
                 int imm = common.assemble_bits(4, instruction, registers);
-                memoryAccesses.push_back("and (%" + regs_16bitmode[rm] + ")"+", $" + common.getHex(imm, 0, 0));
+                memoryAccesses.push_back("or (%" + regs_16bitmode[rm] + ")"+", $" + common.getHex(imm, 0, 0));
 
                 if (rm < 4)
                 {
@@ -241,19 +241,19 @@ string And_override_immediate::decode_mod_00(int w, int d, int rm)
     return string00;
 }
 
-string And_override_immediate::decode_mod_01(int w, int d, int rm)
+string Or_override_immediate::decode_mod_01(int w, int d, int rm)
 {
     string string01 = decode_displacement_without_SIB(w, d, 1, rm);
     return string01;
 }
 
-string And_override_immediate::decode_mod_10(int w, int d, int rm)
+string Or_override_immediate::decode_mod_10(int w, int d, int rm)
 {
     string string10 = decode_displacement_without_SIB(w, d, 2, rm);
     return string10;
 }
 
-string And_override_immediate::decode_mod_11(int w, int d, int rm)
+string Or_override_immediate::decode_mod_11(int w, int d, int rm)
 {
     string string11 = "";
     if (w == 0)
@@ -296,7 +296,7 @@ string And_override_immediate::decode_mod_11(int w, int d, int rm)
     return string11;
 }
 
-string And_override_immediate::decode_imm(short prefixes[4], int w, int d, int mod, int rm)
+string Or_override_immediate::decode_imm(short prefixes[4], int w, int d, int mod, int rm)
 {
     string decoded_bytes;
 

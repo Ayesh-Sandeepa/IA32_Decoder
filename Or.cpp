@@ -9,12 +9,11 @@
 #include <map>
 #include <list>
 
-#include "Cmp.h"
+#include "Or.h"
 
 using namespace std;
 
-
-Cmp::Cmp(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
+Or::Or(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
     : common(com), instruction(instruction), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses)
 {
     regs_32[0] = "EAX";
@@ -45,7 +44,8 @@ Cmp::Cmp(Common com, queue<short> &instruction, map<string, int> &registers, map
     regs_8[7] = "BH";
 }
 
-string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int scale, int base)
+
+string Or::decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int scale, int base)
 {
     string dispWithSIB = "";
 
@@ -74,7 +74,7 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                 {
                     if (index == 4)
                     {
-                        memoryAccesses.push_back("cmp %" + regs_8[reg] + "," + st);
+                        memoryAccesses.push_back("or %" + regs_8[reg] + "," + st);
 
                         int8_t num1, num2, num3;
                         uint8_t num4;
@@ -90,17 +90,13 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         num2 = memories8bit[st];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + st);
 
-                        num3 = num2 - num1;
+                        num3 = num1 | num2;
                         num4 = unsigned(num3);
+
+                        memories8bit[st] = num3;
 
                         memoryAccesses.push_back("write " + to_string(num3) + " to " + st);
 
-                        if (num3 > 0) {
-                            cout << "First operand is greater than second operand " << endl; 
-                        }
-                        else {
-                            cout << "First operand is less than second operand " << endl;
-                        }
                         common.setOverflow8bit(num1, num2, num3, registers);
                         common.setCarry8bit(num1, num4, registers);
                         common.setSign(num3, registers);
@@ -110,7 +106,7 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                     }
                     else
                     {
-                        memoryAccesses.push_back("add %" + regs_8[reg] + "," + st + "(,%" + regs_32[index] + "," + to_string(scale) + ")");
+                        memoryAccesses.push_back("or %" + regs_8[reg] + "," + st + "(,%" + regs_32[index] + "," + to_string(scale) + ")");
 
                         int8_t num1, num2, num3;
                         uint8_t num4;
@@ -126,17 +122,11 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         num2 = memories8bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[index]] * scale + disp, 0, 0));
 
-                        num3 = num2 - num1;
+                        num3 = num1 | num2;
                         num4 = unsigned(num3);
 
+                        memories8bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)] = num3;
                         memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[index]] * scale + disp, 0, 0));
-
-                        if (num3 > 0) {
-                            cout << "First operand is greater than second operand " << endl; 
-                        }
-                        else {
-                            cout << "First operand is less than second operand " << endl;
-                        }
 
                         common.setOverflow8bit(num1, num2, num3, registers);
                         common.setCarry8bit(num1, num4, registers);
@@ -159,8 +149,10 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories8bit[st];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + st);
 
-                            num3 = num1 - num2;
+                            num3 = num1 | num2;
                             num4 = unsigned(num3);
+
+                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
                         }
                         else
                         {
@@ -168,15 +160,10 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories8bit[st];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + st);
 
-                            num3 = num1 - num2;
+                            num3 = num1 | num2;
                             num4 = unsigned(num3);
-                        }
 
-                        if (num3 > 0) {
-                            cout << "First operand is greater than second operand " << endl; 
-                        }
-                        else {
-                            cout << "First operand is less than second operand " << endl;
+                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
                         }
 
                         common.setOverflow8bit(num1, num2, num3, registers);
@@ -197,8 +184,10 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories8bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[index]] * scale + disp, 0, 0));
 
-                            num3 = num1 - num2;
+                            num3 = num1 | num2;
                             num4 = unsigned(num3);
+
+                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
                         }
                         else
                         {
@@ -206,15 +195,10 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories8bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[index]] * scale + disp, 0, 0));
 
-                            num3 = num1 - num2;
+                            num3 = num1 | num2;
                             num4 = unsigned(num3);
-                        }
 
-                        if (num3 > 0) {
-                            cout << "First operand is greater than second operand " << endl; 
-                        }
-                        else {
-                            cout << "First operand is less than second operand " << endl;
+                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
                         }
 
                         common.setOverflow8bit(num1, num2, num3, registers);
@@ -234,7 +218,7 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                     {
                         if (index == 4)
                         {
-                            memoryAccesses.push_back("cmp "+st + ",%" + regs_16[reg]);
+                            memoryAccesses.push_back("or "+st + ",%" + regs_16[reg]);
 
                             int16_t num1, num2, num3;
                             uint16_t num4;
@@ -244,17 +228,12 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories16bit[st];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + st);
 
-                            num3 = num2 - num1;
+                            num3 = num1 | num2;
                             num4 = unsigned(num3);
 
+                            memories16bit[st] = num3;
                             memoryAccesses.push_back("write " + to_string(num3) + " to " + st);
 
-                            if (num3 > 0) {
-                                cout << "First operand is greater than second operand " << endl; 
-                            }
-                            else {
-                                cout << "First operand is less than second operand " << endl;
-                            }
                             common.setOverflow16bit(num1, num2, num3, registers);
                             common.setCarry16bit(num1, num4, registers);
                             common.setSign(num3, registers);
@@ -264,7 +243,7 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         }
                         else
                         {
-                            memoryAccesses.push_back("cmp "+st + "(,%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_16[reg]);
+                            memoryAccesses.push_back("or "+st + "(,%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_16[reg]);
 
                             int16_t num1, num2, num3;
                             uint16_t num4;
@@ -274,17 +253,11 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories16bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[index]] * scale + disp, 0, 0));
 
-                            num3 = num2 - num1;
+                            num3 = num1 | num2;
                             num4 = unsigned(num3);
 
+                            memories16bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)] = num3;
                             memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[index]] * scale + disp, 0, 0));
-
-                            if (num3 > 0) {
-                                cout << "First operand is greater than second operand " << endl; 
-                            }
-                            else {
-                                cout << "First operand is less than second operand " << endl;
-                            }
 
                             common.setOverflow16bit(num1, num2, num3, registers);
                             common.setCarry16bit(num1, num4, registers);
@@ -305,15 +278,10 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories16bit[st];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + st);
 
-                            num3 = num1 - num2;
+                            num3 = num1 | num2;
                             num4 = unsigned(num3);
 
-                            if (num3 > 0) {
-                                cout << "First operand is greater than second operand " << endl; 
-                            }
-                            else {
-                                cout << "First operand is less than second operand " << endl;
-                            }
+                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
 
                             common.setOverflow16bit(num1, num2, num3, registers);
                             common.setCarry16bit(num1, num4, registers);
@@ -331,15 +299,10 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories16bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[index]] * scale + disp, 0, 0));
 
-                            num3 = num1 - num2;
+                            num3 = num1 | num2;
                             num4 = unsigned(num3);
 
-                            if (num3 > 0) {
-                                cout << "First operand is greater than second operand " << endl; 
-                            }
-                            else {
-                                cout << "First operand is less than second operand " << endl;
-                            }
+                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
 
                             common.setOverflow16bit(num1, num2, num3, registers);
                             common.setCarry16bit(num1, num4, registers);
@@ -356,54 +319,42 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                     {
                         if (index == 4)
                         {
-                            memoryAccesses.push_back("cmp "+st + ",%" + regs_32[reg]);
+                            memoryAccesses.push_back("or "+st + ",%" + regs_32[reg]);
 
                             int num1 = memories32bit[st];
                             memoryAccesses.push_back("Read " + to_string(num1) + " from " + st);
 
                             int num2 = registers[regs_32[reg]];
-                            int num3 = num1 - num2;
+                            int num3 = num1 | num2;
                             unsigned int num4 = unsigned(num3);
-
-                            if (num3 > 0) {
-                                cout << "First operand is greater than second operand " << endl; 
-                            }
-                            else {
-                                cout << "First operand is less than second operand " << endl;
-                            }
 
                             common.setOverflow32bit(num1, num2, num3, registers);
                             common.setCarry32bit(num1, num4, registers);
                             common.setSign(num3, registers);
                             common.setZero(num3, registers);
 
+                            memories32bit[st] = num3;
                             memoryAccesses.push_back("write " + to_string(num3) + " to " + st);
 
                             dispWithSIB = st + ",%" + regs_32[reg] + "\n";
                         }
                         else
                         {
-                            memoryAccesses.push_back("cmp " + st + "(,%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg] );
+                            memoryAccesses.push_back("or " + st + "(,%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg] );
 
                             int num1 = memories32bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[index]] * scale + disp, 0, 0));
 
                             int num2 = registers[regs_32[reg]];
-                            int num3 = num1 - num2;
+                            int num3 = num1 | num2;
                             unsigned int num4 = unsigned(num3);
-
-                            if (num3 > 0) {
-                                cout << "First operand is greater than second operand " << endl; 
-                            }
-                            else {
-                                cout << "First operand is less than second operand " << endl;
-                            }
 
                             common.setOverflow32bit(num1, num2, num3, registers);
                             common.setCarry32bit(num1, num4, registers);
                             common.setSign(num3, registers);
                             common.setZero(num3, registers);
 
+                            memories32bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)] = num3;
                             memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[index]] * scale + disp, 0, 0));
 
                             dispWithSIB = st + "(,%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg] + "\n";
@@ -417,20 +368,15 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             memoryAccesses.push_back("Read " + to_string(num1) + " from " + st);
 
                             int num2 = registers[regs_32[reg]];
-                            int num3 = num2 - num1;
+                            int num3 = num1 | num2;
                             unsigned int num4 = unsigned(num3);
-
-                            if (num3 > 0) {
-                                cout << "First operand is greater than second operand " << endl; 
-                            }
-                            else {
-                                cout << "First operand is less than second operand " << endl;
-                            }
 
                             common.setOverflow32bit(num1, num2, num3, registers);
                             common.setCarry32bit(num1, num4, registers);
                             common.setSign(num3, registers);
                             common.setZero(num3, registers);
+
+                            registers[regs_32[reg]] = num3;
 
                             dispWithSIB = "%" + regs_32[reg] + "," + st + "\n";
                         }
@@ -441,20 +387,15 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[index]] * scale + disp, 0, 0));
 
                             int num2 = registers[regs_32[reg]];
-                            int num3 = num2 - num1;
+                            int num3 = num1 | num2;
                             unsigned int num4 = unsigned(num3);
-
-                            if (num3 > 0) {
-                                cout << "First operand is greater than second operand " << endl; 
-                            }
-                            else {
-                                cout << "First operand is less than second operand " << endl;
-                            }
 
                             common.setOverflow32bit(num1, num2, num3, registers);
                             common.setCarry32bit(num1, num4, registers);
                             common.setSign(num3, registers);
                             common.setZero(num3, registers);
+
+                            registers[regs_32[reg]] = num3;
 
                             dispWithSIB = "%" + regs_32[reg] + "," + st + "(,%" + regs_32[index] + "," + to_string(scale) + ")" + "\n";
                         }
@@ -470,7 +411,7 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                 {
                     if (index == 4)
                     {
-                        memoryAccesses.push_back("cmp "  "(%" + regs_32[base] + "),%" + regs_8[reg]);
+                        memoryAccesses.push_back("or "  "(%" + regs_32[base] + "),%" + regs_8[reg]);
 
                         int8_t num1, num2, num3;
                         uint8_t num4;
@@ -486,17 +427,11 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         num2 = memories8bit[common.getHex(registers[regs_32[base]], 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]], 0, 0));
 
-                        num3 = num1 - num2;
+                        num3 = num1 | num2;
                         num4 = unsigned(num3);
 
+                        memories8bit[common.getHex(registers[regs_32[base]], 0, 0)] = num3;
                         memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[base]], 0, 0));
-
-                        if (num3 > 0) {
-                            cout << "First operand is greater than second operand " << endl; 
-                        }
-                        else {
-                            cout << "First operand is less than second operand " << endl;
-                        }
 
                         common.setOverflow8bit(num1, num2, num3, registers);
                         common.setCarry8bit(num1, num4, registers);
@@ -507,7 +442,7 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                     }
                     else
                     {
-                        memoryAccesses.push_back("cmp (%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_8[reg]);
+                        memoryAccesses.push_back("or (%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_8[reg]);
 
                         int8_t num1, num2, num3;
                         uint8_t num4;
@@ -522,17 +457,11 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         num2 = memories8bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2, 0, 0));
 
-                        num3 = num1 - num2;
+                        num3 = num1 | num2;
                         num4 = unsigned(num3);
 
+                        memories8bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2, 0, 0)] = num3;
                         memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2, 0, 0));
-                        
-                        if (num3 > 0) {
-                            cout << "First operand is greater than second operand " << endl; 
-                        }
-                        else {
-                            cout << "First operand is less than second operand " << endl;
-                        }
 
                         common.setOverflow8bit(num1, num2, num3, registers);
                         common.setCarry8bit(num1, num4, registers);
@@ -556,8 +485,10 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories8bit[common.getHex(registers[regs_32[base]], 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]], 0, 0));
 
-                            num3 = num1 - num2;
+                            num3 = num1 | num2;
                             num4 = unsigned(num3);
+
+                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
                         }
                         else
                         {
@@ -565,15 +496,10 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories8bit[common.getHex(registers[regs_32[base]], 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]], 0, 0));
 
-                            num3 = num1 - num2;
+                            num3 = num1 | num2;
                             num4 = unsigned(num3);
-                        }
 
-                        if (num3 > 0) {
-                            cout << "First operand is greater than second operand " << endl; 
-                        }
-                        else {
-                            cout << "First operand is less than second operand " << endl;
+                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
                         }
 
                         common.setOverflow8bit(num1, num2, num3, registers);
@@ -594,8 +520,10 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories8bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale , 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale , 0, 0));
 
-                            num3 = num1 - num2;
+                            num3 = num1 | num2;
                             num4 = unsigned(num3);
+
+                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
                         }
                         else
                         {
@@ -603,15 +531,10 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories8bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale , 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale , 0, 0));
 
-                            num3 = num1 - num2;
+                            num3 = num1 | num2;
                             num4 = unsigned(num3);
-                        }
 
-                        if (num3 > 0) {
-                            cout << "First operand is greater than second operand " << endl; 
-                        }
-                        else {
-                            cout << "First operand is less than second operand " << endl;
+                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
                         }
 
                         common.setOverflow8bit(num1, num2, num3, registers);
@@ -631,7 +554,7 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                     {
                         if (index == 4)
                         {
-                            memoryAccesses.push_back("cmp (%" + regs_32[base] + "),%" + regs_16[reg]);
+                            memoryAccesses.push_back("or (%" + regs_32[base] + "),%" + regs_16[reg]);
 
                             int16_t num1, num2, num3;
                             uint16_t num4;
@@ -641,17 +564,11 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories16bit[common.getHex(registers[regs_32[base]], 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]], 0, 0));
 
-                            num3 = num1 - num2;
+                            num3 = num1 | num2;
                             num4 = unsigned(num3);
 
+                            memories16bit[common.getHex(registers[regs_32[base]], 0, 0)] = num3;
                             memoryAccesses.push_back("write " + to_string(num3) + " to " + to_string((unsigned)registers[regs_32[base]]));
-                            
-                            if (num3 > 0) {
-                                cout << "First operand is greater than second operand " << endl; 
-                            }
-                            else {
-                                cout << "First operand is less than second operand " << endl;
-                            }
 
                             common.setOverflow16bit(num1, num2, num3, registers);
                             common.setCarry16bit(num1, num4, registers);
@@ -662,7 +579,7 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         }
                         else
                         {
-                            memoryAccesses.push_back("cmp (%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_16[reg]);
+                            memoryAccesses.push_back("or (%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_16[reg]);
 
                             int16_t num1, num2, num3;
                             uint16_t num4;
@@ -672,17 +589,11 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories16bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp, 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp, 0, 0));
 
-                            num3 = num1 - num2;
+                            num3 = num1 | num2;
                             num4 = unsigned(num3);
 
+                            memories16bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp, 0, 0)] = num3;
                             memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp, 0, 0));
-
-                            if (num3 > 0) {
-                                cout << "First operand is greater than second operand " << endl; 
-                            }
-                            else {
-                                cout << "First operand is less than second operand " << endl;
-                            }
 
                             common.setOverflow16bit(num1, num2, num3, registers);
                             common.setCarry16bit(num1, num4, registers);
@@ -704,15 +615,10 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories16bit[common.getHex(registers[regs_32[base]], 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]], 0, 0));
 
-                            num3 = num1 - num2;
+                            num3 = num1 | num2;
                             num4 = unsigned(num3);
 
-                            if (num3 > 0) {
-                                cout << "First operand is greater than second operand " << endl; 
-                            }
-                            else {
-                                cout << "First operand is less than second operand " << endl;
-                            }
+                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
 
                             common.setOverflow16bit(num1, num2, num3, registers);
                             common.setCarry16bit(num1, num4, registers);
@@ -731,15 +637,10 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             num2 = memories16bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0));
 
-                            num3 = num1 - num2;
+                            num3 = num1 | num2;
                             num4 = unsigned(num3);
-                            
-                            if (num3 > 0) {
-                                cout << "First operand is greater than second operand " << endl; 
-                            }
-                            else {
-                                cout << "First operand is less than second operand " << endl;
-                            }
+
+                            registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
 
                             common.setOverflow16bit(num1, num2, num3, registers);
                             common.setCarry16bit(num1, num4, registers);
@@ -756,54 +657,42 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                     {
                         if (index == 4)
                         {
-                            memoryAccesses.push_back("cmp (%" + regs_32[base] + ")" + ",%" + regs_32[reg]);
+                            memoryAccesses.push_back("or (%" + regs_32[base] + ")" + ",%" + regs_32[reg]);
 
                             int num1 = memories32bit[common.getHex(registers[regs_32[base]], 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[base]], 0, 0));
 
                             int num2 = registers[regs_32[reg]];
-                            int num3 = num1 - num2;
+                            int num3 = num1 | num2;
                             unsigned int num4 = unsigned(num3);
-
-                            if (num3 > 0) {
-                                cout << "First operand is greater than second operand " << endl; 
-                            }
-                            else {
-                                cout << "First operand is less than second operand " << endl;
-                            }
 
                             common.setOverflow32bit(num1, num2, num3, registers);
                             common.setCarry32bit(num1, num4, registers);
                             common.setSign(num3, registers);
                             common.setZero(num3, registers);
 
+                            memories32bit[common.getHex(registers[regs_32[base]], 0, 0)] = num3;
                             memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[base]], 0, 0));
 
                             dispWithSIB = "(%" + regs_32[base] + ")" + ",%" + regs_32[reg] + "\n";
                         }
                         else
                         {
-                            memoryAccesses.push_back("cmp (%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg]);
+                            memoryAccesses.push_back("or (%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg]);
 
                             int num1 = memories32bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0));
 
                             int num2 = registers[regs_32[reg]];
-                            int num3 = num1 - num2;
+                            int num3 = num1 | num2;
                             unsigned int num4 = unsigned(num3);
-
-                            if (num3 > 0) {
-                                cout << "First operand is greater than second operand " << endl; 
-                            }
-                            else {
-                                cout << "First operand is less than second operand " << endl;
-                            }
 
                             common.setOverflow32bit(num1, num2, num3, registers);
                             common.setCarry32bit(num1, num4, registers);
                             common.setSign(num3, registers);
                             common.setZero(num3, registers);
 
+                            memories32bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0)] = num3;
                             memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0));
 
                             dispWithSIB = "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg] + "\n";
@@ -817,20 +706,15 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[base]], 0, 0));
 
                             int num2 = registers[regs_32[reg]];
-                            int num3 = num1 - num2;
+                            int num3 = num1 | num2;
                             unsigned int num4 = unsigned(num3);
-                            
-                            if (num3 > 0) {
-                                cout << "First operand is greater than second operand " << endl; 
-                            }
-                            else {
-                                cout << "First operand is less than second operand " << endl;
-                            }
 
                             common.setOverflow32bit(num1, num2, num3, registers);
                             common.setCarry32bit(num1, num4, registers);
                             common.setSign(num3, registers);
                             common.setZero(num3, registers);
+
+                            registers[regs_32[reg]] = num3;
 
                             dispWithSIB = "%" + regs_32[reg] + "," + "(%" + regs_32[base] + ")" + "\n";
                         }
@@ -841,20 +725,15 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                             memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0));
 
                             int num2 = registers[regs_32[reg]];
-                            int num3 = num1 - num2;
+                            int num3 = num1 | num2;
                             unsigned int num4 = unsigned(num3);
-
-                            if (num3 > 0) {
-                                cout << "First operand is greater than second operand " << endl; 
-                            }
-                            else {
-                                cout << "First operand is less than second operand " << endl;
-                            }
 
                             common.setOverflow32bit(num1, num2, num3, registers);
                             common.setCarry32bit(num1, num4, registers);
                             common.setSign(num3, registers);
                             common.setZero(num3, registers);
+
+                            registers[regs_32[reg]] = num3;
 
                             dispWithSIB = "%" + regs_32[reg] + "," + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")" + "\n";
                         }
@@ -874,7 +753,7 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
             {
                 if (index == 4)
                 {
-                    memoryAccesses.push_back("cmp " +st + "(%" + regs_32[base] + "),%" + regs_8[reg] );
+                    memoryAccesses.push_back("or " +st + "(%" + regs_32[base] + "),%" + regs_8[reg] );
 
                     int8_t num1, num2, num3;
                     uint8_t num4;
@@ -890,17 +769,11 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                     num2 = memories8bit[common.getHex(registers[regs_32[base]] + disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + disp, 0, 0));
 
-                    num3 = num1 - num2;
+                    num3 = num1 | num2;
                     num4 = unsigned(num3);
 
+                    memories8bit[common.getHex(registers[regs_32[base]] + disp, 0, 0)] = num3;
                     memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[base]] + disp, 0, 0));
-
-                    if (num3 > 0) {
-                        cout << "First operand is greater than second operand " << endl; 
-                    }
-                    else {
-                            cout << "First operand is less than second operand " << endl;
-                    }
 
                     common.setOverflow8bit(num1, num2, num3, registers);
                     common.setCarry8bit(num1, num4, registers);
@@ -911,7 +784,7 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                 }
                 else
                 {
-                    memoryAccesses.push_back("cmp " + st + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_8[reg]);
+                    memoryAccesses.push_back("or " + st + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_8[reg]);
 
                     int8_t num1, num2, num3;
                     uint8_t num4;
@@ -927,17 +800,11 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                     num2 = memories8bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp, 0, 0));
 
-                    num3 = num1 - num2;
+                    num3 = num1 | num2;
                     num4 = unsigned(num3);
 
+                    memories8bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp, 0, 0)] = num3;
                     memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp, 0, 0));
-
-                    if (num3 > 0) {
-                        cout << "First operand is greater than second operand " << endl; 
-                    }
-                    else {
-                        cout << "First operand is less than second operand " << endl;
-                    }
 
                     common.setOverflow8bit(num1, num2, num3, registers);
                     common.setCarry8bit(num1, num4, registers);
@@ -960,9 +827,10 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         num2 = memories8bit[common.getHex(registers[regs_32[base]] + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + disp, 0, 0));
 
-                        num3 = num1 - num2;
+                        num3 = num1 | num2;
                         num4 = unsigned(num3);
 
+                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
                     }
                     else
                     {
@@ -970,15 +838,10 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         num2 = memories8bit[common.getHex(registers[regs_32[base]] + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + disp, 0, 0));
 
-                        num3 = num1 - num2;
+                        num3 = num1 | num2;
                         num4 = unsigned(num3);
-                    }
 
-                    if (num3 > 0) {
-                        cout << "First operand is greater than second operand " << endl; 
-                    }
-                    else {
-                        cout << "First operand is less than second operand " << endl;
+                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
                     }
 
                     common.setOverflow8bit(num1, num2, num3, registers);
@@ -999,8 +862,10 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         num2 = memories8bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0));
 
-                        num3 = num1 - num2;
+                        num3 = num1 | num2;
                         num4 = unsigned(num3);
+
+                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
                     }
                     else
                     {
@@ -1008,16 +873,10 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         num2 = memories8bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0));
 
-                        num3 = num1 - num2;
+                        num3 = num1 | num2;
                         num4 = unsigned(num3);
 
-                    }
-
-                    if (num3 > 0) {
-                        cout << "First operand is greater than second operand " << endl; 
-                    }
-                    else {
-                        cout << "First operand is less than second operand " << endl;
+                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
                     }
 
                     common.setOverflow8bit(num1, num2, num3, registers);
@@ -1037,7 +896,7 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                 {
                     if (index == 4)
                     {
-                        memoryAccesses.push_back("cmp " + st + "(%" + regs_32[base] + "),%" + regs_16[reg]);
+                        memoryAccesses.push_back("or " + st + "(%" + regs_32[base] + "),%" + regs_16[reg]);
 
                         int16_t num1, num2, num3;
                         uint16_t num4;
@@ -1047,17 +906,11 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         num2 = memories16bit[common.getHex(registers[regs_32[base]] + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + disp, 0, 0));
 
-                        num3 = num1 - num2;
+                        num3 = num1 | num2;
                         num4 = unsigned(num3);
-                    
-                        memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[base]] + disp, 0, 0));
 
-                        if (num3 > 0) {
-                            cout << "First operand is greater than second operand " << endl; 
-                        }
-                        else {
-                            cout << "First operand is less than second operand " << endl;
-                        }
+                        memories16bit[common.getHex(registers[regs_32[base]] + disp, 0, 0)] = num3;
+                        memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[base]] + disp, 0, 0));
 
                         common.setOverflow16bit(num1, num2, num3, registers);
                         common.setCarry16bit(num1, num4, registers);
@@ -1068,7 +921,7 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                     }
                     else
                     {
-                        memoryAccesses.push_back("cmp " + st + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_16[reg]);
+                        memoryAccesses.push_back("or " + st + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_16[reg]);
 
                         int16_t num1, num2, num3;
                         uint16_t num4;
@@ -1078,17 +931,11 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         num2 = memories16bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp, 0, 0));
 
-                        num3 = num1 - num2;
+                        num3 = num1 | num2;
                         num4 = unsigned(num3);
-                      
-                        memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp, 0, 0));
 
-                        if (num3 > 0) {
-                            cout << "First operand is greater than second operand " << endl; 
-                        }
-                        else {
-                            cout << "First operand is less than second operand " << endl;
-                        }
+                        memories16bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp, 0, 0)] = num3;
+                        memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp, 0, 0));
 
                         common.setOverflow16bit(num1, num2, num3, registers);
                         common.setCarry16bit(num1, num4, registers);
@@ -1109,15 +956,10 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         num2 = memories16bit[common.getHex(registers[regs_32[base]] + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + disp, 0, 0));
 
-                        num3 = num1 - num2;
+                        num3 = num1 | num2;
                         num4 = unsigned(num3);
 
-                        if (num3 > 0) {
-                            cout << "First operand is greater than second operand " << endl; 
-                        }
-                        else {
-                            cout << "First operand is less than second operand " << endl;
-                        }
+                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
 
                         common.setOverflow16bit(num1, num2, num3, registers);
                         common.setCarry16bit(num1, num4, registers);
@@ -1135,15 +977,10 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         num2 = memories16bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0));
 
-                        num3 = num1 - num2;
+                        num3 = num1 | num2;
                         num4 = unsigned(num3);
 
-                        if (num3 > 0) {
-                            cout << "First operand is greater than second operand " << endl; 
-                        }
-                        else {
-                            cout << "First operand is less than second operand " << endl;
-                        }
+                        registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
 
                         common.setOverflow16bit(num1, num2, num3, registers);
                         common.setCarry16bit(num1, num4, registers);
@@ -1160,54 +997,42 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                 {
                     if (index == 4)
                     {
-                        memoryAccesses.push_back("cmp " + st + "(%" + regs_32[base] + ")" + ",%" + regs_32[reg]);
+                        memoryAccesses.push_back("or " + st + "(%" + regs_32[base] + ")" + ",%" + regs_32[reg]);
 
                         int num1 = memories32bit[common.getHex(registers[regs_32[base]] + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[base]] + disp, 0, 0));
 
                         int num2 = registers[regs_32[reg]];
-                        int num3 = num1 - num2;
+                        int num3 = num1 | num2;
                         unsigned int num4 = unsigned(num3);
-
-                        if (num3 > 0) {
-                            cout << "First operand is greater than second operand " << endl; 
-                        }
-                        else {
-                            cout << "First operand is less than second operand " << endl;
-                        }
 
                         common.setOverflow32bit(num1, num2, num3, registers);
                         common.setCarry32bit(num1, num4, registers);
                         common.setSign(num3, registers);
                         common.setZero(num3, registers);
 
+                        memories32bit[common.getHex(registers[regs_32[base]] + disp, 0, 0)] = num3;
                         memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[base]] + disp, 0, 0));
 
                         dispWithSIB = st + "(%" + regs_32[base] + ")" + ",%" + regs_32[reg] + "\n";
                     }
                     else
                     {
-                        memoryAccesses.push_back("cmp " +st + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg]);
+                        memoryAccesses.push_back("or " +st + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg]);
 
                         int num1 = memories32bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0));
 
                         int num2 = registers[regs_32[reg]];
-                        int num3 = num1 - num2;
+                        int num3 = num1 | num2;
                         unsigned int num4 = unsigned(num3);
-                        
-                        if (num3 > 0) {
-                            cout << "First operand is greater than second operand " << endl; 
-                        }
-                        else {
-                            cout << "First operand is less than second operand " << endl;
-                        }
 
                         common.setOverflow32bit(num1, num2, num3, registers);
                         common.setCarry32bit(num1, num4, registers);
                         common.setSign(num3, registers);
                         common.setZero(num3, registers);
 
+                        memories32bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0)] = num3;
                         memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0));
 
                         dispWithSIB = st + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg] + "\n";
@@ -1221,20 +1046,15 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[base]] + disp, 0, 0));
 
                         int num2 = registers[regs_32[reg]];
-                        int num3 = num1 - num2;
+                        int num3 = num1 | num2;
                         unsigned int num4 = unsigned(num3);
-                        
-                        if (num3 > 0) {
-                            cout << "First operand is greater than second operand " << endl; 
-                        }
-                        else {
-                            cout << "First operand is less than second operand " << endl;
-                        }
 
                         common.setOverflow32bit(num1, num2, num3, registers);
                         common.setCarry32bit(num1, num4, registers);
                         common.setSign(num3, registers);
                         common.setZero(num3, registers);
+
+                        registers[regs_32[reg]] = num3;
 
                         dispWithSIB = "%" + regs_32[reg] + "," + st + "(%" + regs_32[base] + ")" + "\n";
                     }
@@ -1244,20 +1064,15 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0));
 
                         int num2 = registers[regs_32[reg]];
-                        int num3 = num1 - num2;
+                        int num3 = num1 | num2;
                         unsigned int num4 = unsigned(num3);
-
-                        if (num3 > 0) {
-                            cout << "First operand is greater than second operand " << endl; 
-                        }
-                        else {
-                            cout << "First operand is less than second operand " << endl;
-                        }
 
                         common.setOverflow32bit(num1, num2, num3, registers);
                         common.setCarry32bit(num1, num4, registers);
                         common.setSign(num3, registers);
                         common.setZero(num3, registers);
+
+                        registers[regs_32[reg]] = num3;
 
                         dispWithSIB = "%" + regs_32[reg] + "," + st + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")" + "\n";
                     }
@@ -1268,7 +1083,7 @@ string Cmp::decode_displacement_with_SIB(int w, int d, int mod, int reg, int ind
     return dispWithSIB;
 }
 
-string Cmp::decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm)
+string Or::decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm)
 {
     string dispWithoutSIB = "";
     int disp_bytes[] = {4, 1, 4};
@@ -1283,7 +1098,7 @@ string Cmp::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
         {
             if (d == 0)
             {
-                memoryAccesses.push_back("cmp " + st + ",%" + regs_8[reg]);
+                memoryAccesses.push_back("or " + st + ",%" + regs_8[reg]);
 
                 int8_t num1, num2, num3;
                 uint8_t num4;
@@ -1299,17 +1114,11 @@ string Cmp::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                 num2 = memories8bit[st];
                 memoryAccesses.push_back("Read " + to_string(num2) + " from " + st);
 
-                num3 = num1 - num2;
+                num3 = num1 | num2;
                 num4 = unsigned(num3);
 
+                memories8bit[st] = num3;
                 memoryAccesses.push_back("write " + to_string(num3) + " to " + st);
-
-                if (num3 > 0) {
-                    cout << "First operand is greater than second operand " << endl; 
-                }
-                else {
-                    cout << "First operand is less than second operand " << endl;
-                }
 
                 common.setOverflow8bit(num1, num2, num3, registers);
                 common.setCarry8bit(num1, num4, registers);
@@ -1329,9 +1138,10 @@ string Cmp::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                     num2 = memories8bit[st];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + st);
 
-                    num3 = num1 - num2;
+                    num3 = num1 | num2;
                     num4 = unsigned(num3);
 
+                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
                 }
                 else
                 {
@@ -1339,22 +1149,10 @@ string Cmp::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                     num2 = memories8bit[st];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + st);
 
-                    num3 = num1 - num2;
+                    num3 = num1 | num2;
                     num4 = unsigned(num3);
-                }
 
-                if (num3 > 0) {
-                    cout << "First operand is greater than second operand " << endl; 
-                }
-                else {
-                    cout << "First operand is less than second operand " << endl;
-                }
-
-                if (num3 > 0) {
-                    cout << "First operand is greater than second operand " << endl; 
-                }
-                else {
-                    cout << "First operand is less than second operand " << endl;
+                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
                 }
 
                 common.setOverflow8bit(num1, num2, num3, registers);
@@ -1371,7 +1169,7 @@ string Cmp::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
             {
                 if (d == 0)
                 {
-                    memoryAccesses.push_back("cmp " + st + ",%" + regs_16[reg]);
+                    memoryAccesses.push_back("or " + st + ",%" + regs_16[reg]);
 
                     int16_t num1, num2, num3;
                     uint16_t num4;
@@ -1381,17 +1179,11 @@ string Cmp::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                     num2 = memories16bit[st];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + st);
 
-                    num3 = num1 - num2;
+                    num3 = num1 | num2;
                     num4 = unsigned(num3);
 
+                    memories16bit[st] = num3;
                     memoryAccesses.push_back("write " + to_string(num3) + " to " + st);
-
-                    if (num3 > 0) {
-                        cout << "First operand is greater than second operand " << endl; 
-                    }
-                    else {
-                        cout << "First operand is less than second operand " << endl;
-                    }
 
                     common.setOverflow16bit(num1, num2, num3, registers);
                     common.setCarry16bit(num1, num4, registers);
@@ -1409,15 +1201,10 @@ string Cmp::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                     num2 = memories16bit[st];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + st);
 
-                    num3 = num1 - num2;
+                    num3 = num1 | num2;
                     num4 = unsigned(num3);
 
-                    if (num3 > 0) {
-                        cout << "First operand is greater than second operand " << endl; 
-                    }
-                    else {
-                        cout << "First operand is less than second operand " << endl;
-                    }
+                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
 
                     common.setOverflow16bit(num1, num2, num3, registers);
                     common.setCarry16bit(num1, num4, registers);
@@ -1431,27 +1218,21 @@ string Cmp::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
             {
                 if (d == 0)
                 {
-                    memoryAccesses.push_back("cmp " + st + ",%" + regs_32[reg]);
+                    memoryAccesses.push_back("or " + st + ",%" + regs_32[reg]);
 
                     int num1 = memories32bit[st];
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + st);
 
                     int num2 = registers[regs_32[reg]];
-                    int num3 = num1 - num2;
+                    int num3 = num1 | num2;
                     unsigned int num4 = unsigned(num3);
-
-                    if (num3 > 0) {
-                        cout << "First operand is greater than second operand " << endl; 
-                    }
-                    else {
-                        cout << "First operand is less than second operand " << endl;
-                    }
 
                     common.setOverflow32bit(num1, num2, num3, registers);
                     common.setCarry32bit(num1, num4, registers);
                     common.setSign(num3, registers);
                     common.setZero(num3, registers);
 
+                    memories32bit[st] = num3;
                     memoryAccesses.push_back("write " + to_string(num3) + " to " + st);
 
                     dispWithoutSIB = st + ",%" + regs_32[reg] + "\n";
@@ -1462,20 +1243,15 @@ string Cmp::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + st);
 
                     int num2 = registers[regs_32[reg]];
-                    int num3 = num1 - num2;
+                    int num3 = num1 | num2;
                     unsigned int num4 = unsigned(num3);
-
-                    if (num3 > 0) {
-                        cout << "First operand is greater than second operand " << endl; 
-                    }
-                    else {
-                        cout << "First operand is less than second operand " << endl;
-                    }
 
                     common.setOverflow32bit(num1, num2, num3, registers);
                     common.setCarry32bit(num1, num4, registers);
                     common.setSign(num3, registers);
                     common.setZero(num3, registers);
+
+                    registers[regs_32[reg]] = num3;
 
                     dispWithoutSIB = "%" + regs_32[reg] + "," + st + "\n";
                 }
@@ -1488,7 +1264,7 @@ string Cmp::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
         {
             if (d == 0)
             {
-                memoryAccesses.push_back("cmp " + st + "(%" + regs_32[rm] + "),%" + regs_8[reg]);
+                memoryAccesses.push_back("or " + st + "(%" + regs_32[rm] + "),%" + regs_8[reg]);
 
                 int8_t num1, num2, num3;
                 uint8_t num4;
@@ -1504,17 +1280,11 @@ string Cmp::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                 num2 = memories8bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)];
                 memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
 
-                num3 = num1 - num2;
+                num3 = num1 | num2;
                 num4 = unsigned(num3);
 
+                memories8bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)] = num3;
                 memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
-
-                if (num3 > 0) {
-                    cout << "First operand is greater than second operand " << endl; 
-                }
-                else {
-                    cout << "First operand is less than second operand " << endl;
-                }
 
                 common.setOverflow8bit(num1, num2, num3, registers);
                 common.setCarry8bit(num1, num4, registers);
@@ -1534,9 +1304,10 @@ string Cmp::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                     num2 = memories8bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
 
-                    num3 = num1 - num2;
+                    num3 = num1 | num2;
                     num4 = unsigned(num3);
 
+                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
                 }
                 else
                 {
@@ -1544,16 +1315,10 @@ string Cmp::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                     num2 = memories8bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
 
-                    num3 = num1 - num2;
+                    num3 = num1 | num2;
                     num4 = unsigned(num3);
 
-                }
-
-                if (num3 > 0) {
-                    cout << "First operand is greater than second operand " << endl; 
-                }
-                else {
-                    cout << "First operand is less than second operand " << endl;
+                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
                 }
 
                 common.setOverflow8bit(num1, num2, num3, registers);
@@ -1570,7 +1335,7 @@ string Cmp::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
             {
                 if (d == 0)
                 {
-                    memoryAccesses.push_back("cmp " + st + "(%" + regs_32[rm] + "),%" + regs_16[reg]);
+                    memoryAccesses.push_back("or " + st + "(%" + regs_32[rm] + "),%" + regs_16[reg]);
 
                     int16_t num1, num2, num3;
                     uint16_t num4;
@@ -1579,17 +1344,11 @@ string Cmp::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                     num2 = memories16bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
 
-                    num3 = num1 - num2;
+                    num3 = num1 | num2;
                     num4 = unsigned(num3);
 
+                    memories16bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)] = num3;
                     memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
-
-                    if (num3 > 0) {
-                        cout << "First operand is greater than second operand " << endl; 
-                    }
-                    else {
-                        cout << "First operand is less than second operand " << endl;
-                    }
 
                     common.setOverflow16bit(num1, num2, num3, registers);
                     common.setCarry16bit(num1, num4, registers);
@@ -1607,15 +1366,10 @@ string Cmp::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                     num2 = memories16bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
 
-                    num3 = num1 - num2;
+                    num3 = num1 | num2;
                     num4 = unsigned(num3);
 
-                    if (num3 > 0) {
-                        cout << "First operand is greater than second operand " << endl; 
-                    }
-                    else {
-                        cout << "First operand is less than second operand " << endl;
-                    }
+                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
 
                     common.setOverflow16bit(num1, num2, num3, registers);
                     common.setCarry16bit(num1, num4, registers);
@@ -1633,21 +1387,15 @@ string Cmp::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
 
                     int num2 = registers[regs_32[reg]];
-                    int num3 = num1 - num2;
+                    int num3 = num1 | num2;
                     unsigned int num4 = unsigned(num3);
-
-                    if (num3 > 0) {
-                        cout << "First operand is greater than second operand " << endl; 
-                    }
-                    else {
-                        cout << "First operand is less than second operand " << endl;
-                    }
 
                     common.setOverflow32bit(num1, num2, num3, registers);
                     common.setCarry32bit(num1, num4, registers);
                     common.setSign(num3, registers);
                     common.setZero(num3, registers);
 
+                    memories32bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)] = num3;
                     memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
 
                     dispWithoutSIB = st + "(%" + regs_32[rm] + "),%" + regs_32[reg] + "\n";
@@ -1658,20 +1406,15 @@ string Cmp::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
 
                     int num2 = registers[regs_32[reg]];
-                    int num3 = num1 - num2;
+                    int num3 = num1 | num2;
                     unsigned int num4 = unsigned(num3);
-                    
-                    if (num3 > 0) {
-                        cout << "First operand is greater than second operand " << endl; 
-                    }
-                    else {
-                        cout << "First operand is less than second operand " << endl;
-                    }
 
                     common.setOverflow32bit(num1, num2, num3, registers);
                     common.setCarry32bit(num1, num4, registers);
                     common.setSign(num3, registers);
                     common.setZero(num3, registers);
+
+                    registers[regs_32[reg]] = num3;
 
                     dispWithoutSIB = "%" + regs_32[reg] + "," + st + "(%" + regs_32[rm] + ") \n";
                 }
@@ -1682,7 +1425,7 @@ string Cmp::decode_displacement_without_SIB(int w, int d, int mod, int reg, int 
     return dispWithoutSIB;
 };
 
-string Cmp::decode_SIB(int w, int d, int mod, int reg)
+string Or::decode_SIB(int w, int d, int mod, int reg)
 {
     string stringSib = "";
 
@@ -1703,7 +1446,7 @@ string Cmp::decode_SIB(int w, int d, int mod, int reg)
     return stringSib;
 }
 
-string Cmp::decode_mod_00(int w, int d, int reg, int rm)
+string Or::decode_mod_00(int w, int d, int reg, int rm)
 {
     string string00 = "";
     if (rm == 4)
@@ -1720,7 +1463,7 @@ string Cmp::decode_mod_00(int w, int d, int reg, int rm)
         {
             if (d == 0)
             {
-                memoryAccesses.push_back("cmp (%" + regs_32[rm] + "),%"+regs_8[reg]);
+                memoryAccesses.push_back("or (%" + regs_32[rm] + "),%"+regs_8[reg]);
                 string00 = "(%" + regs_32[rm] + "),%"+regs_8[reg]+"\n";
 
                 int8_t num1, num2, num3;
@@ -1737,17 +1480,12 @@ string Cmp::decode_mod_00(int w, int d, int reg, int rm)
                 num2 = memories8bit[common.getHex(registers[regs_32[rm]], 0, 0)];
                 memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[rm]], 0, 0));
 
-                num3 = num2 - num1;
+                num3 = num1 | num2;
                 num4 = unsigned(num3);
-                
-                if (num3 > 0) {
-                    cout << "First operand is greater than second operand " << endl; 
-                }
-                else {
-                    cout << "First operand is less than second operand " << endl;
-                }
 
+                memories8bit[common.getHex(registers[regs_32[rm]], 0, 0)] = num3;
                 memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[rm]], 0, 0));
+
                 common.setOverflow8bit(num1, num2, num3, registers);
                 common.setCarry8bit(num1, num4, registers);
                 common.setSign(num3, registers);
@@ -1766,8 +1504,10 @@ string Cmp::decode_mod_00(int w, int d, int reg, int rm)
                     num2 = memories8bit[common.getHex(registers[regs_32[rm]], 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[rm]], 0, 0));
 
-                    num3 = num1 - num2;
+                    num3 = num1 | num2;
                     num4 = unsigned(num3);
+
+                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
                 }
                 else
                 {
@@ -1775,16 +1515,12 @@ string Cmp::decode_mod_00(int w, int d, int reg, int rm)
                     num2 = memories8bit[common.getHex(registers[regs_32[rm]], 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[rm]], 0, 0));
 
-                    num3 = num1 - num2;
+                    num3 = num1 | num2;
                     num4 = unsigned(num3);
+
+                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
                 }
 
-                if (num3 > 0) {
-                    cout << "First operand is greater than second operand " << endl; 
-                }
-                else {
-                    cout << "First operand is less than second operand " << endl;
-                }
                 common.setOverflow8bit(num1, num2, num3, registers);
                 common.setCarry8bit(num1, num4, registers);
                 common.setSign(num3, registers);
@@ -1797,7 +1533,7 @@ string Cmp::decode_mod_00(int w, int d, int reg, int rm)
             {
                 if (d == 0)
                 {
-                    memoryAccesses.push_back("cmp (%" + regs_32[rm] + "),%" + regs_16[reg]);
+                    memoryAccesses.push_back("or (%" + regs_32[rm] + "),%" + regs_16[reg]);
 
                     string00 = "(%" + regs_32[rm] + "),%" + regs_16[reg] + "\n";
 
@@ -1809,17 +1545,11 @@ string Cmp::decode_mod_00(int w, int d, int reg, int rm)
                     num2 = memories16bit[common.getHex(registers[regs_32[rm]], 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[rm]], 0, 0));
 
-                    num3 = num2 - num1;
+                    num3 = num1 | num2;
                     num4 = unsigned(num3);
 
+                    memories16bit[common.getHex(registers[regs_32[rm]], 0, 0)] = num3;
                     memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[rm]], 0, 0));
-                    
-                    if (num3 > 0) {
-                        cout << "First operand is greater than second operand " << endl; 
-                    }
-                    else {
-                        cout << "First operand is less than second operand " << endl;
-                    }
 
                     common.setOverflow16bit(num1, num2, num3, registers);
                     common.setCarry16bit(num1, num4, registers);
@@ -1838,15 +1568,10 @@ string Cmp::decode_mod_00(int w, int d, int reg, int rm)
                     num2 = memories16bit[common.getHex(registers[regs_32[rm]], 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[rm]], 0, 0));
 
-                    num3 = num1 - num2;
+                    num3 = num1 | num2;
                     num4 = unsigned(num3);
 
-                    if (num3 > 0) {
-                        cout << "First operand is greater than second operand " << endl; 
-                    }
-                    else {
-                        cout << "First operand is less than second operand " << endl;
-                    }
+                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
 
                     common.setOverflow16bit(num1, num2, num3, registers);
                     common.setCarry16bit(num1, num4, registers);
@@ -1858,21 +1583,14 @@ string Cmp::decode_mod_00(int w, int d, int reg, int rm)
             {
                 if (d == 0)
                 {
-                    memoryAccesses.push_back("cmp (%" + regs_32[rm] + "),%" + regs_32[reg]);
+                    memoryAccesses.push_back("or (%" + regs_32[rm] + "),%" + regs_32[reg]);
 
                     int num1 = memories32bit[common.getHex(registers[regs_32[rm]], 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[rm]], 0, 0));
 
                     int num2 = registers[regs_32[reg]]; //registers["ECX"]
-                    int num3 = num1 - num2;
+                    int num3 = num1 | num2;
                     unsigned int num4 = unsigned(num3);
-
-                    if (num3 > 0) {
-                        cout << "First operand is greater than second operand " << endl; 
-                    }
-                    else {
-                        cout << "First operand is less than second operand " << endl;
-                    }
 
                     common.setOverflow32bit(num1, num2, num3, registers);
                     common.setCarry32bit(num1, num4, registers);
@@ -1880,6 +1598,7 @@ string Cmp::decode_mod_00(int w, int d, int reg, int rm)
                     common.setZero(num3, registers);
 
                     string00 = "(%" + regs_32[rm] + "),%" + regs_32[reg] + "\n";
+                    memories32bit[common.getHex(registers[regs_32[rm]], 0, 0)] = num3;
                     memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex(registers[regs_32[rm]], 0, 0));
                 }
                 else
@@ -1888,15 +1607,8 @@ string Cmp::decode_mod_00(int w, int d, int reg, int rm)
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[rm]], 0, 0));
 
                     int num2 = registers[regs_32[reg]];
-                    int num3 = num2 - num1;
+                    int num3 = num1 | num2;
                     unsigned int num4 = unsigned(num3);
-                    
-                    if (num3 > 0) {
-                        cout << "First operand is greater than second operand " << endl; 
-                    }
-                    else {
-                        cout << "First operand is less than second operand " << endl;
-                    }
 
                     common.setOverflow32bit(num1, num2, num3, registers);
                     common.setCarry32bit(num1, num4, registers);
@@ -1904,6 +1616,7 @@ string Cmp::decode_mod_00(int w, int d, int reg, int rm)
                     common.setZero(num3, registers);
 
                     string00 = "%" + regs_32[reg] + ",(%" + regs_32[rm] + ")\n";
+                    registers[regs_32[reg]] = num3;
                 }
             }
         }
@@ -1912,7 +1625,7 @@ string Cmp::decode_mod_00(int w, int d, int reg, int rm)
     return string00;
 }
 
-string Cmp::decode_mod_01(int w, int d, int reg, int rm)
+string Or::decode_mod_01(int w, int d, int reg, int rm)
 {
     string string01 = "";
     if (rm == 4)
@@ -1926,7 +1639,7 @@ string Cmp::decode_mod_01(int w, int d, int reg, int rm)
     return string01;
 }
 
-string Cmp::decode_mod_10(int w, int d, int reg, int rm)
+string Or::decode_mod_10(int w, int d, int reg, int rm)
 {
     string string10 = "";
     if (rm == 4)
@@ -1940,7 +1653,7 @@ string Cmp::decode_mod_10(int w, int d, int reg, int rm)
     return string10;
 }
 
-string Cmp::decode_mod_11(int w, int d, int reg, int rm)
+string Or::decode_mod_11(int w, int d, int reg, int rm)
 {
     string string11 = "";
     if (w == 0)
@@ -1964,24 +1677,19 @@ string Cmp::decode_mod_11(int w, int d, int reg, int rm)
             if (rm < 4)
             {
                 num2 = common.get_bits(1, 8, registers[regs_32[rm]]);
-                num3 = num2 - num1;
+                num3 = num1 | num2;
                 num4 = unsigned(num3);
+                registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffffff00) | (num3 & 0x000000ff);
             }
             else
             {
                 num2 = common.get_bits(9, 8, registers[regs_32[rm % 4]]);
-                num3 = num2 - num1;
+                num3 = num1 | num2;
                 num4 = unsigned(num3);
+                registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffff00ff) | ((num3 << 8) & 0x0000ff00);
             }
 
             //cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
-            
-            if (num3 > 0) {
-                cout << "First operand is greater than second operand " << endl; 
-            }
-            else {
-                cout << "First operand is less than second operand " << endl;
-            }
 
             common.setOverflow8bit(num1, num2, num3, registers);
             common.setCarry8bit(num1, num4, registers);
@@ -2009,24 +1717,18 @@ string Cmp::decode_mod_11(int w, int d, int reg, int rm)
             if (reg < 4)
             {
                 num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
-
-                num3 = num1 - num2;
+                num3 = num1 | num2;
                 num4 = unsigned(num3);
+                registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
             }
             else
             {
                 num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
-                num3 = num1 - num2;
+                num3 = num1 | num2;
                 num4 = unsigned(num3);
+                registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((num3 << 8) & 0x0000ff00);
             }
             //cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
-            
-            if (num3 > 0) {
-                cout << "First operand is greater than second operand " << endl; 
-            }
-            else {
-                cout << "First operand is less than second operand " << endl;
-            }
 
             common.setOverflow8bit(num1, num2, num3, registers);
             common.setCarry8bit(num1, num4, registers);
@@ -2049,19 +1751,12 @@ string Cmp::decode_mod_11(int w, int d, int reg, int rm)
 
                 num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
                 num2 = common.get_bits(1, 16, registers[regs_32[rm]]);
-                num3 = num2 - num1;
+                num3 = num1 | num2;
                 num4 = unsigned(num3);
-                
-                //cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
-                
-                if (num3 > 0) {
+                registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffff0000) | (num3 & 0x0000ffff);
 
-                    cout << "First operand is greater than second operand " << endl; 
-                }
-                else {
-                    cout << "First operand is less than second operand " << endl;
-                }           
-                
+                //cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
+
                 common.setOverflow16bit(num1, num2, num3, registers);
                 common.setCarry16bit(num1, num4, registers);
                 common.setSign(num3, registers);
@@ -2078,17 +1773,11 @@ string Cmp::decode_mod_11(int w, int d, int reg, int rm)
 
                 num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
                 num2 = common.get_bits(1, 16, registers[regs_32[rm]]);
-                num3 = num1 - num2;
+                num3 = num1 | num2;
                 num4 = unsigned(num3);
+                registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
 
                 //cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
-                
-                if (num3 > 0) {
-                    cout << "First operand is greater than second operand " << endl; 
-                }
-                else {
-                    cout << "First operand is less than second operand " << endl;
-                }
 
                 common.setOverflow16bit(num1, num2, num3, registers);
                 common.setCarry16bit(num1, num4, registers);
@@ -2105,18 +1794,11 @@ string Cmp::decode_mod_11(int w, int d, int reg, int rm)
                 //printf("w:1 and d:0 \n");
                 int num1 = registers[regs_32[reg]];
                 int num2 = registers[regs_32[rm]];
-
-                int num3 = num2 - num1;
+                int num3 = num1 | num2;
                 unsigned int num4 = unsigned(num3);
+                registers[regs_32[rm]] = num3;
 
                 //cout << "num1: " << num1 << ", num2: " << num2 << ", num3: " << num3 << ", num4: " << num4 << "\n";
-
-                if (num3 > 0) {
-                    cout << "First operand is greater than second operand " << endl; 
-                }
-                else {
-                    cout << "First operand is less than second operand " << endl;
-                }
 
                 common.setOverflow32bit(num1, num2, num3, registers);
                 common.setCarry32bit(num1, num4, registers);
@@ -2130,17 +1812,11 @@ string Cmp::decode_mod_11(int w, int d, int reg, int rm)
                 //printf("w:1 and d:1 \n");
                 int num1 = registers[regs_32[reg]];
                 int num2 = registers[regs_32[rm]];
-                int num3 = num1 - num2;
+                int num3 = num1 | num2;
                 unsigned int num4 = unsigned(num3);
+                registers[regs_32[reg]] = num3;
 
                 //cout << "num1: " << dec << num1 << ", num2: " << dec << num2 << ", num3: " << dec << num3 << "\n";
-                
-                if (num3 > 0) {
-                    cout << "First operand is greater than second operand " << endl; 
-                }
-                else {
-                    cout << "First operand is less than second operand " << endl;
-                }
 
                 common.setOverflow32bit(num1, num2, num3, registers);
                 common.setCarry32bit(num1, num4, registers);
@@ -2155,7 +1831,7 @@ string Cmp::decode_mod_11(int w, int d, int reg, int rm)
     return string11;
 }
 
-string Cmp::decode_imm(int opCode, int w, int d)
+string Or::decode_imm(int opCode, int w, int d)
 {
     string dec_imm;
     int imm;
@@ -2171,18 +1847,11 @@ string Cmp::decode_imm(int opCode, int w, int d)
         dec_imm = "%%AL, $"+st;
 
         num1 = common.get_bits(1, 8, registers["EAX"]);
-        num2 = num1 - imm;
+        num2 = imm | num1;
 
         num3 = unsigned(num2);
 
         registers["EAX"] = ((registers["EAX"]) & 0xffffff00) | (num2 & 0x000000ff);
-
-        if (num3 > 0) {
-            cout << "First operand is greater than second operand " << endl; 
-        }
-        else {
-            cout << "First operand is less than second operand " << endl;
-        }
 
         common.setOverflow8bit(imm, num1, num2, registers);
         common.setCarry8bit(num1, num3, registers);
@@ -2202,18 +1871,11 @@ string Cmp::decode_imm(int opCode, int w, int d)
             dec_imm = "%%AX, $"+st;
 
             num1 = common.get_bits(1, 16, registers["EAX"]);
-            num2 = num1 - imm;
+            num2 = imm | num1;
 
             num3 = unsigned(num2);
 
             registers["EAX"] = ((registers["EAX"]) & 0xffff0000) | (num2 & 0x0000ffff);
-
-            if (num3 > 0) {
-                cout << "First operand is greater than second operand " << endl; 
-            }
-            else {
-                cout << "First operand is less than second operand " << endl;
-            }
 
             common.setOverflow16bit(imm, num1, num2, registers);
             common.setCarry16bit(num1, num3, registers);
@@ -2231,18 +1893,11 @@ string Cmp::decode_imm(int opCode, int w, int d)
             dec_imm = "%%EAX, $"+st;
 
             num1 = registers["EAX"];
-            num2 = num1 - imm;
+            num2 = imm | num1;
 
             num3 = unsigned(num2);
 
             registers["EAX"] = num2;
-
-            if (num3 > 0) {
-                cout << "First operand is greater than second operand " << endl; 
-            }
-            else {
-                cout << "First operand is less than second operand " << endl;
-            }
 
             common.setOverflow32bit(imm, num1, num2, registers);
             common.setCarry32bit(num1, num3, registers);
@@ -2302,14 +1957,14 @@ int main()
 // Decode instructions with prefixes
 // Add other opcodes 0x81 etc
 // Use of SS in using reference addresses of ESP and EBP registers
-string Cmp::decode_cmp(short prefixes[4])
+string Or::decode_or(short prefixes[4])
 {
     string decoded_bytes;
 
     if (prefixes[3] == 0x67)
     {
-        Cmp_cmpOverride cmp_cmpOverride(common, instruction, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-        decoded_bytes = cmp_cmpOverride.decode_cmp(prefixes);
+        Or_orOverride Or_orOverride(common, instruction, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+        decoded_bytes = Or_orOverride.decode_and(prefixes);
     }
     else
     {
@@ -2342,6 +1997,7 @@ string Cmp::decode_cmp(short prefixes[4])
         else
         {
             short modrm = instruction.front();
+
             int mod = modrm >> 6;
             int reg = common.get_bits(4, 3, modrm);
             int rm = common.get_bits(1, 3, modrm);
@@ -2353,9 +2009,8 @@ string Cmp::decode_cmp(short prefixes[4])
 
             if (immediate)
             {
-                Cmp_immediate cmp_immediate(common, instruction, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-                decoded_bytes = cmp_immediate.decode_imm(prefixes, w, d, mod, rm);
-               
+                Or_immediate or_immediate(common, instruction, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+                decoded_bytes = or_immediate.decode_imm(prefixes, w, d, mod, rm);
             }
             else
             {
@@ -2379,7 +2034,7 @@ string Cmp::decode_cmp(short prefixes[4])
         }
     }
 
-    cout << "CMP " << decoded_bytes;
+    cout << "or " << decoded_bytes;
 
     cout << "EAX: " << hex << registers["EAX"] << "\n";
     cout << "ECX: " << hex << registers["ECX"] << "\n";
@@ -2391,5 +2046,5 @@ string Cmp::decode_cmp(short prefixes[4])
     cout << "EDI: " << hex << registers["EDI"] << "\n";
     cout << "EFLAGS: " << hex << registers["EFLAGS"] << "\n \n";
 
-    return "Compare instantiated and done";
+    return "or instantiated and done";
 }

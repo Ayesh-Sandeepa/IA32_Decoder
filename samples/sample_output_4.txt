@@ -1,0 +1,513 @@
+mov %CL,%AL
+EAX: bf8db144
+ECX: 88c5cf44
+EDX: 1
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov %CX,%AX
+EAX: bf8db144
+ECX: 88c5b144
+EDX: 1
+EBX: ae5ff4
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov %EBX,%EAX
+EAX: bf8db144
+ECX: 88c5b144
+EDX: 1
+EBX: bf8db144
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov (%ECX),%AL
+EAX: bf8db144
+ECX: 88c5b144
+EDX: 1
+EBX: bf8db144
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov (%ECX),%AX
+EAX: bf8db144
+ECX: 88c5b144
+EDX: 1
+EBX: bf8db144
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov 0x0(%EBP),%ESP
+EAX: bf8db144
+ECX: 88c5b144
+EDX: 1
+EBX: bf8db144
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov %EBX,(%ESP)
+EAX: bf8db144
+ECX: 88c5b144
+EDX: 1
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov %CX,(%ECX)
+EAX: bf8db144
+ECX: 88c5b144
+EDX: 1
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov %AL,(%ECX)
+EAX: bf8db144
+ECX: 88c5b144
+EDX: 1
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov %AL,
+EAX: bf8db100
+ECX: 88c5b144
+EDX: 1
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov ,%AL
+EAX: bf8db100
+ECX: 88c5b144
+EDX: 1
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov %EAX,
+EAX: 0
+ECX: 88c5b144
+EDX: 1
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov ,%EAX
+EAX: 0
+ECX: 88c5b144
+EDX: 1
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov %AX,
+EAX: 0
+ECX: 88c5b144
+EDX: 1
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov ,%AX
+EAX: 0
+ECX: 88c5b144
+EDX: 1
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov %EDX,0x2(%EAX)
+EAX: 0
+ECX: 88c5b144
+EDX: 0
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov %EAX,0x14(%EDX)
+EAX: 0
+ECX: 88c5b144
+EDX: 0
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov (,%EBX,2),%AL
+EAX: 0
+ECX: 88c5b144
+EDX: 0
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov %AL,(,%EBX,1)
+EAX: 0
+ECX: 88c5b144
+EDX: 0
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov (,%EBX,1),%EAX
+EAX: 0
+ECX: 88c5b144
+EDX: 0
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov %EAX,(,%EBX,1)
+EAX: 0
+ECX: 88c5b144
+EDX: 0
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov %AL,0x2(%EBX)
+EAX: 0
+ECX: 88c5b144
+EDX: 0
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov 0x2(%EBX),%EAX
+EAX: 0
+ECX: 88c5b144
+EDX: 0
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov %EAX,0x2(%EBX)
+EAX: 0
+ECX: 88c5b144
+EDX: 0
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov 0x2(%EBX),%AL
+EAX: 0
+ECX: 88c5b144
+EDX: 0
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov (%EBX,%EAX,1),%AL
+EAX: 0
+ECX: 88c5b144
+EDX: 0
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov 0x2(%EBX),%AL
+EAX: 0
+ECX: 88c5b144
+EDX: 0
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov (%EAX), $0x2
+EAX: 0
+ECX: 88c5b144
+EDX: 0
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov %AL,$0x3
+EAX: 3
+ECX: 88c5b144
+EDX: 0
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov %AX,$0x4
+EAX: 4
+ECX: 88c5b144
+EDX: 0
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov %EAX,$0x6
+EAX: 6
+ECX: 88c5b144
+EDX: 0
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov 0x2(%EAX), $0x2
+EAX: 6
+ECX: 88c5b144
+EDX: 0
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov 0x0(,%EBX,2), $0x2
+EAX: 6
+ECX: 88c5b144
+EDX: 0
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov (%EAX,%EBX,2)$0x2
+EAX: 6
+ECX: 88c5b144
+EDX: 0
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov 0x2(%EAX,%EBX,2), $0x2
+EAX: 6
+ECX: 88c5b144
+EDX: 0
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+Mov when address override is present
+mov (%(BX+DI)),%BH
+EAX: 6
+ECX: 88c5b144
+EDX: 0
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+Mov when address override is present
+mov (%(BX+DI)),%AX
+EAX: 6
+ECX: 88c5b144
+EDX: 0
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+Mov when address override is present
+mov 0x0(%(DI)),%ESP
+EAX: 6
+ECX: 88c5b144
+EDX: 0
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+Mov when address override is present
+mov %EBX,(%(SI))
+EAX: 6
+ECX: 88c5b144
+EDX: 0
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+Mov when address override is present
+mov 0x2(%(BP+DI)),%EAX
+EAX: 6
+ECX: 88c5b144
+EDX: 0
+EBX: 0
+ESP: bf8db0bc
+EBP: bf8db118
+ESI: 9a0ca0
+EDI: 0
+EFLAGS: 246
+
+mov (%ECX),%AL
+Write 0x44 to 0x88c5b144
+mov (%ECX),%AX
+Write 0x0 to 0x88c5b144
+mov 0x0(%EBP),%ESP
+Write -1081233220 to 0xbf8db118
+mov %EBX,(%ESP)
+Read 0 from
+mov %CX,(%ECX)
+Read -20156 from 0x88c5b144
+mov %AL,(%ECX)
+Read 68 from 0x88c5b144
+mov %AL,
+Read 0 from
+mov ,%AL
+write 0to
+mov %EAX,
+Read 0 from
+mov ,%EAX
+write 0to
+mov %AX,
+Read 0 from
+mov ,%AX
+write 0to
+mov %EDX,0x2(%EAX)
+Read 0 from 0x2
+mov %EAX,0x14(%EDX)
+Read 0 from 0x14
+mov (,%EBX,2),%AL
+write 0x2to0
+mov %AL,(,%EBX,1)
+Read 0 from 0x2
+mov (,%EBX,1),%EAX
+write 0x2to0
+mov %EAX,(,%EBX,1)
+Read 0 from 0x2
+mov %AL,0x2(%EBX)
+Read 0 from 0x2
+mov 0x2(%EBX),%EAX
+Write 0 to 0x2
+mov %EAX,0x2(%EBX)
+Read 0 from 0x2
+mov 0x2(%EBX), %AL
+Write 0 to 0x2
+mov (%EBX,%EAX,1),%AL
+write 0 to 0x2
+mov 0x2(%EBX), %AL
+Write 0 to 0x2
+mov (%EAX), $0x2
+write 2 to 0x0
+write 2 to 0x8
+mov 0x0(,%EBX,2), $0x2
+write 2 to 0x0
+mov (%EAX,%EBX,2)$0x2
+write 2 to 0x6f
+mov 0x2(%EAX,%EBX,2), $0x2
+write 2 to 0x8
+mov (%(BX+DI)),%BH
+Write 6 to 0x0
+mov (%(BX+DI)),%AX
+Write 6 to 0x0
+mov 0x0(%(DI)),%ESP
+Write -1081233220 to 0x0
+mov %EBX,(%(SI))
+Read 0 from 0xca0
+mov 0x2(%(BP+DI)),%EAX
+Write 6 to 0xb11a
+

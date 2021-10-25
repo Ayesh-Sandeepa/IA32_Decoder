@@ -63,34 +63,13 @@ int main()
     registers["FS"] = 0x0;
     registers["GS"] = 0x33;
 
-    /*
-    memories32bit[to_string(0xbf8db144)]=0;
-    memories32bit[to_string(0x88c5cffb)]=0;
-    memories32bit[to_string(0x1)]=0;
-    memories32bit[to_string(0xae5ff4)]=0;
-    memories32bit[to_string(0xbf8db118)]=0;
-    memories32bit[to_string(0x9a0ca0)]=0;
-    memories32bit[to_string(0x0)]=0;
-
-    memories16bit[to_string(0xbf8db144)]=0;
-    memories16bit[to_string(0x88c5cffb)]=0;
-    memories16bit[to_string(0x1)]=0;
-    memories16bit[to_string(0xae5ff4)]=0;
-    memories16bit[to_string(0xbf8db118)]=0;
-    memories16bit[to_string(0x9a0ca0)]=0;
-    memories16bit[to_string(0x0)]=0;
-
-    memories8bit[to_string(0xbf8db144)]=0;
-    memories8bit[to_string(0x88c5cffb)]=0;
-    memories8bit[to_string(0x1)]=0;
-    memories8bit[to_string(0xae5ff4)]=0;
-    memories8bit[to_string(0xbf8db118)]=0;
-    memories8bit[to_string(0x9a0ca0)]=0;
-    memories8bit[to_string(0x0)]=0;
-*/
+  
 
     ifstream myfile;
     myfile.open("test.txt");
+
+    ofstream myoutput;
+    myoutput.open("memory_accesses.txt");
 
     Common common;
     Adder adder(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
@@ -253,6 +232,7 @@ int main()
     for (auto it = memoryAccesses.begin(); it != memoryAccesses.end(); ++it)
     {
         cout << *it << "\n";
+        myoutput << *it <<endl;
     }
 
     myfile.close();

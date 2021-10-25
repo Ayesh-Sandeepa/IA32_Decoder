@@ -1,0 +1,27 @@
+add (%EDI),%AL
+Read 0 from 0x0
+write 0x44 to 0x0
+Read 0 from 0x4853324a
+Read 0 from 0x6c94
+add (%EDX,%EBX,2),%AL
+Read 0 from 0x15cbfe9
+write 74 to 0x15cbfe9
+Read 74 from 0x15cbfe9
+Read 0 from 0x1239637a
+add 0x80(,%ECX,2),%EAX
+Read 0 from 0x118b0386
+write 1213411988 to 0x118b0386
+Read 0 from 0xbf8db19a
+Read 1 from 0x4
+mov 0x2(%(BP+DI)),%BH
+Write -108 to 0xb11a
+mov (%(BX+DI)),%EAX
+Write 2 to 0x6074
+mov (%(BX+SI)), $0x2
+Write 2 to 0x6d14
+Read 0 from 0xc3efbe9f
+and (%EDI),%AL
+Read 68 from 0x0
+write 0 to 0x0
+Read 0 from 0x0
+write 0 to 0x0

@@ -1,1 +1,1 @@
-add    %al,%cl
+mul %cl

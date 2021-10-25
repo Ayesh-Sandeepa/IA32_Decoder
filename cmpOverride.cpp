@@ -9,11 +9,11 @@
 #include <map>
 #include <list>
 
-#include "adder.h"
+#include "Cmp.h"
 
 using namespace std;
 
-Adder_addOverride::Adder_addOverride(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
+Cmp_cmpOverride::Cmp_cmpOverride(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
     : common(com), instruction(instruction), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses)
 {
     regs_32[0] = "EAX";
@@ -64,7 +64,7 @@ Adder_addOverride::Adder_addOverride(Common com, queue<short> &instruction, map<
     list3[3] = (uint16_t *)&registers["EBX"];
 }
 
-string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm)
+string Cmp_cmpOverride::decode_displacement_without_SIB(int w, int d, int mod, int reg, int rm)
 {
     string dispWithoutSIB = "";
     int disp_bytes[] = {2, 1, 2};
@@ -78,7 +78,7 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
         {
             if (d == 0)
             {
-                memoryAccesses.push_back("add " + common.getHex(disp, 0, 0) + ",%" + regs_8[reg]);
+                memoryAccesses.push_back("cmp " + common.getHex(disp, 0, 0) + ",%" + regs_8[reg]);
 
                 int8_t num1, num2, num3;
                 uint8_t num4;
@@ -94,7 +94,7 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
                 num2 = memories8bit[common.getHex(disp, 0, 0)];
                 memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(disp, 0, 0));
 
-                num3 = num1 + num2;
+                num3 = num1 - num2;
                 num4 = unsigned(num3);
 
                 memories8bit[common.getHex(disp, 0, 0)] = num3;
@@ -118,7 +118,7 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
                     num2 = memories8bit[common.getHex(disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(disp, 0, 0));
 
-                    num3 = num1 + num2;
+                    num3 = num1 - num2;
                     num4 = unsigned(num3);
 
                     registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
@@ -129,10 +129,10 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
                     num2 = memories8bit[common.getHex(disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(disp, 0, 0));
 
-                    num3 = num1 + num2;
+                    num3 = num1 - num2;
                     num4 = unsigned(num3);
 
-                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((num3<<8) & 0x0000ff00);
+                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
                 }
 
                 common.setOverflow8bit(num1, num2, num3, registers);
@@ -149,7 +149,7 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
             {
                 if (d == 0)
                 {
-                    memoryAccesses.push_back("add " + common.getHex(disp, 0, 0) + ",%" + regs_16[reg]);
+                    memoryAccesses.push_back("cmp " + common.getHex(disp, 0, 0) + ",%" + regs_16[reg]);
 
                     int16_t num1, num2, num3;
                     uint16_t num4;
@@ -159,7 +159,7 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
                     num2 = memories16bit[common.getHex(disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(disp, 0, 0));
 
-                    num3 = num1 + num2;
+                    num3 = num1 - num2;
                     num4 = unsigned(num3);
 
                     memories16bit[common.getHex(disp, 0, 0)] = num3;
@@ -181,7 +181,7 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
                     num2 = memories16bit[common.getHex(disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(disp, 0, 0));
 
-                    num3 = num1 + num2;
+                    num3 = num1 - num2;
                     num4 = unsigned(num3);
 
                     registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
@@ -198,13 +198,13 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
             {
                 if (d == 0)
                 {
-                    memoryAccesses.push_back("add " + common.getHex(disp, 0, 0) + ",%" + regs_32[reg] );
+                    memoryAccesses.push_back("cmp " + common.getHex(disp, 0, 0) + ",%" + regs_32[reg] );
 
                     int num1 = memories32bit[common.getHex(disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(disp, 0, 0));
 
                     int num2 = registers[regs_32[reg]];
-                    int num3 = num1 + num2;
+                    int num3 = num1 - num2;
                     unsigned int num4 = unsigned(num3);
 
                     common.setOverflow32bit(num1, num2, num3, registers);
@@ -223,7 +223,7 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(disp, 0, 0));
 
                     int num2 = registers[regs_32[reg]];
-                    int num3 = num1 + num2;
+                    int num3 = num1 - num2;
                     unsigned int num4 = unsigned(num3);
 
                     common.setOverflow32bit(num1, num2, num3, registers);
@@ -244,7 +244,7 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
         {
             if (d == 0)
             {
-                memoryAccesses.push_back("add " +common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + "),%" + regs_8[reg]);
+                memoryAccesses.push_back("cmp " +common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + "),%" + regs_8[reg]);
 
                 int8_t num1, num2, num3;
                 uint8_t num4;
@@ -263,7 +263,7 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
                     num2 = memories8bit[common.getHex(*list1[rm / 2] + *list2[rm % 2] + disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(*list1[rm / 2] + *list2[rm % 2] + disp, 0, 0));
 
-                    num3 = num1 + num2;
+                    num3 = num1 - num2;
                     num4 = unsigned(num3);
 
                     memories8bit[common.getHex(*list1[rm / 2] + *list2[rm % 2] + disp, 0, 0)] = num3;
@@ -274,7 +274,7 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
                     num2 = memories8bit[common.getHex(*list3[rm % 4] + disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(*list3[rm % 4] + disp, 0, 0));
 
-                    num3 = num1 + num2;
+                    num3 = num1 - num2;
                     num4 = unsigned(num3);
 
                     memories8bit[common.getHex(*list3[rm % 4] + disp, 0, 0)] = num3;
@@ -307,7 +307,7 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
                 if (reg < 4)
                 {
                     num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
-                    num3 = num1 + num2;
+                    num3 = num1 - num2;
                     num4 = unsigned(num3);
 
                     registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
@@ -318,7 +318,7 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
                     num3 = num1 + num2;
                     num4 = unsigned(num3);
 
-                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((num3<<8) & 0x0000ff00);
+                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
                 }
 
                 common.setOverflow8bit(num1, num2, num3, registers);
@@ -335,7 +335,7 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
             {
                 if (d == 0)
                 {
-                    memoryAccesses.push_back("add " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + "),%" + regs_16[reg]);
+                    memoryAccesses.push_back("cmp " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + "),%" + regs_16[reg]);
 
                     int16_t num1, num2, num3;
                     uint16_t num4;
@@ -347,7 +347,7 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
                         num2 = memories16bit[common.getHex(*list1[rm / 2] + *list2[rm % 2] + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(*list1[rm / 2] + *list2[rm % 2] + disp, 0, 0));
 
-                        num3 = num1 + num2;
+                        num3 = num1 - num2;
                         num4 = unsigned(num3);
 
                         memories16bit[common.getHex(*list1[rm / 2] + *list2[rm % 2] + disp, 0, 0)] = num3;
@@ -358,7 +358,7 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
                         num2 = memories16bit[common.getHex(*list3[rm % 4] + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(*list3[rm % 4] + disp, 0, 0));
 
-                        num3 = num1 + num2;
+                        num3 = num1 - num2;
                         num4 = unsigned(num3);
 
                         memories16bit[common.getHex(*list3[rm % 4] + disp, 0, 0)] = num3;
@@ -389,7 +389,7 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
                     }
 
                     num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
-                    num3 = num1 + num2;
+                    num3 = num1 - num2;
                     num4 = unsigned(num3);
 
                     registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
@@ -406,7 +406,7 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
             {
                 if (d == 0)
                 {
-                    memoryAccesses.push_back("add " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + "),%" + regs_32[reg] );
+                    memoryAccesses.push_back("cmp " + common.getHex(disp, 0, 0) + "(%" + regs_16bitmode[rm] + "),%" + regs_32[reg] );
 
                     int num1, num2, num3;
                     unsigned int num4;
@@ -417,7 +417,7 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(*list1[rm / 2] + *list2[rm % 2] + disp, 0, 0));
 
                         num2 = registers[regs_32[reg]];
-                        num3 = num1 + num2;
+                        num3 = num1 - num2;
                         num4 = unsigned(num3);
 
                         memories32bit[common.getHex(*list1[rm / 2] + *list2[rm % 2] + disp, 0, 0)] = num3;
@@ -429,7 +429,7 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(*list3[rm % 4] + disp, 0, 0));
 
                         num2 = registers[regs_32[reg]];
-                        num3 = num1 + num2;
+                        num3 = num1 - num2;
                         num4 = unsigned(num3);
 
                         memories32bit[common.getHex(*list3[rm % 4] + disp, 0, 0)] = num3;
@@ -458,7 +458,7 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(*list3[rm % 4] + disp, 0, 0));
                     }
                     num2 = registers[regs_32[reg]];
-                    num3 = num1 + num2;
+                    num3 = num1 - num2;
                     num4 = unsigned(num3);
 
                     common.setOverflow32bit(num1, num2, num3, registers);
@@ -477,7 +477,7 @@ string Adder_addOverride::decode_displacement_without_SIB(int w, int d, int mod,
     return dispWithoutSIB;
 };
 
-string Adder_addOverride::decode_mod_00(int w, int d, int reg, int rm)
+string Cmp_cmpOverride::decode_mod_00(int w, int d, int reg, int rm)
 {
     string string00 = "";
     if (rm == 6)
@@ -490,7 +490,7 @@ string Adder_addOverride::decode_mod_00(int w, int d, int reg, int rm)
         {
             if (d == 0)
             {
-                memoryAccesses.push_back("add (%" + regs_16bitmode[rm] + "),%" + regs_8[reg]);
+                memoryAccesses.push_back("cmp (%" + regs_16bitmode[rm] + "),%" + regs_8[reg]);
                 string00 = "(%" + regs_16bitmode[rm] + "),%" + regs_8[reg] + "\n";
 
                 int8_t num1, num2, num3;
@@ -510,7 +510,7 @@ string Adder_addOverride::decode_mod_00(int w, int d, int reg, int rm)
                     num2 = memories8bit[common.getHex(*list1[rm / 2] + *list2[rm % 2], 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(*list1[rm / 2] + *list2[rm % 2], 0, 0));
 
-                    num3 = num1 + num2;
+                    num3 = num1 - num2;
                     num4 = unsigned(num3);
 
                     memories8bit[common.getHex(*list1[rm / 2] + *list2[rm % 2], 0, 0)] = num3;
@@ -521,7 +521,7 @@ string Adder_addOverride::decode_mod_00(int w, int d, int reg, int rm)
                     num2 = memories8bit[common.getHex(*list3[rm % 4], 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(*list3[rm % 4], 0, 0));
 
-                    num3 = num1 + num2;
+                    num3 = num1 - num2;
                     num4 = unsigned(num3);
 
                     memories8bit[common.getHex(*list3[rm % 4], 0, 0)] = num3;
@@ -554,7 +554,7 @@ string Adder_addOverride::decode_mod_00(int w, int d, int reg, int rm)
                 if (reg < 4)
                 {
                     num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
-                    num3 = num1 + num2;
+                    num3 = num1 - num2;
                     num4 = unsigned(num3);
 
                     registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
@@ -562,10 +562,10 @@ string Adder_addOverride::decode_mod_00(int w, int d, int reg, int rm)
                 else
                 {
                     num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
-                    num3 = num1 + num2;
+                    num3 = num1 - num2;
                     num4 = unsigned(num3);
 
-                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((num3<<8) & 0x0000ff00);
+                    registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | (num3 & 0x0000ff00);
                 }
 
                 common.setOverflow8bit(num1, num2, num3, registers);
@@ -580,7 +580,7 @@ string Adder_addOverride::decode_mod_00(int w, int d, int reg, int rm)
             {
                 if (d == 0)
                 {
-                    memoryAccesses.push_back("add (%" + regs_16bitmode[rm] + "),%" + regs_16[reg]);
+                    memoryAccesses.push_back("cmp (%" + regs_16bitmode[rm] + "),%" + regs_16[reg]);
                     string00 = "(%" + regs_16bitmode[rm] + "),%" + regs_16[reg] + "\n";
 
                     int16_t num1, num2, num3;
@@ -593,7 +593,7 @@ string Adder_addOverride::decode_mod_00(int w, int d, int reg, int rm)
                         num2 = memories16bit[common.getHex(*list1[rm / 2] + *list2[rm % 2], 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(*list1[rm / 2] + *list2[rm % 2], 0, 0));
 
-                        num3 = num1 + num2;
+                        num3 = num1 - num2;
                         num4 = unsigned(num3);
 
                         memories16bit[common.getHex(*list1[rm / 2] + *list2[rm % 2], 0, 0)] = num3;
@@ -604,7 +604,7 @@ string Adder_addOverride::decode_mod_00(int w, int d, int reg, int rm)
                         num2 = memories16bit[common.getHex(*list3[rm % 4], 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(*list3[rm % 4], 0, 0));
 
-                        num3 = num1 + num2;
+                        num3 = num1 - num2;
                         num4 = unsigned(num3);
 
                         memories16bit[common.getHex(*list3[rm % 4], 0, 0)] = num3;
@@ -636,7 +636,7 @@ string Adder_addOverride::decode_mod_00(int w, int d, int reg, int rm)
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(*list3[rm % 4], 0, 0));
                     }
 
-                    num3 = num1 + num2;
+                    num3 = num1 - num2;
                     num4 = unsigned(num3);
 
                     registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
@@ -651,7 +651,7 @@ string Adder_addOverride::decode_mod_00(int w, int d, int reg, int rm)
             {
                 if (d == 0)
                 {
-                    memoryAccesses.push_back("add (%" + regs_16bitmode[rm] + "),%" + regs_32[reg]);
+                    memoryAccesses.push_back("cmp (%" + regs_16bitmode[rm] + "),%" + regs_32[reg]);
 
                     int num1, num2, num3;
                     unsigned int num4;
@@ -662,7 +662,7 @@ string Adder_addOverride::decode_mod_00(int w, int d, int reg, int rm)
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(*list1[rm / 2] + *list2[rm % 2], 0, 0));
 
                         num2 = registers[regs_32[reg]]; //registers["ECX"]
-                        num3 = num1 + num2;
+                        num3 = num1 - num2;
                         num4 = unsigned(num3);
 
                         memories32bit[common.getHex(*list1[rm / 2] + *list2[rm % 2], 0, 0)] = num3;
@@ -674,7 +674,7 @@ string Adder_addOverride::decode_mod_00(int w, int d, int reg, int rm)
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(*list3[rm % 4], 0, 0));
 
                         num2 = registers[regs_32[reg]]; //registers["ECX"]
-                        num3 = num1 + num2;
+                        num3 = num1 - num2;
                         num4 = unsigned(num3);
 
                         memories32bit[common.getHex(*list3[rm % 4], 0, 0)] = num3;
@@ -705,7 +705,7 @@ string Adder_addOverride::decode_mod_00(int w, int d, int reg, int rm)
                     }
 
                     num2 = registers[regs_32[reg]];
-                    num3 = num1 + num2;
+                    num3 = num1 - num2;
                     num4 = unsigned(num3);
 
                     common.setOverflow32bit(num1, num2, num3, registers);
@@ -723,19 +723,19 @@ string Adder_addOverride::decode_mod_00(int w, int d, int reg, int rm)
     return string00;
 }
 
-string Adder_addOverride::decode_mod_01(int w, int d, int reg, int rm)
+string Cmp_cmpOverride::decode_mod_01(int w, int d, int reg, int rm)
 {
     string string01 = decode_displacement_without_SIB(w, d, 1, reg, rm);
     return string01;
 }
 
-string Adder_addOverride::decode_mod_10(int w, int d, int reg, int rm)
+string Cmp_cmpOverride::decode_mod_10(int w, int d, int reg, int rm)
 {
     string string10 = decode_displacement_without_SIB(w, d, 2, reg, rm);
     return string10;
 }
 
-string Adder_addOverride::decode_mod_11(int w, int d, int reg, int rm)
+string Cmp_cmpOverride::decode_mod_11(int w, int d, int reg, int rm)
 {
     string string11 = "";
     if (w == 0)
@@ -759,14 +759,14 @@ string Adder_addOverride::decode_mod_11(int w, int d, int reg, int rm)
             if (rm < 4)
             {
                 num2 = common.get_bits(1, 8, registers[regs_32[rm]]);
-                num3 = num1 + num2;
+                num3 = num1 - num2;
                 num4 = unsigned(num3);
                 registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffffff00) | (num3 & 0x000000ff);
             }
             else
             {
                 num2 = common.get_bits(9, 8, registers[regs_32[rm % 4]]);
-                num3 = num1 + num2;
+                num3 = num1 - num2;
                 num4 = unsigned(num3);
                 registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffff00ff) | ((num3 << 8) & 0x0000ff00);
             }
@@ -799,14 +799,14 @@ string Adder_addOverride::decode_mod_11(int w, int d, int reg, int rm)
             if (reg < 4)
             {
                 num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
-                num3 = num1 + num2;
+                num3 = num1 - num2;
                 num4 = unsigned(num3);
                 registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffffff00) | (num3 & 0x000000ff);
             }
             else
             {
                 num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
-                num3 = num1 + num2;
+                num3 = num1 - num2;
                 num4 = unsigned(num3);
                 registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((num3 << 8) & 0x0000ff00);
             }
@@ -833,7 +833,7 @@ string Adder_addOverride::decode_mod_11(int w, int d, int reg, int rm)
 
                 num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
                 num2 = common.get_bits(1, 16, registers[regs_32[rm]]);
-                num3 = num1 + num2;
+                num3 = num1 - num2;
                 num4 = unsigned(num3);
                 registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffff0000) | (num3 & 0x0000ffff);
 
@@ -855,7 +855,7 @@ string Adder_addOverride::decode_mod_11(int w, int d, int reg, int rm)
 
                 num1 = common.get_bits(1, 16, registers[regs_32[reg]]);
                 num2 = common.get_bits(1, 16, registers[regs_32[rm]]);
-                num3 = num1 + num2;
+                num3 = num1 - num2;
                 num4 = unsigned(num3);
                 registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
 
@@ -876,7 +876,7 @@ string Adder_addOverride::decode_mod_11(int w, int d, int reg, int rm)
                 //printf("w:1 and d:0 \n");
                 int num1 = registers[regs_32[reg]];
                 int num2 = registers[regs_32[rm]];
-                int num3 = num1 + num2;
+                int num3 = num1 - num2;
                 unsigned int num4 = unsigned(num3);
                 registers[regs_32[rm]] = num3;
 
@@ -894,7 +894,7 @@ string Adder_addOverride::decode_mod_11(int w, int d, int reg, int rm)
                 //printf("w:1 and d:1 \n");
                 int num1 = registers[regs_32[reg]];
                 int num2 = registers[regs_32[rm]];
-                int num3 = num1 + num2;
+                int num3 = num1 - num2;
                 unsigned int num4 = unsigned(num3);
                 registers[regs_32[reg]] = num3;
 
@@ -913,7 +913,7 @@ string Adder_addOverride::decode_mod_11(int w, int d, int reg, int rm)
     return string11;
 }
 
-string Adder_addOverride::decode_imm(int opCode, int w, int d)
+string Cmp_cmpOverride::decode_imm(int opCode, int w, int d)
 {
     string dec_imm;
     int imm;
@@ -929,7 +929,7 @@ string Adder_addOverride::decode_imm(int opCode, int w, int d)
         dec_imm =  "%%AL, $" + st;
 
         num1 = common.get_bits(1, 8, registers["EAX"]);
-        num2 = imm + num1;
+        num2 = num1 - imm;
 
         num3 = unsigned(num2);
 
@@ -953,7 +953,7 @@ string Adder_addOverride::decode_imm(int opCode, int w, int d)
             dec_imm = "%%AX, $"+st;
 
             num1 = common.get_bits(1, 16, registers["EAX"]);
-            num2 = imm + num1;
+            num2 = num1 - imm;
 
             num3 = unsigned(num2);
 
@@ -975,7 +975,7 @@ string Adder_addOverride::decode_imm(int opCode, int w, int d)
             dec_imm = "%%EAX, $"+st;
 
             num1 = registers["EAX"];
-            num2 = imm + num1;
+            num2 = num1 - imm;
 
             num3 = unsigned(num2);
 
@@ -991,7 +991,7 @@ string Adder_addOverride::decode_imm(int opCode, int w, int d)
     return dec_imm;
 }
 
-string Adder_addOverride::decode_add(short prefixes[4])
+string Cmp_cmpOverride::decode_cmp(short prefixes[4])
 {
     printf ("Adder when address override is present\n");
 
@@ -1031,8 +1031,8 @@ string Adder_addOverride::decode_add(short prefixes[4])
 
         if (immediate)
         {
-            Immediate_addOverride immediate_addOverride(common, instruction, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-            decoded_bytes = immediate_addOverride.decode_imm(prefixes, w, d, mod, rm);
+            Cmp_override_immediate cmp_override_immediate(common, instruction, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+            decoded_bytes = cmp_override_immediate.decode_imm(prefixes, w, mod, rm);
         }
         else
         {

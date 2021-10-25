@@ -1,6 +1,3 @@
-#ifndef IMMEDIATE_H
-#define IMMEDIATE_H
-
 #include <stdio.h>
 #include <string>
 #include <queue>
@@ -11,7 +8,7 @@
 
 using namespace std;
 
-class Immediate
+class And_immediate
 {
 private:
     bool opSize;
@@ -28,21 +25,19 @@ public:
     map<string, int8_t> &memories8bit;
     list<string> &memoryAccesses;
 
-    Immediate(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses);
+    And_immediate(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses);
 
-    string decode_imm(short prefixes[4], int w, int s, int mod, int rm);
+    string decode_imm(short prefixes[4], int w, int s,int mod, int rm);
     string decode_displacement_with_SIB(int w, int s, int mod, int index, int scale, int base);
     string decode_displacement_without_SIB(int w, int s, int mod, int rm);
     string decode_SIB(int w, int s, int mod);
     string decode_mod_00(int w, int s, int rm);
     string decode_mod_01(int w, int s, int rm);
     string decode_mod_10(int w, int s, int rm);
-    string decode_mod_11(int w, int s, int rm);
-
-    //int test1();
+    string decode_mod_11(int w, int s,int rm);
 };
 
-class Immediate_addOverride
+class And_override_immediate
 {
 private:
     bool opSize;
@@ -61,16 +56,14 @@ public:
     map<string, int8_t> &memories8bit;
     list<string> &memoryAccesses;
 
-    Immediate_addOverride(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses);
+    And_override_immediate(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses);
 
-    string decode_imm(short prefixes[4], int w, int s, int mod, int rm);
-    string decode_displacement_with_SIB(int w, int s, int mod, int index, int scale, int base);
+    string decode_imm(short prefixes[4], int w,int s,int mod, int rm);
+    string decode_displacement_with_SIB(int w,int s, int mod, int index, int scale, int base);
     string decode_displacement_without_SIB(int w, int s, int mod, int rm);
     string decode_SIB(int w, int s, int mod);
-    string decode_mod_00(int w, int s, int rm);
-    string decode_mod_01(int w, int s, int rm);
+    string decode_mod_00(int w, int s,int rm);
+    string decode_mod_01(int w, int s,int rm);
     string decode_mod_10(int w, int s, int rm);
     string decode_mod_11(int w, int s, int rm);
 };
-
-#endif 

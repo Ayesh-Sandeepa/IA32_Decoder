@@ -12,11 +12,11 @@
 #include <map>
 #include <list>
 
-#include "immediate.h"
+#include "and_immediate.h"
 
 using namespace std;
 
-Immediate::Immediate(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
+And_immediate::And_immediate(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
     : common(com), instruction(instruction), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses)
 {
     regs_32[0] = "EAX";
@@ -47,7 +47,7 @@ Immediate::Immediate(Common com, queue<short> &instruction, map<string, int> &re
     regs_8[7] = "BH";
 }
 
-string Immediate::decode_displacement_with_SIB(int w, int s, int mod, int index, int scale, int base)
+string And_immediate::decode_displacement_with_SIB(int w, int s, int mod, int index, int scale, int base)
 {
     string dispWithSIB = "";
 
@@ -817,7 +817,7 @@ string Immediate::decode_displacement_with_SIB(int w, int s, int mod, int index,
     return dispWithSIB;
 }
 
-string Immediate::decode_displacement_without_SIB(int w, int s, int mod, int rm)
+string And_immediate::decode_displacement_without_SIB(int w, int s, int mod, int rm)
 {
     string dispWithoutSIB = "";
     int disp_bytes[] = {4, 1, 4};
@@ -1080,7 +1080,7 @@ string Immediate::decode_displacement_without_SIB(int w, int s, int mod, int rm)
     return dispWithoutSIB;
 };
 
-string Immediate::decode_SIB(int w, int s, int mod)
+string And_immediate::decode_SIB(int w, int s, int mod)
 {
     string stringSib = "";
 
@@ -1101,7 +1101,7 @@ string Immediate::decode_SIB(int w, int s, int mod)
     return stringSib;
 }
 
-string Immediate::decode_mod_00(int w, int s, int rm)
+string And_immediate::decode_mod_00(int w, int s, int rm)
 {
     string string00 = "";
     if (rm == 4)
@@ -1237,7 +1237,7 @@ string Immediate::decode_mod_00(int w, int s, int rm)
     return string00;
 }
 
-string Immediate::decode_mod_01(int w, int s, int rm)
+string And_immediate::decode_mod_01(int w, int s, int rm)
 {
     string string01 = "";
     if (rm == 4)
@@ -1251,7 +1251,7 @@ string Immediate::decode_mod_01(int w, int s, int rm)
     return string01;
 }
 
-string Immediate::decode_mod_10(int w, int s, int rm)
+string And_immediate::decode_mod_10(int w, int s, int rm)
 {
     string string10 = "";
     if (rm == 4)
@@ -1265,11 +1265,13 @@ string Immediate::decode_mod_10(int w, int s, int rm)
     return string10;
 }
 
-string Immediate::decode_mod_11(int w, int s, int rm)
+string And_immediate::decode_mod_11(int w, int s, int rm)
 {
     string string11 = "";
     if (w == 0)
     {
+
+        //printf("w:0 and d:0 test make \n");
 
         int8_t num1, num2, num3;
         uint8_t num4;
@@ -1351,6 +1353,7 @@ string Immediate::decode_mod_11(int w, int s, int rm)
         {
             if (s == 0)
             {
+                //printf("w:1 and d:0 \n");
                 int num1 = common.assemble_bits(4, instruction, registers);
                 int num2 = registers[regs_32[rm]];
                 int num3 = num1 + num2;
@@ -1387,7 +1390,7 @@ string Immediate::decode_mod_11(int w, int s, int rm)
     return string11;
 }
 
-string Immediate::decode_imm(short prefixes[4], int w, int s, int mod, int rm)
+string And_immediate::decode_imm(short prefixes[4], int w, int s, int mod, int rm)
 {
     string decoded_bytes;
 

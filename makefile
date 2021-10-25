@@ -1,13 +1,15 @@
 CC=gcc
 CXX=g++
 CFLAGS=-I
-DEPS=adder.h immediate.h common.h
+DEPS=adder.h immediate.h common.h bitset.h mov.h mov_immediate.h mul.h
 
 %.o:%.cpp $(DEPS)
 	$(CXX) -c -o $@ $< 
 	
-main: main.o common.o adder.o adder_addOverride.o immediate.o immediate_addOverride.o bitset.o bitset_addOverride.o
-	$(CXX) -o main main.o common.o adder.o adder_addOverride.o immediate.o immediate_addOverride.o bitset.o bitset_addOverride.o mov.o mov_immediate.o mov_override.o mov_override_immediate.o inc.o inc_override.o dec.o dec_override.o left_shift.o left_shift_override.0 right_shift.0 right_shift_override.0 left_shift_override_immediate.o right_shift_override_immediate.0
+
+main: main.o common.o adder.o adder_addOverride.o immediate.o immediate_addOverride.o bitset.o bitset_addOverride.o mov.o mov_immediate.o mov_override.o mov_override_immediate.o And.o and_immediate.o andOverride.o and_override_immediate.o Cmp.o cmp_immediate.o cmpOverride.o cmp_override_immediate.o mul.o inc.o inc_override.o dec.o dec_override.o left_shift.o left_shift_override.o right_shift.o right_shift_override.o left_shift_override_immediate.o right_shift_override_immediate.o
+	$(CXX) -o main main.o common.o adder.o adder_addOverride.o immediate.o immediate_addOverride.o bitset.o bitset_addOverride.o mov.o mov_immediate.o mov_override.o mov_override_immediate.o And.o and_immediate.o andOverride.o and_override_immediate.o Cmp.o cmp_immediate.o cmpOverride.o cmp_override_immediate.o mul.o inc.o inc_override.o dec.o dec_override.o left_shift.o left_shift_override.o right_shift.o right_shift_override.o left_shift_override_immediate.o right_shift_override_immediate.o
+
 	
 #adder.o:adder.cpp adder.h 
 #	$(CXX) -c -o $@ $^

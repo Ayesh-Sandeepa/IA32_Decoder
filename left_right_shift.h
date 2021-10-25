@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <bitset>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <string>
 #include <cmath>
 #include <sstream>
@@ -23,6 +25,7 @@ private:
 public:
     //map<string, int> &registers;
     //Adder(map<string, int> &registers);
+    ofstream& myoutput;
     Common common;
     queue<short> &instruction;
     map<string, int> &registers;
@@ -31,7 +34,7 @@ public:
     map<string, int8_t> &memories8bit;
     list<string> &memoryAccesses;
 
-    Left_shift(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses);
+    Left_shift(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses,ofstream& myoutput);
 
     string decode_shl(short prefixes[4]);
     string decode_displacement_with_SIB(int d, int w, int mod, int index, int scale, int base);
@@ -83,6 +86,7 @@ private:
 public:
     //map<string, int> &registers;
     //Adder(map<string, int> &registers);
+    ofstream& myoutput;
     Common common;
     queue<short> &instruction;
     map<string, int> &registers;
@@ -91,7 +95,7 @@ public:
     map<string, int8_t> &memories8bit;
     list<string> &memoryAccesses;
 
-    Right_shift(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses);
+    Right_shift(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses,ofstream& myoutput);
 
     string decode_shr(short prefixes[4], int d, int w);
     string decode_displacement_with_SIB(int d, int w, int mod, int index, int scale, int base);

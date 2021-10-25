@@ -13,8 +13,8 @@
 
 using namespace std;
 
-Neg::Neg(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
-    : common(com), instruction(instruction), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses)
+Neg::Neg(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses, ofstream &myoutput)
+    : common(com), instruction(instruction), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses), myoutput(myoutput)
 {
     regs_32[0] = "EAX";
     regs_32[1] = "ECX";
@@ -109,7 +109,7 @@ string Neg::decode_displacement_with_SIB(int w, int mod, int index, int scale, i
 
                         num2 = memories16bit[st];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + st);
-                        num3 = -1 * num2; 
+                        num3 = -1 * num2;
                         memories16bit[st] = num3;
                         memoryAccesses.push_back("write " + to_string(num3) + " to " + st);
                         dispWithSIB = st + "\n";
@@ -122,7 +122,7 @@ string Neg::decode_displacement_with_SIB(int w, int mod, int index, int scale, i
 
                         num2 = memories16bit[common.getHex((unsigned int)(registers[regs_32[index]] * scale + disp), 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex((unsigned int)(registers[regs_32[index]] * scale + disp), 0, 0));
-                        num3 = -1 * num2; 
+                        num3 = -1 * num2;
                         memories16bit[common.getHex((unsigned int)(registers[regs_32[index]] * scale + disp), 0, 0)] = num3;
                         memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex((unsigned int)(registers[regs_32[index]] * scale + disp), 0, 0));
 
@@ -137,7 +137,7 @@ string Neg::decode_displacement_with_SIB(int w, int mod, int index, int scale, i
 
                         int num1 = memories32bit[st];
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + st);
-                        int num3 = -1 * num1; 
+                        int num3 = -1 * num1;
                         memories32bit[st] = num3;
                         memoryAccesses.push_back("write " + to_string(num3) + " to " + st);
 
@@ -149,7 +149,7 @@ string Neg::decode_displacement_with_SIB(int w, int mod, int index, int scale, i
 
                         int num1 = memories32bit[common.getHex((unsigned int)(registers[regs_32[index]] * scale + disp), 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex((unsigned int)(registers[regs_32[index]] * scale + disp), 0, 0));
-                        int num3 = -1 * num1; 
+                        int num3 = -1 * num1;
                         memories32bit[common.getHex((unsigned int)(registers[regs_32[index]] * scale + disp), 0, 0)] = num3;
                         memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex((unsigned int)(registers[regs_32[index]] * scale + disp), 0, 0));
 
@@ -170,7 +170,7 @@ string Neg::decode_displacement_with_SIB(int w, int mod, int index, int scale, i
 
                     num2 = memories8bit[common.getHex((unsigned int)registers[regs_32[base]], 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex((unsigned int)registers[regs_32[base]], 0, 0));
-                    num3 = -1 * num2; 
+                    num3 = -1 * num2;
                     memories8bit[common.getHex((unsigned int)registers[regs_32[base]], 0, 0)] = num3;
                     memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex((unsigned int)registers[regs_32[base]], 0, 0));
 
@@ -184,7 +184,7 @@ string Neg::decode_displacement_with_SIB(int w, int mod, int index, int scale, i
 
                     num2 = memories8bit[common.getHex((unsigned int)(registers[regs_32[base]] + registers[regs_32[index]] * 2), 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex((unsigned int)(registers[regs_32[base]] + registers[regs_32[index]] * 2), 0, 0));
-                    num3 = -1 * num2; 
+                    num3 = -1 * num2;
                     memories8bit[common.getHex((unsigned int)(registers[regs_32[base]] + registers[regs_32[index]] * 2), 0, 0)] = num3;
                     memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex((unsigned int)(registers[regs_32[base]] + registers[regs_32[index]] * 2), 0, 0));
 
@@ -203,7 +203,7 @@ string Neg::decode_displacement_with_SIB(int w, int mod, int index, int scale, i
 
                         num2 = memories16bit[common.getHex((unsigned int)registers[regs_32[base]], 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex((unsigned int)registers[regs_32[base]], 0, 0));
-                        num3 = -1 * num2; 
+                        num3 = -1 * num2;
                         memories16bit[common.getHex((unsigned int)registers[regs_32[base]], 0, 0)] = num3;
                         memoryAccesses.push_back("write " + to_string(num3) + " to " + to_string((unsigned int)registers[regs_32[base]]));
 
@@ -217,7 +217,7 @@ string Neg::decode_displacement_with_SIB(int w, int mod, int index, int scale, i
 
                         num2 = memories16bit[common.getHex((unsigned int)(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp), 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex((unsigned int)(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp), 0, 0));
-                        num3 = -1 * num2; 
+                        num3 = -1 * num2;
                         memories16bit[common.getHex((unsigned int)(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp), 0, 0)] = num3;
                         memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex((unsigned int)(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp), 0, 0));
 
@@ -232,7 +232,7 @@ string Neg::decode_displacement_with_SIB(int w, int mod, int index, int scale, i
 
                         int num1 = memories32bit[common.getHex((unsigned int)registers[regs_32[base]], 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex((unsigned int)registers[regs_32[base]], 0, 0));
-                        int num3 = -1 * num1; 
+                        int num3 = -1 * num1;
                         memories32bit[common.getHex((unsigned int)registers[regs_32[base]], 0, 0)] = num3;
                         memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex((unsigned int)registers[regs_32[base]], 0, 0));
 
@@ -244,7 +244,7 @@ string Neg::decode_displacement_with_SIB(int w, int mod, int index, int scale, i
 
                         int num1 = memories32bit[common.getHex((unsigned int)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp), 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex((unsigned int)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp), 0, 0));
-                        int num3 = -1 * num1; 
+                        int num3 = -1 * num1;
                         memories32bit[common.getHex((unsigned int)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp), 0, 0)] = num3;
                         memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex((unsigned int)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp), 0, 0));
 
@@ -269,7 +269,7 @@ string Neg::decode_displacement_with_SIB(int w, int mod, int index, int scale, i
 
                 num2 = memories8bit[common.getHex((unsigned int)(registers[regs_32[base]] + disp), 0, 0)];
                 memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex((unsigned int)(registers[regs_32[base]] + disp), 0, 0));
-                num3 = -1 * num2; 
+                num3 = -1 * num2;
                 memories8bit[common.getHex((unsigned int)(registers[regs_32[base]] + disp), 0, 0)] = num3;
                 memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex((unsigned int)(registers[regs_32[base]] + disp), 0, 0));
 
@@ -283,7 +283,7 @@ string Neg::decode_displacement_with_SIB(int w, int mod, int index, int scale, i
 
                 num2 = memories8bit[common.getHex((unsigned int)(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp), 0, 0)];
                 memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex((unsigned int)(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp), 0, 0));
-                num3 = -1 * num2; 
+                num3 = -1 * num2;
                 memories8bit[common.getHex((unsigned int)(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp), 0, 0)] = num3;
                 memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex((unsigned int)(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp), 0, 0));
 
@@ -302,7 +302,7 @@ string Neg::decode_displacement_with_SIB(int w, int mod, int index, int scale, i
 
                     num2 = memories16bit[common.getHex((unsigned int)(registers[regs_32[base]] + disp), 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex((unsigned int)(registers[regs_32[base]] + disp), 0, 0));
-                    num3 = -1 * num2; 
+                    num3 = -1 * num2;
                     memories16bit[common.getHex((unsigned int)(registers[regs_32[base]] + disp), 0, 0)] = num3;
                     memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex((unsigned int)(registers[regs_32[base]] + disp), 0, 0));
 
@@ -316,7 +316,7 @@ string Neg::decode_displacement_with_SIB(int w, int mod, int index, int scale, i
 
                     num2 = memories16bit[common.getHex((unsigned int)(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp), 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex((unsigned int)(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp), 0, 0));
-                    num3 = -1 * num2; 
+                    num3 = -1 * num2;
                     memories16bit[common.getHex((unsigned int)(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp), 0, 0)] = num3;
                     memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex((unsigned int)(registers[regs_32[base]] + registers[regs_32[index]] * 2 + disp), 0, 0));
 
@@ -331,7 +331,7 @@ string Neg::decode_displacement_with_SIB(int w, int mod, int index, int scale, i
 
                     int num1 = memories32bit[common.getHex((unsigned int)(registers[regs_32[base]] + disp), 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex((unsigned int)(registers[regs_32[base]] + disp), 0, 0));
-                    int num3 = -1 * num1; 
+                    int num3 = -1 * num1;
                     memories32bit[common.getHex((unsigned int)(registers[regs_32[base]] + disp), 0, 0)] = num3;
                     memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex((unsigned int)(registers[regs_32[base]] + disp), 0, 0));
 
@@ -343,7 +343,7 @@ string Neg::decode_displacement_with_SIB(int w, int mod, int index, int scale, i
 
                     int num1 = memories32bit[common.getHex((unsigned int)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp), 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex((unsigned int)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp), 0, 0));
-                    int num3 = -1 * num1; 
+                    int num3 = -1 * num1;
                     memories32bit[common.getHex((unsigned int)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp), 0, 0)] = num3;
                     memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex((unsigned int)(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp), 0, 0));
 
@@ -374,7 +374,7 @@ string Neg::decode_displacement_without_SIB(int w, int mod, int rm)
 
             num2 = memories8bit[st];
             memoryAccesses.push_back("Read " + to_string(num2) + " from " + st);
-            num3 = -1 * num2; 
+            num3 = -1 * num2;
             memories8bit[st] = num3;
             memoryAccesses.push_back("write " + to_string(num3) + " to " + st);
 
@@ -390,7 +390,7 @@ string Neg::decode_displacement_without_SIB(int w, int mod, int rm)
 
                 num2 = memories16bit[st];
                 memoryAccesses.push_back("Read " + to_string(num2) + " from " + st);
-                num3 = -1 * num2; 
+                num3 = -1 * num2;
                 memories16bit[st] = num3;
                 memoryAccesses.push_back("write " + to_string(num3) + " to " + st);
 
@@ -402,7 +402,7 @@ string Neg::decode_displacement_without_SIB(int w, int mod, int rm)
 
                 int num1 = memories32bit[st];
                 memoryAccesses.push_back("Read " + to_string(num1) + " from " + st);
-                int num3 = -1 * num1; 
+                int num3 = -1 * num1;
                 memories32bit[st] = num3;
                 memoryAccesses.push_back("write " + to_string(num3) + " to " + st);
 
@@ -420,7 +420,7 @@ string Neg::decode_displacement_without_SIB(int w, int mod, int rm)
 
             num2 = memories8bit[common.getHex((unsigned int)(registers[regs_32[rm]] + disp), 0, 0)];
             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex((unsigned int)(registers[regs_32[rm]] + disp), 0, 0));
-            num3 = -1 * num2; 
+            num3 = -1 * num2;
             memories8bit[common.getHex((unsigned int)(registers[regs_32[rm]] + disp), 0, 0)] = num3;
             memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex((unsigned int)(registers[regs_32[rm]] + disp), 0, 0));
 
@@ -436,7 +436,7 @@ string Neg::decode_displacement_without_SIB(int w, int mod, int rm)
 
                 num2 = memories16bit[common.getHex((unsigned int)(registers[regs_32[rm]] + disp), 0, 0)];
                 memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex((unsigned int)(registers[regs_32[rm]] + disp), 0, 0));
-                num3 = -1 * num2; 
+                num3 = -1 * num2;
                 memories16bit[common.getHex((unsigned int)(registers[regs_32[rm]] + disp), 0, 0)] = num3;
                 memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex((unsigned int)(registers[regs_32[rm]] + disp), 0, 0));
 
@@ -446,7 +446,7 @@ string Neg::decode_displacement_without_SIB(int w, int mod, int rm)
             {
                 int num1 = memories32bit[common.getHex((unsigned int)(registers[regs_32[rm]] + disp), 0, 0)];
                 memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex((unsigned int)(registers[regs_32[rm]] + disp), 0, 0));
-                int num3 = -1 * num1; 
+                int num3 = -1 * num1;
                 memories32bit[common.getHex((unsigned int)(registers[regs_32[rm]] + disp), 0, 0)] = num3;
                 memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex((unsigned int)(registers[regs_32[rm]] + disp), 0, 0));
 
@@ -501,7 +501,7 @@ string Neg::decode_mod_00(int w, int rm)
 
             num2 = memories8bit[common.getHex((unsigned int)registers[regs_32[rm]], 0, 0)];
             memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex((unsigned int)registers[regs_32[rm]], 0, 0));
-            num3 = -1 * num2; 
+            num3 = -1 * num2;
             memories8bit[common.getHex((unsigned int)registers[regs_32[rm]], 0, 0)] = num3;
             memoryAccesses.push_back("write " + common.getHex((uint8_t)num3, 0, 0) + " to " + common.getHex(registers[regs_32[rm]], 0, 0));
         }
@@ -517,7 +517,7 @@ string Neg::decode_mod_00(int w, int rm)
 
                 num2 = memories16bit[common.getHex((unsigned int)registers[regs_32[rm]], 0, 0)];
                 memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[rm]], 0, 0));
-                num3 = -1 * num2; 
+                num3 = -1 * num2;
                 memories16bit[common.getHex((unsigned int)registers[regs_32[rm]], 0, 0)] = num3;
                 memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex((unsigned int)registers[regs_32[rm]], 0, 0));
             }
@@ -527,7 +527,7 @@ string Neg::decode_mod_00(int w, int rm)
 
                 int num1 = memories32bit[common.getHex((unsigned int)registers[regs_32[rm]], 0, 0)];
                 memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[rm]], 0, 0));
-                int num3 = -1 * num1; 
+                int num3 = -1 * num1;
                 string00 = "(%" + regs_32[rm] + ")" + "\n";
                 memories32bit[common.getHex((unsigned int)registers[regs_32[rm]], 0, 0)] = num3;
                 memoryAccesses.push_back("write " + to_string(num3) + " to " + common.getHex((unsigned int)registers[regs_32[rm]], 0, 0));
@@ -577,14 +577,14 @@ string Neg::decode_mod_11(int w, int rm)
         if (rm < 4)
         {
             num2 = common.get_bits(1, 8, registers[regs_32[rm]]);
-            num3 = -1 * num2; 
+            num3 = -1 * num2;
             registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffffff00) | (num3 & 0x000000ff);
         }
         else
         {
             num2 = common.get_bits(9, 8, registers[regs_32[rm % 4]]);
-            num3 = -1 * num2; 
-            registers[regs_32[rm%4]] = ((registers[regs_32[rm%4]]) & 0xffff00ff) | ((num3<<8)  & 0x0000ff00);
+            num3 = -1 * num2;
+            registers[regs_32[rm % 4]] = ((registers[regs_32[rm % 4]]) & 0xffff00ff) | ((num3 << 8) & 0x0000ff00);
         }
 
         string11 = "%" + regs_8[rm] + "\n";
@@ -596,7 +596,7 @@ string Neg::decode_mod_11(int w, int rm)
             int16_t num2, num3;
 
             num2 = common.get_bits(1, 16, registers[regs_32[rm]]);
-            num3 = -1 * num2; 
+            num3 = -1 * num2;
             registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffff0000) | (num3 & 0x0000ffff);
 
             string11 = "%" + regs_16[rm] + "\n";
@@ -604,7 +604,7 @@ string Neg::decode_mod_11(int w, int rm)
         else
         {
             int num2 = registers[regs_32[rm]];
-            int num3 = -1 * num2; 
+            int num3 = -1 * num2;
             registers[regs_32[rm]] = num3;
 
             string11 = "%" + regs_32[rm] + "\n";
@@ -682,6 +682,18 @@ string Neg::decode_neg(short prefixes[4])
     cout << "ESI: " << hex << registers["ESI"] << "\n";
     cout << "EDI: " << hex << registers["EDI"] << "\n";
     cout << "EFLAGS: " << hex << registers["EFLAGS"] << "\n \n";
+
+    myoutput << "neg " << decoded_bytes;
+
+    myoutput << "EAX: " << hex << registers["EAX"] << "\n";
+    myoutput << "ECX: " << hex << registers["ECX"] << "\n";
+    myoutput << "EDX: " << hex << registers["EDX"] << "\n";
+    myoutput << "EBX: " << hex << registers["EBX"] << "\n";
+    myoutput << "ESP: " << hex << registers["ESP"] << "\n";
+    myoutput << "EBP: " << hex << registers["EBP"] << "\n";
+    myoutput << "ESI: " << hex << registers["ESI"] << "\n";
+    myoutput << "EDI: " << hex << registers["EDI"] << "\n";
+    myoutput << "EFLAGS: " << hex << registers["EFLAGS"] << "\n \n";
 
     return "Neg instantiated and done";
 }

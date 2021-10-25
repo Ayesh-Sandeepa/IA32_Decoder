@@ -70,23 +70,23 @@ int main()
     myfile.open("test.txt");
 
     ofstream myoutput;
-    myoutput.open("memory_accesses.txt");
+    myoutput.open("ouput.txt");
 
     Common common;
-    Adder adder(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-    Bitset bitset(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+    Adder adder(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses,myoutput);
+    Bitset bitset(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses,myoutput);
 
-    Mov mov(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-    Inc incDec(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-    Left_shift LeftRightShift(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-    And and_(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-    Multiplier multiplier(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-    Cmp cmp(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-    Or or_(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-    Xor xor_(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-    Divider divider(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-    Not notobject(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-    Neg negObject(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+    Mov mov(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses,myoutput);
+    Inc incDec(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses,myoutput);
+    Left_shift LeftRightShift(common,encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses,myoutput);
+    And and_(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses,myoutput);
+    Multiplier multiplier(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses,myoutput);
+    Cmp cmp(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses,myoutput);
+    Or or_(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses,myoutput);
+    Xor xor_(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses,myoutput);
+    Divider divider(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses,myoutput);
+    Not notobject(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses,myoutput);
+    Neg negObject(common, encoded_instructions, registers, memories32bit, memories16bit, memories8bit, memoryAccesses,myoutput);
 
 
     stringstream sss;
@@ -241,6 +241,6 @@ int main()
     }
 
     myfile.close();
-
+    myoutput.close();
     return 0;
 }

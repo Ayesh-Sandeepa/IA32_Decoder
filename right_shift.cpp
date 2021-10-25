@@ -13,8 +13,8 @@
 
 using namespace std;
 
-Right_shift::Right_shift(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
-    : common(com), instruction(instruction), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses)
+Right_shift::Right_shift(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses, ofstream &myoutput)
+    : common(com), instruction(instruction), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses), myoutput(myoutput)
 {
     regs_32[0] = "EAX";
     regs_32[1] = "ECX";
@@ -110,8 +110,8 @@ string Right_shift::decode_displacement_with_SIB(int d, int w, int mod, int inde
                     common.setSign(num2, registers);
                     common.setZero(num2, registers);
 
-                    dispWithSIB =  st + "(,%" + regs_32[index] + "," + to_string(scale) + ")\n";
-                    }
+                    dispWithSIB = st + "(,%" + regs_32[index] + "," + to_string(scale) + ")\n";
+                }
             }
             else if (w == 0 and d == 1)
             {
@@ -130,7 +130,7 @@ string Right_shift::decode_displacement_with_SIB(int d, int w, int mod, int inde
 
                     memoryAccesses.push_back("write " + to_string(num2) + " to " + st);
 
-                    common.setCarry8bit(num1, num2, registers); 
+                    common.setCarry8bit(num1, num2, registers);
                     common.setSign(num2, registers);
                     common.setZero(num2, registers);
 
@@ -149,21 +149,21 @@ string Right_shift::decode_displacement_with_SIB(int d, int w, int mod, int inde
 
                     memories8bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)] = (int8_t)num2;
                     memoryAccesses.push_back("write " + to_string(num2) + " to " + common.getHex(registers[regs_32[index]] * scale + disp, 0, 0));
-  
-                    common.setCarry8bit(num1, num2, registers); 
+
+                    common.setCarry8bit(num1, num2, registers);
                     common.setSign(num2, registers);
                     common.setZero(num2, registers);
 
-                    dispWithSIB =  st + "(,%" + regs_32[index] + "," + to_string(scale) + ")\n";
-                    }
+                    dispWithSIB = st + "(,%" + regs_32[index] + "," + to_string(scale) + ")\n";
+                }
             }
-            else if (w == 1 and d ==0)
+            else if (w == 1 and d == 0)
             {
                 if (opSize)
                 {
                     if (index == 4)
                     {
-                        memoryAccesses.push_back("shr "+st );
+                        memoryAccesses.push_back("shr " + st);
 
                         int16_t num1;
 
@@ -172,7 +172,8 @@ string Right_shift::decode_displacement_with_SIB(int d, int w, int mod, int inde
 
                         int num2 = num1 >> 1;
 
-                        memories16bit[st] = (int16_t)num2;;
+                        memories16bit[st] = (int16_t)num2;
+                        ;
                         memoryAccesses.push_back("write " + to_string(num2) + " to " + st);
 
                         common.setOverflow16bit(num1, num1, num2, registers);
@@ -184,7 +185,7 @@ string Right_shift::decode_displacement_with_SIB(int d, int w, int mod, int inde
                     }
                     else
                     {
-                        memoryAccesses.push_back("shr "+st + "(,%" + regs_32[index] + "," + to_string(scale) + ")");
+                        memoryAccesses.push_back("shr " + st + "(,%" + regs_32[index] + "," + to_string(scale) + ")");
 
                         int16_t num1;
 
@@ -193,7 +194,8 @@ string Right_shift::decode_displacement_with_SIB(int d, int w, int mod, int inde
 
                         int num2 = num1 >> 1;
 
-                        memories16bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)] = (int16_t)num2;;
+                        memories16bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)] = (int16_t)num2;
+                        ;
                         memoryAccesses.push_back("write " + to_string(num2) + " to " + common.getHex(registers[regs_32[index]] * scale + disp, 0, 0));
 
                         common.setOverflow16bit(num1, num1, num2, registers);
@@ -202,13 +204,13 @@ string Right_shift::decode_displacement_with_SIB(int d, int w, int mod, int inde
                         common.setZero(num2, registers);
 
                         dispWithSIB = st + "(,%" + regs_32[index] + "," + to_string(scale) + ")\n";
-                        }
+                    }
                 }
                 else
                 {
                     if (index == 4)
                     {
-                        memoryAccesses.push_back("shr "+st );
+                        memoryAccesses.push_back("shr " + st);
 
                         int num1 = memories32bit[st];
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + st);
@@ -227,7 +229,7 @@ string Right_shift::decode_displacement_with_SIB(int d, int w, int mod, int inde
                     }
                     else
                     {
-                        memoryAccesses.push_back("shr " + st + "(,%" + regs_32[index] + "," + to_string(scale) + ")" );
+                        memoryAccesses.push_back("shr " + st + "(,%" + regs_32[index] + "," + to_string(scale) + ")");
 
                         int num1 = memories32bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[index]] * scale + disp, 0, 0));
@@ -239,20 +241,21 @@ string Right_shift::decode_displacement_with_SIB(int d, int w, int mod, int inde
                         common.setSign(num2, registers);
                         common.setZero(num2, registers);
 
-                        memories32bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)] = (int32_t)num2;;
+                        memories32bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)] = (int32_t)num2;
+                        ;
                         memoryAccesses.push_back("write " + to_string(num2) + " to " + common.getHex(registers[regs_32[index]] * scale + disp, 0, 0));
 
                         dispWithSIB = st + "(,%" + regs_32[index] + "," + to_string(scale) + ")\n";
                     }
                 }
             }
-            else if (w == 1 and d ==1)
+            else if (w == 1 and d == 1)
             {
                 if (opSize)
                 {
                     if (index == 4)
                     {
-                        memoryAccesses.push_back("shr "+st );
+                        memoryAccesses.push_back("shr " + st);
 
                         int16_t num1;
 
@@ -264,7 +267,6 @@ string Right_shift::decode_displacement_with_SIB(int d, int w, int mod, int inde
                         memories16bit[st] = (int16_t)num2;
                         memoryAccesses.push_back("write " + to_string(num2) + " to " + st);
 
-
                         common.setCarry16bit(num1, num2, registers);
                         common.setSign(num2, registers);
                         common.setZero(num2, registers);
@@ -273,7 +275,7 @@ string Right_shift::decode_displacement_with_SIB(int d, int w, int mod, int inde
                     }
                     else
                     {
-                        memoryAccesses.push_back("shr "+st + "(,%" + regs_32[index] + "," + to_string(scale) + ")");
+                        memoryAccesses.push_back("shr " + st + "(,%" + regs_32[index] + "," + to_string(scale) + ")");
 
                         int16_t num1;
 
@@ -290,13 +292,13 @@ string Right_shift::decode_displacement_with_SIB(int d, int w, int mod, int inde
                         common.setZero(num2, registers);
 
                         dispWithSIB = st + "(,%" + regs_32[index] + "," + to_string(scale) + ")\n";
-                        }
+                    }
                 }
                 else
                 {
                     if (index == 4)
                     {
-                        memoryAccesses.push_back("shr "+st );
+                        memoryAccesses.push_back("shr " + st);
 
                         int num1 = memories32bit[st];
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + st);
@@ -314,7 +316,7 @@ string Right_shift::decode_displacement_with_SIB(int d, int w, int mod, int inde
                     }
                     else
                     {
-                        memoryAccesses.push_back("shr " + st + "(,%" + regs_32[index] + "," + to_string(scale) + ")" );
+                        memoryAccesses.push_back("shr " + st + "(,%" + regs_32[index] + "," + to_string(scale) + ")");
 
                         int num1 = memories32bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[index]] * scale + disp, 0, 0));
@@ -339,7 +341,9 @@ string Right_shift::decode_displacement_with_SIB(int d, int w, int mod, int inde
             {
                 if (index == 4)
                 {
-                    memoryAccesses.push_back("shr "  "(%" + regs_32[base] + ")");
+                    memoryAccesses.push_back("shr "
+                                             "(%" +
+                                             regs_32[base] + ")");
 
                     int8_t num1;
 
@@ -348,7 +352,8 @@ string Right_shift::decode_displacement_with_SIB(int d, int w, int mod, int inde
 
                     int num2 = num1 >> 1;
 
-                    memories8bit[common.getHex(registers[regs_32[base]], 0, 0)] = (int8_t)num2;;
+                    memories8bit[common.getHex(registers[regs_32[base]], 0, 0)] = (int8_t)num2;
+                    ;
                     memoryAccesses.push_back("write " + to_string(num2) + " to " + common.getHex(registers[regs_32[base]], 0, 0));
 
                     common.setOverflow8bit(num1, num1, num2, registers);
@@ -356,7 +361,7 @@ string Right_shift::decode_displacement_with_SIB(int d, int w, int mod, int inde
                     common.setSign(num2, registers);
                     common.setZero(num2, registers);
 
-                    dispWithSIB =  "(%" + regs_32[base] + ")\n";
+                    dispWithSIB = "(%" + regs_32[base] + ")\n";
                 }
                 else
                 {
@@ -384,7 +389,9 @@ string Right_shift::decode_displacement_with_SIB(int d, int w, int mod, int inde
             {
                 if (index == 4)
                 {
-                    memoryAccesses.push_back("shr "  "(%" + regs_32[base] + ")");
+                    memoryAccesses.push_back("shr "
+                                             "(%" +
+                                             regs_32[base] + ")");
 
                     int8_t num1;
 
@@ -400,7 +407,7 @@ string Right_shift::decode_displacement_with_SIB(int d, int w, int mod, int inde
                     common.setSign(num2, registers);
                     common.setZero(num2, registers);
 
-                    dispWithSIB =  "(%" + regs_32[base] + ")\n";
+                    dispWithSIB = "(%" + regs_32[base] + ")\n";
                 }
                 else
                 {
@@ -605,7 +612,7 @@ string Right_shift::decode_displacement_with_SIB(int d, int w, int mod, int inde
         {
             if (index == 4)
             {
-                memoryAccesses.push_back("shr " +st + "(%" + regs_32[base] + ")" );
+                memoryAccesses.push_back("shr " + st + "(%" + regs_32[base] + ")");
 
                 int8_t num1;
 
@@ -650,7 +657,7 @@ string Right_shift::decode_displacement_with_SIB(int d, int w, int mod, int inde
         {
             if (index == 4)
             {
-                memoryAccesses.push_back("shr " +st + "(%" + regs_32[base] + ")" );
+                memoryAccesses.push_back("shr " + st + "(%" + regs_32[base] + ")");
 
                 int8_t num1;
 
@@ -712,7 +719,7 @@ string Right_shift::decode_displacement_with_SIB(int d, int w, int mod, int inde
                     common.setSign(num2, registers);
                     common.setZero(num2, registers);
 
-                    dispWithSIB =  st + "(%" + regs_32[base] + ")\n";
+                    dispWithSIB = st + "(%" + regs_32[base] + ")\n";
                 }
                 else
                 {
@@ -759,7 +766,7 @@ string Right_shift::decode_displacement_with_SIB(int d, int w, int mod, int inde
                 }
                 else
                 {
-                    memoryAccesses.push_back("shr " +st + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")");
+                    memoryAccesses.push_back("shr " + st + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")");
 
                     int num1 = memories32bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0));
@@ -800,7 +807,7 @@ string Right_shift::decode_displacement_with_SIB(int d, int w, int mod, int inde
                     common.setSign(num2, registers);
                     common.setZero(num2, registers);
 
-                    dispWithSIB =  st + "(%" + regs_32[base] + ")\n";
+                    dispWithSIB = st + "(%" + regs_32[base] + ")\n";
                 }
                 else
                 {
@@ -845,7 +852,7 @@ string Right_shift::decode_displacement_with_SIB(int d, int w, int mod, int inde
                 }
                 else
                 {
-                    memoryAccesses.push_back("shr " +st + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")");
+                    memoryAccesses.push_back("shr " + st + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + ")");
 
                     int num1 = memories32bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0));
@@ -908,7 +915,7 @@ string Right_shift::decode_displacement_without_SIB(int d, int w, int mod, int r
             num1 = memories8bit[st];
             memoryAccesses.push_back("Read " + to_string(num1) + " from " + st);
 
-            int num2 = num1 >>  common.get_bits(1, 8, registers["ECX"]);
+            int num2 = num1 >> common.get_bits(1, 8, registers["ECX"]);
 
             memories8bit[st] = (int8_t)num2;
             memoryAccesses.push_back("write " + to_string(num2) + " to " + st);
@@ -919,11 +926,11 @@ string Right_shift::decode_displacement_without_SIB(int d, int w, int mod, int r
 
             dispWithoutSIB = st + "\n";
         }
-        else if (w == 1 and d ==0)
+        else if (w == 1 and d == 0)
         {
             if (opSize)
             {
-                memoryAccesses.push_back("shr " + st );
+                memoryAccesses.push_back("shr " + st);
 
                 int16_t num1;
                 num1 = memories16bit[st];
@@ -940,11 +947,10 @@ string Right_shift::decode_displacement_without_SIB(int d, int w, int mod, int r
                 common.setZero(num2, registers);
 
                 dispWithoutSIB = st + "\n";
-
             }
             else
             {
-                memoryAccesses.push_back("shr " + st );
+                memoryAccesses.push_back("shr " + st);
 
                 int num1 = memories32bit[st];
                 memoryAccesses.push_back("Read " + to_string(num1) + " from " + st);
@@ -966,7 +972,7 @@ string Right_shift::decode_displacement_without_SIB(int d, int w, int mod, int r
         {
             if (opSize)
             {
-                memoryAccesses.push_back("shr " + st );
+                memoryAccesses.push_back("shr " + st);
 
                 int16_t num1;
                 num1 = memories16bit[st];
@@ -982,11 +988,10 @@ string Right_shift::decode_displacement_without_SIB(int d, int w, int mod, int r
                 common.setZero(num2, registers);
 
                 dispWithoutSIB = st + "\n";
-
             }
             else
             {
-                memoryAccesses.push_back("shr " + st );
+                memoryAccesses.push_back("shr " + st);
 
                 int num1 = memories32bit[st];
                 memoryAccesses.push_back("Read " + to_string(num1) + " from " + st);
@@ -1006,7 +1011,7 @@ string Right_shift::decode_displacement_without_SIB(int d, int w, int mod, int r
     }
     else
     {
-        if (w == 0 and d ==0)
+        if (w == 0 and d == 0)
         {
             memoryAccesses.push_back("shr " + st + "(%" + regs_32[rm] + ")");
 
@@ -1027,7 +1032,7 @@ string Right_shift::decode_displacement_without_SIB(int d, int w, int mod, int r
 
             dispWithoutSIB = st + "(%" + regs_32[rm] + ")\n";
         }
-        if (w == 0 and d ==1)
+        if (w == 0 and d == 1)
         {
             memoryAccesses.push_back("shr " + st + "(%" + regs_32[rm] + ")");
 
@@ -1037,7 +1042,6 @@ string Right_shift::decode_displacement_without_SIB(int d, int w, int mod, int r
             memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
 
             int num2 = num1 >> common.get_bits(1, 5, registers["ECX"]);
-
 
             memories8bit[common.getHex(registers[regs_32[rm]] + disp, 0, 0)] = (int8_t)num2;
             memoryAccesses.push_back("write " + to_string(num2) + " to " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
@@ -1051,7 +1055,7 @@ string Right_shift::decode_displacement_without_SIB(int d, int w, int mod, int r
         else if (w == 1 and d == 0)
         {
             if (opSize)
-            {                   
+            {
                 memoryAccesses.push_back("shr " + st + "(%" + regs_32[rm] + ")");
 
                 int16_t num1;
@@ -1086,13 +1090,12 @@ string Right_shift::decode_displacement_without_SIB(int d, int w, int mod, int r
                 memoryAccesses.push_back("write " + to_string(num2) + " to " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
 
                 dispWithoutSIB = st + "(%" + regs_32[rm] + ")\n";
-
             }
         }
         else
         {
             if (opSize)
-            {                   
+            {
                 memoryAccesses.push_back("shr " + st + "(%" + regs_32[rm] + ")");
 
                 int16_t num1;
@@ -1125,7 +1128,6 @@ string Right_shift::decode_displacement_without_SIB(int d, int w, int mod, int r
                 memoryAccesses.push_back("write " + to_string(num2) + " to " + common.getHex(registers[regs_32[rm]] + disp, 0, 0));
 
                 dispWithoutSIB = st + "(%" + regs_32[rm] + ")\n";
-
             }
         }
     }
@@ -1162,7 +1164,7 @@ string Right_shift::decode_mod_00(int d, int w, int rm)
     }
     else
     {
-        if (w == 0 and d ==0)
+        if (w == 0 and d == 0)
         {
             int8_t num1;
             memoryAccesses.push_back("shr (%" + regs_32[rm] + ")");
@@ -1180,7 +1182,7 @@ string Right_shift::decode_mod_00(int d, int w, int rm)
             common.setSign(num2, registers);
             common.setZero(num2, registers);
         }
-        else if (w == 0 and  d == 1)
+        else if (w == 0 and d == 1)
         {
             int8_t num1;
             memoryAccesses.push_back("shr (%" + regs_32[rm] + ")");
@@ -1197,7 +1199,7 @@ string Right_shift::decode_mod_00(int d, int w, int rm)
             common.setSign(num2, registers);
             common.setZero(num2, registers);
         }
-        else if (w == 1 and d ==0)
+        else if (w == 1 and d == 0)
         {
             if (opSize)
             {
@@ -1333,11 +1335,11 @@ string Right_shift::decode_mod_11(int d, int w, int rm)
         common.setSign(num2, registers);
         common.setZero(num2, registers);
 
-        string11 = "%" + regs_8[rm] +  "\n";
+        string11 = "%" + regs_8[rm] + "\n";
     }
     else if (w == 0 and d == 1)
     {
-        int8_t num1;\
+        int8_t num1;
         int num2;
         if (rm < 4)
         {
@@ -1356,9 +1358,9 @@ string Right_shift::decode_mod_11(int d, int w, int rm)
         common.setSign(num2, registers);
         common.setZero(num2, registers);
 
-        string11 = "%" + regs_8[rm] +  "\n";
+        string11 = "%" + regs_8[rm] + "\n";
     }
-    else if (w == 1 and d ==0)
+    else if (w == 1 and d == 0)
     {
         if (opSize)
         {
@@ -1429,8 +1431,8 @@ string Right_shift::decode_shr(short prefixes[4], int d, int w)
 
     if (prefixes[3] == 0x67)
     {
-        //Dec_override Dec_override(common, instruction, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
-        //decoded_bytes = Dec_override.decode_dec(prefixes, w);
+        // Dec_override Dec_override(common, instruction, registers, memories32bit, memories16bit, memories8bit, memoryAccesses);
+        // decoded_bytes = Dec_override.decode_dec(prefixes, w);
 
         cout << "shr " << decoded_bytes;
 
@@ -1443,6 +1445,18 @@ string Right_shift::decode_shr(short prefixes[4], int d, int w)
         cout << "ESI: " << hex << registers["ESI"] << "\n";
         cout << "EDI: " << hex << registers["EDI"] << "\n";
         cout << "EFLAGS: " << hex << registers["EFLAGS"] << "\n \n";
+
+        myoutput << "shr " << decoded_bytes;
+
+        myoutput << "EAX: " << hex << registers["EAX"] << "\n";
+        myoutput << "ECX: " << hex << registers["ECX"] << "\n";
+        myoutput << "EDX: " << hex << registers["EDX"] << "\n";
+        myoutput << "EBX: " << hex << registers["EBX"] << "\n";
+        myoutput << "ESP: " << hex << registers["ESP"] << "\n";
+        myoutput << "EBP: " << hex << registers["EBP"] << "\n";
+        myoutput << "ESI: " << hex << registers["ESI"] << "\n";
+        myoutput << "EDI: " << hex << registers["EDI"] << "\n";
+        myoutput << "EFLAGS: " << hex << registers["EFLAGS"] << "\n \n";
     }
     else
     {

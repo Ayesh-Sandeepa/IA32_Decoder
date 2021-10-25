@@ -13,8 +13,8 @@
 
 using namespace std;
 
-Or::Or(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses)
-    : common(com), instruction(instruction), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses)
+Or::Or(Common com, queue<short> &instruction, map<string, int> &registers, map<string, int> &memories32bit, map<string, int16_t> &memories16bit, map<string, int8_t> &memories8bit, list<string> &memoryAccesses, ofstream &myoutput)
+    : common(com), instruction(instruction), registers(registers), memories32bit(memories32bit), memories16bit(memories16bit), memories8bit(memories8bit), memoryAccesses(memoryAccesses), myoutput(myoutput)
 {
     regs_32[0] = "EAX";
     regs_32[1] = "ECX";
@@ -43,7 +43,6 @@ Or::Or(Common com, queue<short> &instruction, map<string, int> &registers, map<s
     regs_8[6] = "DH";
     regs_8[7] = "BH";
 }
-
 
 string Or::decode_displacement_with_SIB(int w, int d, int mod, int reg, int index, int scale, int base)
 {
@@ -133,7 +132,7 @@ string Or::decode_displacement_with_SIB(int w, int d, int mod, int reg, int inde
                         common.setSign(num3, registers);
                         common.setZero(num3, registers);
 
-                        dispWithSIB =  st + "(,%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_8[reg] + "\n";
+                        dispWithSIB = st + "(,%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_8[reg] + "\n";
                     }
                 }
                 else if (d == 1)
@@ -206,7 +205,7 @@ string Or::decode_displacement_with_SIB(int w, int d, int mod, int reg, int inde
                         common.setSign(num3, registers);
                         common.setZero(num3, registers);
 
-                        dispWithSIB ="%" + regs_8[reg] + "," + st + "(,%" + regs_32[index] + "," + to_string(scale) + ")" + "\n";
+                        dispWithSIB = "%" + regs_8[reg] + "," + st + "(,%" + regs_32[index] + "," + to_string(scale) + ")" + "\n";
                     }
                 }
             }
@@ -218,7 +217,7 @@ string Or::decode_displacement_with_SIB(int w, int d, int mod, int reg, int inde
                     {
                         if (index == 4)
                         {
-                            memoryAccesses.push_back("or "+st + ",%" + regs_16[reg]);
+                            memoryAccesses.push_back("or " + st + ",%" + regs_16[reg]);
 
                             int16_t num1, num2, num3;
                             uint16_t num4;
@@ -243,7 +242,7 @@ string Or::decode_displacement_with_SIB(int w, int d, int mod, int reg, int inde
                         }
                         else
                         {
-                            memoryAccesses.push_back("or "+st + "(,%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_16[reg]);
+                            memoryAccesses.push_back("or " + st + "(,%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_16[reg]);
 
                             int16_t num1, num2, num3;
                             uint16_t num4;
@@ -319,7 +318,7 @@ string Or::decode_displacement_with_SIB(int w, int d, int mod, int reg, int inde
                     {
                         if (index == 4)
                         {
-                            memoryAccesses.push_back("or "+st + ",%" + regs_32[reg]);
+                            memoryAccesses.push_back("or " + st + ",%" + regs_32[reg]);
 
                             int num1 = memories32bit[st];
                             memoryAccesses.push_back("Read " + to_string(num1) + " from " + st);
@@ -340,7 +339,7 @@ string Or::decode_displacement_with_SIB(int w, int d, int mod, int reg, int inde
                         }
                         else
                         {
-                            memoryAccesses.push_back("or " + st + "(,%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg] );
+                            memoryAccesses.push_back("or " + st + "(,%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg]);
 
                             int num1 = memories32bit[common.getHex(registers[regs_32[index]] * scale + disp, 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[index]] * scale + disp, 0, 0));
@@ -411,7 +410,9 @@ string Or::decode_displacement_with_SIB(int w, int d, int mod, int reg, int inde
                 {
                     if (index == 4)
                     {
-                        memoryAccesses.push_back("or "  "(%" + regs_32[base] + "),%" + regs_8[reg]);
+                        memoryAccesses.push_back("or "
+                                                 "(%" +
+                                                 regs_32[base] + "),%" + regs_8[reg]);
 
                         int8_t num1, num2, num3;
                         uint8_t num4;
@@ -438,7 +439,7 @@ string Or::decode_displacement_with_SIB(int w, int d, int mod, int reg, int inde
                         common.setSign(num3, registers);
                         common.setZero(num3, registers);
 
-                        dispWithSIB =  "(%" + regs_32[base] + "),%" + regs_8[reg] + "\n";
+                        dispWithSIB = "(%" + regs_32[base] + "),%" + regs_8[reg] + "\n";
                     }
                     else
                     {
@@ -507,7 +508,7 @@ string Or::decode_displacement_with_SIB(int w, int d, int mod, int reg, int inde
                         common.setSign(num3, registers);
                         common.setZero(num3, registers);
 
-                        dispWithSIB ="%" + regs_8[reg] + "," + "(%" + regs_32[base] + ")" + "\n";
+                        dispWithSIB = "%" + regs_8[reg] + "," + "(%" + regs_32[base] + ")" + "\n";
                     }
                     else
                     {
@@ -517,8 +518,8 @@ string Or::decode_displacement_with_SIB(int w, int d, int mod, int reg, int inde
                         if (reg < 4)
                         {
                             num1 = common.get_bits(1, 8, registers[regs_32[reg]]);
-                            num2 = memories8bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale , 0, 0)];
-                            memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale , 0, 0));
+                            num2 = memories8bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale, 0, 0)];
+                            memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale, 0, 0));
 
                             num3 = num1 | num2;
                             num4 = unsigned(num3);
@@ -528,8 +529,8 @@ string Or::decode_displacement_with_SIB(int w, int d, int mod, int reg, int inde
                         else
                         {
                             num1 = common.get_bits(9, 8, registers[regs_32[reg % 4]]);
-                            num2 = memories8bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale , 0, 0)];
-                            memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale , 0, 0));
+                            num2 = memories8bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale, 0, 0)];
+                            memoryAccesses.push_back("Read " + to_string(num2) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale, 0, 0));
 
                             num3 = num1 | num2;
                             num4 = unsigned(num3);
@@ -720,7 +721,7 @@ string Or::decode_displacement_with_SIB(int w, int d, int mod, int reg, int inde
                         }
                         else
                         {
-                            printf("Mod 00 & scale 02:%d\n",scale);
+                            printf("Mod 00 & scale 02:%d\n", scale);
                             int num1 = memories32bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0)];
                             memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0));
 
@@ -741,11 +742,11 @@ string Or::decode_displacement_with_SIB(int w, int d, int mod, int reg, int inde
                 }
             }
         }
-        //printf("mod equals 0");
+        // printf("mod equals 0");
     }
     else
     {
-        //printf("mod not equals 0");
+        // printf("mod not equals 0");
 
         if (w == 0)
         {
@@ -753,7 +754,7 @@ string Or::decode_displacement_with_SIB(int w, int d, int mod, int reg, int inde
             {
                 if (index == 4)
                 {
-                    memoryAccesses.push_back("or " +st + "(%" + regs_32[base] + "),%" + regs_8[reg] );
+                    memoryAccesses.push_back("or " + st + "(%" + regs_32[base] + "),%" + regs_8[reg]);
 
                     int8_t num1, num2, num3;
                     uint8_t num4;
@@ -917,7 +918,7 @@ string Or::decode_displacement_with_SIB(int w, int d, int mod, int reg, int inde
                         common.setSign(num3, registers);
                         common.setZero(num3, registers);
 
-                        dispWithSIB =  st + "(%" + regs_32[base] + "),%" + regs_16[reg] + "\n";
+                        dispWithSIB = st + "(%" + regs_32[base] + "),%" + regs_16[reg] + "\n";
                     }
                     else
                     {
@@ -966,7 +967,7 @@ string Or::decode_displacement_with_SIB(int w, int d, int mod, int reg, int inde
                         common.setSign(num3, registers);
                         common.setZero(num3, registers);
 
-                        dispWithSIB ="%" + regs_16[reg] + "," + st + "(%" + regs_32[base] + ")" + "\n";
+                        dispWithSIB = "%" + regs_16[reg] + "," + st + "(%" + regs_32[base] + ")" + "\n";
                     }
                     else
                     {
@@ -1018,7 +1019,7 @@ string Or::decode_displacement_with_SIB(int w, int d, int mod, int reg, int inde
                     }
                     else
                     {
-                        memoryAccesses.push_back("or " +st + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg]);
+                        memoryAccesses.push_back("or " + st + "(%" + regs_32[base] + ",%" + regs_32[index] + "," + to_string(scale) + "),%" + regs_32[reg]);
 
                         int num1 = memories32bit[common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0)];
                         memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[base]] + registers[regs_32[index]] * scale + disp, 0, 0));
@@ -1436,9 +1437,9 @@ string Or::decode_SIB(int w, int d, int mod, int reg)
     instruction.pop();
     registers["EIP"] = registers["EIP"] + 1;
 
-    //printf("scale:%d \n", scale);
-    //printf("index:%d \n", index);
-    //printf("base:%d \n", base);
+    // printf("scale:%d \n", scale);
+    // printf("index:%d \n", index);
+    // printf("base:%d \n", base);
 
     scale = pow(2, scale);
 
@@ -1463,8 +1464,8 @@ string Or::decode_mod_00(int w, int d, int reg, int rm)
         {
             if (d == 0)
             {
-                memoryAccesses.push_back("or (%" + regs_32[rm] + "),%"+regs_8[reg]);
-                string00 = "(%" + regs_32[rm] + "),%"+regs_8[reg]+"\n";
+                memoryAccesses.push_back("or (%" + regs_32[rm] + "),%" + regs_8[reg]);
+                string00 = "(%" + regs_32[rm] + "),%" + regs_8[reg] + "\n";
 
                 int8_t num1, num2, num3;
                 uint8_t num4;
@@ -1493,7 +1494,7 @@ string Or::decode_mod_00(int w, int d, int reg, int rm)
             }
             else if (d == 1)
             {
-                string00 = "%"+regs_8[reg]+",(%" + regs_32[rm] + ")" + "\n";
+                string00 = "%" + regs_8[reg] + ",(%" + regs_32[rm] + ")" + "\n";
 
                 int8_t num1, num2, num3;
                 uint8_t num4;
@@ -1559,7 +1560,6 @@ string Or::decode_mod_00(int w, int d, int reg, int rm)
                 else if (d == 1)
                 {
                     string00 = "%" + regs_16[reg] + ",(%" + regs_32[rm] + ")\n";
-                   
 
                     int16_t num1, num2, num3;
                     uint16_t num4;
@@ -1588,7 +1588,7 @@ string Or::decode_mod_00(int w, int d, int reg, int rm)
                     int num1 = memories32bit[common.getHex(registers[regs_32[rm]], 0, 0)];
                     memoryAccesses.push_back("Read " + to_string(num1) + " from " + common.getHex(registers[regs_32[rm]], 0, 0));
 
-                    int num2 = registers[regs_32[reg]]; //registers["ECX"]
+                    int num2 = registers[regs_32[reg]]; // registers["ECX"]
                     int num3 = num1 | num2;
                     unsigned int num4 = unsigned(num3);
 
@@ -1660,7 +1660,7 @@ string Or::decode_mod_11(int w, int d, int reg, int rm)
     {
         if (d == 0)
         {
-            //printf("w:0 and d:0 \n");
+            // printf("w:0 and d:0 \n");
 
             int8_t num1, num2, num3;
             uint8_t num4;
@@ -1689,7 +1689,7 @@ string Or::decode_mod_11(int w, int d, int reg, int rm)
                 registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffff00ff) | ((num3 << 8) & 0x0000ff00);
             }
 
-            //cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
+            // cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
 
             common.setOverflow8bit(num1, num2, num3, registers);
             common.setCarry8bit(num1, num4, registers);
@@ -1700,7 +1700,7 @@ string Or::decode_mod_11(int w, int d, int reg, int rm)
         }
         else if (d == 1)
         {
-            //printf("w:0 and d:1 \n");
+            // printf("w:0 and d:1 \n");
 
             int8_t num1, num2, num3;
             uint8_t num4;
@@ -1728,7 +1728,7 @@ string Or::decode_mod_11(int w, int d, int reg, int rm)
                 num4 = unsigned(num3);
                 registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff00ff) | ((num3 << 8) & 0x0000ff00);
             }
-            //cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
+            // cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
 
             common.setOverflow8bit(num1, num2, num3, registers);
             common.setCarry8bit(num1, num4, registers);
@@ -1744,7 +1744,7 @@ string Or::decode_mod_11(int w, int d, int reg, int rm)
         {
             if (d == 0)
             {
-                //printf("w:0 and d:0 \n");
+                // printf("w:0 and d:0 \n");
 
                 int16_t num1, num2, num3;
                 uint16_t num4;
@@ -1755,7 +1755,7 @@ string Or::decode_mod_11(int w, int d, int reg, int rm)
                 num4 = unsigned(num3);
                 registers[regs_32[rm]] = ((registers[regs_32[rm]]) & 0xffff0000) | (num3 & 0x0000ffff);
 
-                //cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
+                // cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
 
                 common.setOverflow16bit(num1, num2, num3, registers);
                 common.setCarry16bit(num1, num4, registers);
@@ -1766,7 +1766,7 @@ string Or::decode_mod_11(int w, int d, int reg, int rm)
             }
             else if (d == 1)
             {
-                //printf("w:0 and d:1 \n");
+                // printf("w:0 and d:1 \n");
 
                 int16_t num1, num2, num3;
                 uint16_t num4;
@@ -1777,7 +1777,7 @@ string Or::decode_mod_11(int w, int d, int reg, int rm)
                 num4 = unsigned(num3);
                 registers[regs_32[reg]] = ((registers[regs_32[reg]]) & 0xffff0000) | (num3 & 0x0000ffff);
 
-                //cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
+                // cout << "num1: " << dec << signed(num1) << ", num2: " << dec << signed(num2) << ", num3: " << dec << signed(num3) << "\n";
 
                 common.setOverflow16bit(num1, num2, num3, registers);
                 common.setCarry16bit(num1, num4, registers);
@@ -1791,14 +1791,14 @@ string Or::decode_mod_11(int w, int d, int reg, int rm)
         {
             if (d == 0)
             {
-                //printf("w:1 and d:0 \n");
+                // printf("w:1 and d:0 \n");
                 int num1 = registers[regs_32[reg]];
                 int num2 = registers[regs_32[rm]];
                 int num3 = num1 | num2;
                 unsigned int num4 = unsigned(num3);
                 registers[regs_32[rm]] = num3;
 
-                //cout << "num1: " << num1 << ", num2: " << num2 << ", num3: " << num3 << ", num4: " << num4 << "\n";
+                // cout << "num1: " << num1 << ", num2: " << num2 << ", num3: " << num3 << ", num4: " << num4 << "\n";
 
                 common.setOverflow32bit(num1, num2, num3, registers);
                 common.setCarry32bit(num1, num4, registers);
@@ -1809,14 +1809,14 @@ string Or::decode_mod_11(int w, int d, int reg, int rm)
             }
             else
             {
-                //printf("w:1 and d:1 \n");
+                // printf("w:1 and d:1 \n");
                 int num1 = registers[regs_32[reg]];
                 int num2 = registers[regs_32[rm]];
                 int num3 = num1 | num2;
                 unsigned int num4 = unsigned(num3);
                 registers[regs_32[reg]] = num3;
 
-                //cout << "num1: " << dec << num1 << ", num2: " << dec << num2 << ", num3: " << dec << num3 << "\n";
+                // cout << "num1: " << dec << num1 << ", num2: " << dec << num2 << ", num3: " << dec << num3 << "\n";
 
                 common.setOverflow32bit(num1, num2, num3, registers);
                 common.setCarry32bit(num1, num4, registers);
@@ -1844,7 +1844,7 @@ string Or::decode_imm(int opCode, int w, int d)
 
         string st = common.getHex(imm, 0, 0);
 
-        dec_imm = "%%AL, $"+st;
+        dec_imm = "%%AL, $" + st;
 
         num1 = common.get_bits(1, 8, registers["EAX"]);
         num2 = imm | num1;
@@ -1868,7 +1868,7 @@ string Or::decode_imm(int opCode, int w, int d)
             imm = common.assemble_bits(2, instruction, registers);
             string st = common.getHex(imm, 0, 0);
 
-            dec_imm = "%%AX, $"+st;
+            dec_imm = "%%AX, $" + st;
 
             num1 = common.get_bits(1, 16, registers["EAX"]);
             num2 = imm | num1;
@@ -1890,7 +1890,7 @@ string Or::decode_imm(int opCode, int w, int d)
             imm = common.assemble_bits(4, instruction, registers);
             string st = common.getHex(imm, 0, 0);
 
-            dec_imm = "%%EAX, $"+st;
+            dec_imm = "%%EAX, $" + st;
 
             num1 = registers["EAX"];
             num2 = imm | num1;
@@ -1975,11 +1975,11 @@ string Or::decode_or(short prefixes[4])
         instruction.pop();
         registers["EIP"] = registers["EIP"] + 1;
 
-        //printf("d:%d \n", d);
-        //printf("w:%d \n", w);
-        //printf("mod:%d \n", mod);
-        //printf("reg:%d \n", reg);
-        //printf("rm:%d \n", rm);
+        // printf("d:%d \n", d);
+        // printf("w:%d \n", w);
+        // printf("mod:%d \n", mod);
+        // printf("reg:%d \n", reg);
+        // printf("rm:%d \n", rm);
 
         if (prefixes[2] == 0x66)
         {
@@ -2045,6 +2045,18 @@ string Or::decode_or(short prefixes[4])
     cout << "ESI: " << hex << registers["ESI"] << "\n";
     cout << "EDI: " << hex << registers["EDI"] << "\n";
     cout << "EFLAGS: " << hex << registers["EFLAGS"] << "\n \n";
+
+    myoutput << "or " << decoded_bytes;
+
+    myoutput << "EAX: " << hex << registers["EAX"] << "\n";
+    myoutput << "ECX: " << hex << registers["ECX"] << "\n";
+    myoutput << "EDX: " << hex << registers["EDX"] << "\n";
+    myoutput << "EBX: " << hex << registers["EBX"] << "\n";
+    myoutput << "ESP: " << hex << registers["ESP"] << "\n";
+    myoutput << "EBP: " << hex << registers["EBP"] << "\n";
+    myoutput << "ESI: " << hex << registers["ESI"] << "\n";
+    myoutput << "EDI: " << hex << registers["EDI"] << "\n";
+    myoutput << "EFLAGS: " << hex << registers["EFLAGS"] << "\n \n";
 
     return "or instantiated and done";
 }
